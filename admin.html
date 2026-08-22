@@ -113,6 +113,17 @@
           <button id="btnAddBlankQuestion">+ ADD NODE</button>
         </div>
         <div id="questionListContainer" style="max-height: 340px; overflow-y: auto; margin-top: 10px;"></div>
+        <div style="margin-top:14px;">
+          <h2 style="font-size:12px;">&gt; HTML CASE BRIEFING / EVIDENCE DOSSIER</h2>
+          <textarea id="briefingEditor" rows="5" placeholder="Raw HTML shown in the participant's evidence drawer for this round (leave blank if none)."></textarea>
+        </div>
+        <div style="margin-top:6px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h2 style="font-size:12px;">&gt; HINT LADDER (TIER / POINT COST / TEXT)</h2>
+            <button id="btnAddHint" type="button" style="width:auto; padding:6px 10px; font-size:11px;">+ ADD TIER</button>
+          </div>
+          <div id="hintListContainer"></div>
+        </div>
         <button id="btnSaveQuestionBank" class="btn-warning" style="margin-top: 10px;">SAVE & SYNC TO DB</button>
       </div>
 
@@ -157,10 +168,13 @@
       </div>
 
       <div class="card">
-        <h2>&gt; PARTICIPANT ROSTER & ACTIVE SESSIONS</h2>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <h2>&gt; PARTICIPANT ROSTER & ACTIVE SESSIONS</h2>
+          <button id="btnExportCsv" type="button" style="width:auto;">⬇ EXPORT CREDENTIALS CSV</button>
+        </div>
         <table>
-          <thead><tr><th>Team ID</th><th>Name</th><th>Access Key</th><th>Round</th><th>Status & Reason</th></tr></thead>
-          <tbody id="teamsBody"><tr><td colspan="5">Loading...</td></tr></tbody>
+          <thead><tr><th>Team ID</th><th>Name</th><th>Access Key</th><th>Round</th><th>Status & Reason</th><th>Action</th></tr></thead>
+          <tbody id="teamsBody"><tr><td colspan="6">Loading...</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -168,6 +182,8 @@
 
   <script>
     let currentQuestions = [];
+    let currentHints = [];
+    let lastTeamsSnapshot = [];
     document.getElementById('apiBase').value = window.location.origin;
 
     function getApi() { return document.getElementById('apiBase').value.trim(); }
@@ -207,17 +223,42 @@
       try {
         const tRes = await fetch(`${api}/api/admin/teams`, { headers: { "x-admin-key": key } });
         const tData = await tRes.json();
-        document.getElementById('teamsBody').innerHTML = (tData.teams || []).map(t => `
+        lastTeamsSnapshot = tData.teams || [];
+        document.getElementById('teamsBody').innerHTML = lastTeamsSnapshot.map(t => `
           <tr>
             <td>${t.team_id}</td><td>${t.team_name}</td><td style="color:var(--gold)">${t.password}</td><td>${t.current_round}</td>
             <td>
               ${t.has_logged_in ? '<span style="color:var(--accent)">ONLINE</span>' : '<span style="color:var(--text-muted)">OFFLINE</span>'}
               ${t.elimination_reason ? `<br><small style="color:var(--danger)">(${t.elimination_reason})</small>` : ''}
             </td>
+            <td><button type="button" class="btn-warning" style="width:auto; padding:5px 9px; font-size:11px;" onclick="reviveTeam('${t.team_id}')">🔓 REVIVE / UNLOCK</button></td>
           </tr>
-        `).join('');
+        `).join('') || '<tr><td colspan="6">No teams generated yet.</td></tr>';
       } catch(e){}
     }
+
+    async function reviveTeam(teamId) {
+      if (!confirm(`Force-unlock / revive team ${teamId}? This clears their elimination status and any submission for their current round so they can resume.`)) return;
+      try {
+        await fetch(`${getApi()}/api/admin/team/${teamId}/revive`, { method: "POST", headers: { "x-admin-key": getKey() } });
+        triggerToast(`Team ${teamId} revived / unlocked`);
+        syncAll();
+      } catch(e){}
+    }
+
+    document.getElementById('btnExportCsv').onclick = () => {
+      if (!lastTeamsSnapshot.length) { triggerToast("No teams to export yet"); return; }
+      const rows = [["team_id", "team_name", "access_key", "current_round", "status"]];
+      lastTeamsSnapshot.forEach(t => rows.push([t.team_id, t.team_name, t.password, t.current_round, t.status]));
+      const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `nexus_credentials_${Date.now()}.csv`;
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+      triggerToast(`Exported ${lastTeamsSnapshot.length} credentials`);
+    };
 
     async function syncLeaderboard() {
       try {
@@ -242,33 +283,74 @@
         const res = await fetch(`${getApi()}/api/admin/questions/${round}`, { headers: { "x-admin-key": getKey() } });
         const data = await res.json();
         currentQuestions = data.questions || [];
+        currentHints = data.hints || [];
+        document.getElementById('briefingEditor').value = data.briefing || "";
         renderQuestions();
+        renderHintEditor();
       } catch(e){}
+    }
+
+    function optionsToText(options) {
+      return (options || []).map(o => `${o.k}|${o.t}`).join('\n');
+    }
+    function textToOptions(text) {
+      return text.split('\n').map(l => l.trim()).filter(Boolean).map(l => {
+        const [k, ...rest] = l.split('|');
+        return { k: (k || '').trim().toUpperCase(), t: rest.join('|').trim() };
+      });
     }
 
     function renderQuestions() {
       const container = document.getElementById('questionListContainer');
       container.innerHTML = (currentQuestions || []).map((q, idx) => `
         <div style="border:1px solid var(--card-border); padding:8px; margin-bottom:8px; border-radius:6px;">
-          <input type="text" value="${q.text}" oninput="currentQuestions[${idx}].text=this.value" placeholder="Question Text">
-          <input type="text" value="${q.correct_answer}" oninput="currentQuestions[${idx}].correct_answer=this.value" placeholder="Correct Answer">
+          <div style="display:flex; gap:8px; align-items:center;">
+            <select style="width:110px; margin:0;" onchange="currentQuestions[${idx}].type=this.value; renderQuestions();">
+              <option value="text" ${q.type==='text'?'selected':''}>Text/Blank</option>
+              <option value="mcq" ${q.type==='mcq'?'selected':''}>MCQ</option>
+            </select>
+            <input type="number" value="${q.points ?? 4}" style="width:80px; margin:0;" oninput="currentQuestions[${idx}].points=parseInt(this.value)||0" placeholder="Pts">
+            <button type="button" class="btn-danger" style="width:auto; padding:6px 10px; font-size:11px;" onclick="currentQuestions.splice(${idx},1); renderQuestions();">✕ REMOVE</button>
+          </div>
+          <input type="text" value="${(q.text||'').replace(/"/g,'&quot;')}" oninput="currentQuestions[${idx}].text=this.value" placeholder="Question Text">
+          <input type="text" value="${(q.correct_answer||'').replace(/"/g,'&quot;')}" oninput="currentQuestions[${idx}].correct_answer=this.value" placeholder="Correct Answer">
+          ${q.type === 'mcq' ? `<textarea rows="3" placeholder="One option per line, format K|Option text (e.g. A|Generative Adversarial Network)" oninput="currentQuestions[${idx}].options=textToOptions(this.value)">${optionsToText(q.options)}</textarea>` : ''}
         </div>
-      `).join('');
+      `).join('') || '<p style="color:var(--text-muted); font-size:12px;">No nodes yet — click + ADD NODE.</p>';
     }
 
+    function renderHintEditor() {
+      const container = document.getElementById('hintListContainer');
+      container.innerHTML = (currentHints || []).map((h, idx) => `
+        <div style="border:1px solid var(--card-border); padding:8px; margin-bottom:8px; border-radius:6px; display:flex; gap:8px; align-items:flex-start;">
+          <input type="number" value="${h.tier}" style="width:70px; margin:0;" oninput="currentHints[${idx}].tier=parseInt(this.value)||1" placeholder="Tier">
+          <input type="number" value="${h.point_cost}" style="width:90px; margin:0;" oninput="currentHints[${idx}].point_cost=parseInt(this.value)||0" placeholder="Cost">
+          <input type="text" value="${(h.text||'').replace(/"/g,'&quot;')}" style="margin:0;" oninput="currentHints[${idx}].text=this.value" placeholder="Hint text">
+          <button type="button" class="btn-danger" style="width:auto; padding:6px 10px; font-size:11px;" onclick="currentHints.splice(${idx},1); renderHintEditor();">✕</button>
+        </div>
+      `).join('') || '<p style="color:var(--text-muted); font-size:12px;">No hint tiers configured for this round.</p>';
+    }
+
+    document.getElementById('btnAddHint').onclick = () => {
+      const nextTier = (currentHints.length ? Math.max(...currentHints.map(h => h.tier)) : 0) + 1;
+      currentHints.push({ tier: nextTier, point_cost: 5, text: "New hint text" });
+      renderHintEditor();
+    };
+
     document.getElementById('btnAddBlankQuestion').onclick = () => {
-      currentQuestions.push({ id: `Q${currentQuestions.length+1}`, type: "mcq", text: "New Question", options: [{k:"A",t:"Opt 1"}], correct_answer: "A", points: 4 });
+      currentQuestions.push({ id: `Q${currentQuestions.length+1}`, type: "mcq", text: "New Question", options: [{k:"A",t:"Opt 1"},{k:"B",t:"Opt 2"}], correct_answer: "A", points: 4 });
       renderQuestions();
       triggerToast("Node added");
     };
 
     document.getElementById('btnSaveQuestionBank').onclick = async () => {
       const round = parseInt(document.getElementById('editRoundSelect').value);
+      const briefing = document.getElementById('briefingEditor').value;
       await fetch(`${getApi()}/api/admin/questions`, {
         method: "POST", headers: { "Content-Type": "application/json", "x-admin-key": getKey() },
-        body: JSON.stringify({ round_number: round, questions: currentQuestions, hints: [], briefing: "" })
+        body: JSON.stringify({ round_number: round, questions: currentQuestions, hints: currentHints, briefing: briefing })
       });
-      triggerToast(`Synced questions for Round ${round}`);
+      triggerToast(`Synced questions, hints & briefing for Round ${round}`);
     };
 
     document.getElementById('btnOpenRound').onclick = async () => {
