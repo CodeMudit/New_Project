@@ -29,22 +29,45 @@
       font-family: 'JetBrains Mono', monospace; padding: 9px 12px; background: #080d16 !important;
       border: 1px solid var(--card-border); color: #00f2ae !important; font-size: 13px; width: 100%; margin-bottom: 10px; border-radius: 6px; outline: none;
     }
-    button { padding: 9px 15px; background: var(--accent); color: #03150f; font-weight: 700; cursor: pointer; border: none; border-radius: 6px; font-family: 'Inter', sans-serif; font-size: 13px; }
-    .btn-danger { background: var(--danger) !important; color: #fff !important; }
-    .btn-warning { background: var(--gold) !important; color: #201300 !important; }
+    select option { background-color: #080d16 !important; color: #00f2ae !important; padding: 6px; }
+    
+    /* Tactile Custom Button Styling with explicit feedback */
+    button {
+      padding: 9px 16px; background: var(--accent); color: #03150f; font-weight: 700; cursor: pointer; border: none; border-radius: 6px;
+      font-family: 'Inter', sans-serif; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      box-shadow: 0 2px 8px rgba(0, 242, 174, 0.2); transition: all 0.1s ease;
+    }
+    button:hover { filter: brightness(1.12); transform: translateY(-1px); }
+    button:active { transform: translateY(1px) scale(0.98); box-shadow: none !important; filter: brightness(0.9); }
+    
+    .btn-danger { background: var(--danger) !important; color: #fff !important; box-shadow: 0 2px 8px rgba(244, 63, 94, 0.25) !important; }
+    .btn-warning { background: var(--gold) !important; color: #201300 !important; box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25) !important; }
+    
     table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 12.5px; }
     th, td { border: 1px solid var(--card-border); padding: 8px 10px; text-align: left; }
     th { background: rgba(255,255,255,0.04); color: var(--accent); font-family: 'JetBrains Mono', monospace; }
+    .badge { padding: 3px 7px; font-size: 11px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+    .badge-qual { background: var(--accent-dim); color: var(--accent); }
+    .badge-elim { background: var(--danger-dim); color: var(--danger); }
+
+    /* Toast Notification */
+    #actionToast {
+      position: fixed; bottom: 20px; right: 20px; background: #00f2ae; color: #04140e;
+      padding: 12px 20px; border-radius: 8px; font-weight: 700; z-index: 1000;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+    }
+    #actionToast.show { opacity: 1; }
   </style>
 </head>
 <body>
 
+  <div id="actionToast">Action Executed Successfully</div>
   <h1>// PROJECT NEXUS: COMMAND MATRIX & UNIVERSAL CONTROLLER</h1>
 
   <div style="display:flex; gap:10px; margin-bottom:20px; align-items:center; flex-wrap:wrap;">
     <input type="text" id="apiBase" value="https://project-victory-production-d780.up.railway.app" style="max-width:320px; margin:0;">
     <input type="password" id="adminKey" placeholder="ADMIN SECRET KEY" style="max-width:220px; margin:0;" oninput="localStorage.setItem('nexusAdminKey', this.value)">
-    <button id="btnSync">SYNC MATRIX</button>
+    <button id="btnSync">SYNC MATRIX (ENTER)</button>
   </div>
 
   <div class="analytics-grid">
@@ -88,7 +111,10 @@
         <h2>&gt; QUESTION BANK MANAGER</h2>
         <div style="display: flex; gap: 10px;">
           <select id="editRoundSelect">
-            <option value="1">Round 1</option><option value="2">Round 2</option><option value="3">Round 3</option><option value="4">Round 4</option>
+            <option value="1">Round 1 Question Bank</option>
+            <option value="2">Round 2 Question Bank</option>
+            <option value="3">Round 3 Question Bank</option>
+            <option value="4">Round 4 Question Bank</option>
           </select>
           <button id="btnAddBlankQuestion">+ ADD NODE</button>
         </div>
@@ -119,18 +145,25 @@
         <button id="btnPromote" class="btn-warning">PROMOTE QUALIFIED & ELIMINATE OTHERS</button>
       </div>
 
+      <!-- Historical Round-by-Round Leaderboard Navigator -->
       <div class="card">
-        <h2>&gt; LIVE LEADERBOARD (ROUND <span id="lbRoundNum">1</span>)</h2>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <h2>&gt; TOURNAMENT LEADERBOARDS</h2>
+          <select id="viewBoardRoundSelect" style="max-width:140px; margin:0;" onchange="syncLeaderboard()">
+            <option value="1">Round 1 Board</option><option value="2">Round 2 Board</option>
+            <option value="3">Round 3 Board</option><option value="4">Round 4 Board</option>
+          </select>
+        </div>
         <table>
-          <thead><tr><th>Rank</th><th>Team ID</th><th>Name</th><th>Score</th><th>Time</th><th>Status</th></tr></thead>
+          <thead><tr><th>Rank</th><th>Team ID</th><th>Name</th><th>Score</th><th>Time</th><th>Status & Reason</th></tr></thead>
           <tbody id="lbBody"><tr><td colspan="6">No submissions recorded.</td></tr></tbody>
         </table>
       </div>
 
       <div class="card">
-        <h2>&gt; PARTICIPANT ROSTER & MONITOR</h2>
+        <h2>&gt; PARTICIPANT ROSTER & ACTIVE SESSIONS</h2>
         <table>
-          <thead><tr><th>Team ID</th><th>Name</th><th>Key</th><th>Round</th><th>Logged In?</th><th>Action</th></tr></thead>
+          <thead><tr><th>Team ID</th><th>Name</th><th>Access Key</th><th>Round</th><th>Status</th><th>Action</th></tr></thead>
           <tbody id="teamsBody"><tr><td colspan="6">Loading...</td></tr></tbody>
         </table>
       </div>
@@ -141,6 +174,12 @@
     let currentQuestions = [];
     function getApi() { return document.getElementById('apiBase').value.trim(); }
     function getKey() { return document.getElementById('adminKey').value.trim(); }
+
+    function triggerToast(msg) {
+      const t = document.getElementById('actionToast');
+      t.innerText = msg; t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2000);
+    }
 
     async function syncAll() {
       const api = getApi(), key = getKey();
@@ -165,15 +204,7 @@
         } else { tEl.innerText = "LOCKED"; }
       } catch(e){}
 
-      try {
-        const round = document.getElementById('gateRoundSelect').value;
-        document.getElementById('lbRoundNum').innerText = round;
-        const lRes = await fetch(`${api}/api/admin/leaderboard/${round}`, { headers: { "x-admin-key": key } });
-        const lData = await lRes.json();
-        document.getElementById('lbBody').innerHTML = (lData.leaderboard || []).map(r => `
-          <tr><td>#${r.rank}</td><td>${r.team_id}</td><td>${r.team_name}</td><td><strong>${r.score}</strong></td><td>${r.time_taken_seconds}s</td><td>${r.status}</td></tr>
-        `).join('') || '<tr><td colspan="6">No submissions.</td></tr>';
-      } catch(e){}
+      syncLeaderboard();
 
       try {
         const tRes = await fetch(`${api}/api/admin/teams`, { headers: { "x-admin-key": key } });
@@ -182,14 +213,29 @@
           <tr>
             <td>${t.team_id}</td><td>${t.team_name}</td><td style="color:var(--gold)">${t.password}</td><td>${t.current_round}</td>
             <td>${t.is_logged_in ? '<span style="color:var(--accent)">ONLINE</span>' : '<span style="color:var(--text-muted)">OFFLINE</span>'}</td>
-            <td><button onclick="unlockTeam('${t.team_id}')" style="padding:2px 6px; font-size:11px;">UNLOCK</button></td>
+            <td><button onclick="unlockTeam('${t.team_id}')" style="padding:2px 8px; font-size:11px;">FORCE UNLOCK</button></td>
           </tr>
         `).join('');
       } catch(e){}
     }
 
+    async function syncLeaderboard() {
+      try {
+        const round = document.getElementById('viewBoardRoundSelect').value;
+        const lRes = await fetch(`${getApi()}/api/admin/leaderboard/${round}`, { headers: { "x-admin-key": getKey() } });
+        const lData = await lRes.json();
+        document.getElementById('lbBody').innerHTML = (lData.leaderboard || []).map(r => `
+          <tr>
+            <td>#${r.rank}</td><td>${r.team_id}</td><td>${r.team_name}</td><td><strong>${r.score}</strong></td><td>${r.time_taken_seconds}s</td>
+            <td><span class="badge ${r.status==='QUALIFIED'?'badge-qual':'badge-elim'}">${r.status} (${r.submission_status})</span></td>
+          </tr>
+        `).join('') || '<tr><td colspan="6">No submissions recorded for this round.</td></tr>';
+      } catch(e){}
+    }
+
     async function unlockTeam(id) {
       await fetch(`${getApi()}/api/admin/team/${id}/force-logout`, { method: "POST", headers: { "x-admin-key": getKey() } });
+      triggerToast(`Unlocked team ${id}`);
       syncAll();
     }
 
@@ -216,6 +262,7 @@
     document.getElementById('btnAddBlankQuestion').onclick = () => {
       currentQuestions.push({ id: `Q${currentQuestions.length+1}`, type: "mcq", text: "New Question", options: [{k:"A",t:"Opt 1"}], correct_answer: "A", points: 4 });
       renderQuestions();
+      triggerToast("Node added");
     };
 
     document.getElementById('btnSaveQuestionBank').onclick = async () => {
@@ -224,7 +271,7 @@
         method: "POST", headers: { "Content-Type": "application/json", "x-admin-key": getKey() },
         body: JSON.stringify({ round_number: round, questions: currentQuestions, hints: [], briefing: "" })
       });
-      alert("Questions saved.");
+      triggerToast(`Synced questions for Round ${round}`);
     };
 
     document.getElementById('btnOpenRound').onclick = async () => {
@@ -234,17 +281,21 @@
         method: "POST", headers: { "Content-Type": "application/json", "x-admin-key": getKey() },
         body: JSON.stringify({ duration_minutes: d })
       });
+      triggerToast(`Round ${r} opened for ${d} mins`);
       syncAll();
     };
 
     document.getElementById('btnCloseRound').onclick = async () => {
       const r = document.getElementById('gateRoundSelect').value;
       await fetch(`${getApi()}/api/admin/round/${r}/close`, { method: "POST", headers: { "x-admin-key": getKey() } });
+      triggerToast(`Round ${r} locked`);
       syncAll();
     };
 
     document.getElementById('btnToggleLate').onclick = async () => {
-      await fetch(`${getApi()}/api/admin/toggle-late-logins`, { method: "POST", headers: { "x-admin-key": getKey() } });
+      const res = await fetch(`${getApi()}/api/admin/toggle-late-logins`, { method: "POST", headers: { "x-admin-key": getKey() } });
+      const d = await res.json();
+      triggerToast(`Late Logins: ${d.allow_late_logins ? "ENABLED" : "LOCKED"}`);
       syncAll();
     };
 
@@ -252,17 +303,19 @@
       const r = document.getElementById('gateRoundSelect').value;
       if (!confirm(`Force submit all teams for Round ${r}?`)) return;
       await fetch(`${getApi()}/api/admin/round/${r}/force-submit`, { method: "POST", headers: { "x-admin-key": getKey() } });
+      triggerToast(`Force submitted Round ${r}`);
       syncAll();
     };
 
     document.getElementById('btnExecuteReset').onclick = async () => {
       const type = document.getElementById('resetTypeSelect').value;
       const r = parseInt(document.getElementById('gateRoundSelect').value) || 1;
-      if (!confirm(`Confirm reset: ${type}?`)) return;
+      if (!confirm(`Confirm reset partition: ${type}?`)) return;
       await fetch(`${getApi()}/api/admin/universal-reset`, {
         method: "POST", headers: { "Content-Type": "application/json", "x-admin-key": getKey() },
         body: JSON.stringify({ reset_type: type, round_number: r })
       });
+      triggerToast(`Reset completed: ${type}`);
       syncAll();
     };
 
@@ -290,6 +343,7 @@
       });
       document.getElementById('slotsContainer').innerHTML = '';
       document.getElementById('btnCreateTeams').style.display = 'none';
+      triggerToast(`Generated ${names.length} teams`);
       syncAll();
     };
 
@@ -300,10 +354,12 @@
         method: "POST", headers: { "Content-Type": "application/json", "x-admin-key": getKey() },
         body: JSON.stringify({ top_n_teams: n, next_round: r })
       });
+      triggerToast(`Promoted top ${n} teams to Round ${r}`);
       syncAll();
     };
 
     document.getElementById('btnSync').onclick = syncAll;
+    document.getElementById('adminKey').addEventListener('keydown', (e) => { if (e.key === 'Enter') syncAll(); });
     document.getElementById('editRoundSelect').onchange = loadQuestionsForEditing;
     window.addEventListener("DOMContentLoaded", () => {
       const k = localStorage.getItem('nexusAdminKey');
