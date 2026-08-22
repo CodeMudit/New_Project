@@ -329,7 +329,7 @@
   </div>
 
   <script>
-    const BACKEND_URL = "https://project-victory-production-d780.up.railway.app";
+    const BACKEND_URL = window.location.origin;
     let questions = [], currentQIdx = 0, timerInterval = null, globalRoundTimerInterval = null;
     let globalRemainingSeconds = 0, timeLeft = 30, teamId = "", teamPassword = "", teamName = "";
     let activeRound = 1, answers = {}, tabSwitchCount = 0, quizActive = false;
@@ -476,6 +476,7 @@
       loadQuestion();
     });
 
+    // Anti-Cheat Watcher (Strictly Active Only When `quizActive === true`)
     function handleSecurityBreach() {
       if (!quizActive || isSubmitting || cheatCooldown) return;
       cheatCooldown = true;
@@ -541,20 +542,24 @@
     }
 
     async function finishQuiz(status = "NORMAL_COMPLETION") {
-      isSubmitting = true; quizActive = false;
+      isSubmitting = true;
+      quizActive = false; // Immediately disable anti-cheat listeners
       clearInterval(timerInterval);
-      if (document.fullscreenElement) { try { await document.exitFullscreen(); } catch(e){} }
+      
+      if (document.fullscreenElement) {
+        try { await document.exitFullscreen(); } catch(e){}
+      }
       showScreen('endScreen');
 
       const reasonEl = document.getElementById('subReason');
       if (status === "TERMINATED_DUE_TO_TAB_SWITCHING") {
-        reasonEl.innerText = "[!] SESSION TERMINATED: Security violation (Alt+Tab / Window Blur Limit Reached).";
+        reasonEl.innerText = "[!] SESSION TERMINATED: Security violation (Alt+Tab / Focus Loss Limit Reached).";
       } else if (status === "DISQUALIFIED") {
-        reasonEl.innerText = "[!] DISQUALIFIED: Immediate strike violation detected.";
+        reasonEl.innerText = "[!] DISQUALIFIED: Direct strike violation detected.";
       } else if (status === "ROUND_TIME_EXPIRED") {
-        reasonEl.innerText = "[!] ROUND CLOCK EXPIRED: Exam automatically graded.";
+        reasonEl.innerText = "[!] ROUND CLOCK EXPIRED: Exam automatically evaluated.";
       } else {
-        reasonEl.innerText = "[✓] Assessment completed normally.";
+        reasonEl.innerText = "[✓] Round completed successfully.";
       }
 
       await fetch(`${BACKEND_URL}/api/submit-quiz`, {
