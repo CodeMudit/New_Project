@@ -108,7 +108,10 @@
         <h2>&gt; QUESTION BANK MANAGER</h2>
         <div style="display: flex; gap: 10px;">
           <select id="editRoundSelect">
-            <option value="1">Round 1</option><option value="2">Round 2</option><option value="3">Round 3</option><option value="4">Round 4</option>
+            <option value="1">Round 1 Question Bank</option>
+            <option value="2">Round 2 Question Bank</option>
+            <option value="3">Round 3 Question Bank</option>
+            <option value="4">Round 4 Question Bank</option>
           </select>
           <button id="btnAddBlankQuestion">+ ADD NODE</button>
         </div>
@@ -133,13 +136,15 @@
         <div style="display: flex; gap: 10px;">
           <input type="number" id="promoteTopN" value="10" placeholder="TOP N TEAMS">
           <select id="promoteTargetRound">
-            <option value="2">Promote to Round 2</option><option value="3">Promote to Round 3</option><option value="4">Promote to Round 4</option>
+            <option value="2">Promote to Round 2</option>
+            <option value="3">Promote to Round 3</option>
+            <option value="4">Promote to Round 4</option>
           </select>
         </div>
         <button id="btnPromote" class="btn-warning">PROMOTE QUALIFIED & ELIMINATE OTHERS</button>
       </div>
 
-      <!-- Live Stream Leaderboard with Historical Round-by-Round Switcher -->
+      <!-- Live Stream Leaderboard with Historical Switcher -->
       <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <h2>&gt; LIVE LEADERBOARD STREAM</h2>

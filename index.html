@@ -151,7 +151,6 @@
     }
     .btn-secondary:hover { background: rgba(255, 255, 255, 0.1); }
 
-    /* Evidence Drawer In-Quiz */
     .evidence-toggle-btn {
       background: rgba(0, 242, 174, 0.06);
       border: 1px dashed var(--accent);
@@ -282,7 +281,6 @@
       <span id="quizRoundClock" style="font-family:'JetBrains Mono'; font-size:18px; font-weight:800;">--:--</span>
     </div>
 
-    <!-- Restored Evidence Accordion In-Quiz -->
     <button class="evidence-toggle-btn hidden" id="quizEvidenceToggleBtn">
       <span>📂 VIEW SCENARIO DOSSIER & EVIDENCE ARCHIVE</span>
       <span id="quizEvidenceIcon">▾</span>
@@ -345,10 +343,19 @@
     }
 
     async function performLogout() {
+      if (teamId && teamPassword) {
+        try {
+          await fetch(`${BACKEND_URL}/api/auth/logout`, {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ team_id: teamId, password: teamPassword })
+          });
+        } catch(e) {}
+      }
       localStorage.removeItem('nexusTeamId');
       localStorage.removeItem('nexusTeamPass');
       teamId = ""; teamPassword = "";
       if (roundWaitPoll) { clearInterval(roundWaitPoll); roundWaitPoll = null; }
+      if (statusPollInterval) { clearInterval(statusPollInterval); statusPollInterval = null; }
       showScreen('loginScreen');
     }
 
@@ -390,6 +397,10 @@
 
         if (!res.ok) {
           if (roundWaitPoll) { clearInterval(roundWaitPoll); roundWaitPoll = null; }
+          if (res.status === 403) {
+            localStorage.removeItem('nexusTeamId');
+            localStorage.removeItem('nexusTeamPass');
+          }
           if (!isSilent) { msg.innerText = data.detail || "Authentication Failed."; showScreen('loginScreen'); }
           return;
         }
