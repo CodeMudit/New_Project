@@ -184,7 +184,7 @@
     let currentQuestions = [];
     let currentHints = [];
     let lastTeamsSnapshot = [];
-    document.getElementById('apiBase').value = "https://project-victory-production-d780.up.railway.app/";
+    document.getElementById('apiBase').value = "https://project-victory-production-d780.up.railway.app";
 
     function getApi() { return document.getElementById('apiBase').value.trim(); }
     function getKey() { return document.getElementById('adminKey').value.trim(); }
@@ -416,14 +416,23 @@
         const v = document.getElementById(`tSlot${i}`)?.value.trim();
         if (v) names.push(v);
       }
-      await fetch(`${getApi()}/api/admin/create-teams-bulk`, {
-        method: "POST", headers: { "Content-Type": "application/json", "x-admin-key": getKey() },
-        body: JSON.stringify({ team_names: names })
-      });
-      document.getElementById('slotsContainer').innerHTML = '';
-      document.getElementById('btnCreateTeams').style.display = 'none';
-      triggerToast(`Generated ${names.length} teams`);
-      syncAll();
+      try {
+        const res = await fetch(`${getApi()}/api/admin/create-teams-bulk`, {
+          method: "POST", headers: { "Content-Type": "application/json", "x-admin-key": getKey() },
+          body: JSON.stringify({ team_names: names })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          triggerToast(`FAILED (${res.status}): ${data.detail || 'Unknown error'}`);
+          return;
+        }
+        document.getElementById('slotsContainer').innerHTML = '';
+        document.getElementById('btnCreateTeams').style.display = 'none';
+        triggerToast(`Generated ${data.created_count} teams`);
+        syncAll();
+      } catch (err) {
+        triggerToast(`Network error: ${err.message}`);
+      }
     };
 
     document.getElementById('btnPromote').onclick = async () => {
