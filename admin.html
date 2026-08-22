@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PROJECT NEXUS // COMMAND MATRIX</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #07090e;
+      --panel: rgba(14, 18, 28, 0.94);
+      --panel-border: rgba(0, 242, 174, 0.16);
+      --card-bg: rgba(255, 255, 255, 0.025);
+      --card-border: rgba(255, 255, 255, 0.08);
+      
+      --accent: #00f2ae;
+      --accent-dim: rgba(0, 242, 174, 0.12);
+      --gold: #f59e0b;
+      --gold-dim: rgba(245, 158, 11, 0.12);
+      --danger: #f43f5e;
+      --danger-dim: rgba(244, 63, 94, 0.12);
+      
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      background-image: radial-gradient(circle at 50% 0%, rgba(0, 242, 174, 0.05) 0%, transparent 60%);
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      padding: 24px;
+      font-size: 13.5px;
+    }
+
+    h1 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--accent);
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--card-border);
+      letter-spacing: 0.5px;
+    }
+
+    h2 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 14px;
+      letter-spacing: 0.5px;
+    }
+
+    .top-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 22px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .layout-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 1.85fr;
+      gap: 22px;
+    }
+
+    @media (max-width: 1080px) {
+      .layout-grid { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 22px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+    }
+
+    input, button, select, textarea {
+      font-family: 'JetBrains Mono', monospace;
+      padding: 10px 14px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      font-size: 13px;
+      width: 100%;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      transition: all 0.15s ease;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: rgba(0, 242, 174, 0.02);
+    }
+
+    button {
+      background: var(--accent);
+      color: #03150f;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    button:hover {
+      filter: brightness(1.1);
+      box-shadow: 0 4px 14px rgba(0, 242, 174, 0.25);
+    }
+
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-danger:hover { box-shadow: 0 4px 14px rgba(244, 63, 94, 0.25); }
+    .btn-warning { background: var(--gold); color: #201300; }
+    .btn-warning:hover { box-shadow: 0 4px 14px rgba(245, 158, 11, 0.25); }
+
+    .q-item-card {
+      background: rgba(0, 242, 174, 0.025);
+      border: 1px solid var(--panel-border);
+      padding: 14px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+    }
+
+    .hint-item-card {
+      background: var(--gold-dim);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      padding: 14px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 13px;
+    }
+
+    th, td {
+      border: 1px solid var(--card-border);
+      padding: 10px 12px;
+      text-align: left;
+    }
+
+    th {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--accent);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      letter-spacing: 0.5px;
+    }
+
+    .rank-1 { color: var(--gold); font-weight: 700; }
+    .elim-row { color: var(--danger); opacity: 0.8; }
+
+    .badge {
+      padding: 4px 8px;
+      font-size: 11px;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+    }
+
+    .badge-qual { background: var(--accent-dim); color: var(--accent); border: 1px solid var(--panel-border); }
+    .badge-elim { background: var(--danger-dim); color: var(--danger); border: 1px solid rgba(244, 63, 94, 0.3); }
+    .badge-open { background: rgba(0, 242, 174, 0.15); color: var(--accent); border: 1px solid var(--accent); }
+    .badge-locked { background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(245, 158, 11, 0.3); }
+
+    .gate-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .gate-row select, .gate-row input { margin-bottom: 0; }
+    .muted { font-size: 12.5px; color: var(--text-muted); line-height: 1.5; }
+  </style>
+</head>
+<body>
+
+  <h1>// PROJECT NEXUS: COMMAND MATRIX & LIVE ENGINE</h1>
+
+  <div class="top-bar">
+    <input type="text" id="apiBase" value="https://project-victory-production-d780.up.railway.app" placeholder="BACKEND API URL" style="max-width: 320px; margin: 0;">
+    <input type="password" id="adminKey" value="" placeholder="ADMIN SECRET KEY" style="max-width: 240px; margin: 0;" oninput="localStorage.setItem('nexusAdminKey', this.value)">
+    <button onclick="refreshLeaderboard()" style="width: auto; padding: 10px 18px;">SYNC DASHBOARD</button>
+  </div>
+
+  <!-- GATE CONTROL & CLOCK ENGINE -->
+  <div class="card">
+    <h2>&gt; ROUND GATE CONTROL & DURATION ENGINE</h2>
+    <p class="muted" style="margin-bottom: 14px;">Opening a round begins the synchronized timer across all active client nodes. When time elapses or when FORCE SUBMIT ALL is executed, all participant nodes are graded.</p>
+    <div class="gate-row">
+      <select id="gateRoundSelect" onchange="refreshGateStatus()" style="max-width: 130px;">
+        <option value="1">Round 1</option><option value="2">Round 2</option>
+        <option value="3">Round 3</option><option value="4">Round 4</option>
+      </select>
+      <input type="number" id="roundDurationInput" value="10" min="1" max="180" placeholder="MINS" style="max-width: 100px;" title="Duration in minutes">
+      <span id="gateStatusBadge" class="badge badge-locked">LOCKED</span>
+      <span id="gateTimerCountdown" style="color: var(--gold); font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 14px;"></span>
+      <div style="flex: 1;"></div>
+      <button onclick="openRound()" style="width: auto; padding: 9px 15px;">START ROUND CLOCK</button>
+      <button onclick="closeRound()" class="btn-danger" style="width: auto; padding: 9px 15px;">LOCK ROUND</button>
+      <button onclick="forceSubmitCurrentRound()" class="btn-warning" style="width: auto; padding: 9px 15px;">⚡ FORCE SUBMIT ALL</button>
+      <button onclick="undoRound()" class="btn-danger" style="width: auto; padding: 9px 15px;">↺ RESET ROUND</button>
+    </div>
+    <div id="gateMsg" style="font-size: 12px; margin-top: 8px;"></div>
+  </div>
+
+  <div class="layout-grid">
+    <div>
+      <!-- QUESTION BANK MANAGER -->
+      <div class="card">
+        <h2>&gt; QUESTION & ANSWER-KEY MANAGER</h2>
+        <div style="display: flex; gap: 10px;">
+          <select id="editRoundSelect" onchange="loadQuestionsForEditing()">
+            <option value="1">Round 1 Question Bank</option>
+            <option value="2">Round 2 Question Bank</option>
+            <option value="3">Round 3 Question Bank</option>
+            <option value="4">Round 4 Question Bank</option>
+          </select>
+          <button onclick="addBlankQuestion()" style="width: 130px;">+ ADD NODE</button>
+        </div>
+        <div id="questionListContainer" style="max-height: 380px; overflow-y: auto; margin-top: 14px; padding-right: 4px;"></div>
+        <button onclick="saveQuestionBank()" class="btn-warning" style="margin-top: 10px;">SAVE & SYNC TO DB</button>
+        <div id="qSaveMsg" style="font-size: 12px; margin-top: 6px;"></div>
+      </div>
+
+      <!-- HINT LADDER MANAGER -->
+      <div class="card">
+        <h2>&gt; HINT LADDER MANAGER</h2>
+        <div id="hintListContainer" style="max-height: 240px; overflow-y: auto;"></div>
+        <button onclick="addBlankHint()" style="width: auto; padding: 8px 16px;">+ ADD HINT TIER</button>
+      </div>
+
+      <!-- EVIDENCE BRIEFING EDITOR -->
+      <div class="card">
+        <h2>&gt; EVIDENCE DOSSIER (HTML BRIEFING)</h2>
+        <textarea id="briefingEditor" style="height: 180px; font-size: 12px; line-height: 1.4;" placeholder="<div class='evidence-doc'>...</div>"></textarea>
+      </div>
+
+      <!-- TEAM CREDENTIAL GENERATOR -->
+      <div class="card">
+        <h2>&gt; BULK CREDENTIAL GENERATOR</h2>
+        <div style="display: flex; gap: 10px;">
+          <input type="number" id="teamCountInput" value="10" min="1" max="200" placeholder="NUMBER OF TEAMS" style="flex: 1;">
+          <button onclick="renderTeamNameInputs()" style="width: 150px;">SET TEAM SLOTS</button>
+        </div>
+        <div id="teamNameInputsContainer" style="max-height: 240px; overflow-y: auto; margin: 10px 0;"></div>
+        <button onclick="generateAllTeamCredentials()" class="btn-warning" id="generateAllBtn" style="display: none;">GENERATE ALL TEAM IDS & KEYS</button>
+        <div id="credGenMsg" style="font-size: 12px; margin-top: 6px;"></div>
+      </div>
+    </div>
+
+    <div>
+      <!-- LIVE TOURNAMENT RANKINGS -->
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h2>&gt; ROUND <span id="viewingRoundNum">1</span> LIVE TOURNAMENT RANKINGS</h2>
+          <div style="width: 140px;">
+            <select id="boardRoundSelect" onchange="refreshLeaderboard()">
+              <option value="1">Round 1</option><option value="2">Round 2</option>
+              <option value="3">Round 3</option><option value="4">Round 4</option>
+            </select>
+          </div>
+        </div>
+        <div id="liveTelemetry" style="margin: 8px 0; font-size: 13px; color: var(--text-muted);"></div>
+        <table>
+          <thead><tr><th>Rank</th><th>Team ID</th><th>Team Name</th><th>Score</th><th>Hints</th><th>Time</th><th>Switches</th><th>Status</th></tr></thead>
+          <tbody id="boardBody"><tr><td colspan="8">No submissions recorded.</td></tr></tbody>
+        </table>
+      </div>
+
+      <!-- CREDENTIALS ROSTER -->
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <h2>&gt; PARTICIPANT ROSTER & MONITOR</h2>
+          <button onclick="loadAllTeams()" style="width: auto; padding: 6px 14px;">REFRESH</button>
+        </div>
+        <input type="text" id="teamSearchInput" placeholder="SEARCH BY TEAM ID OR NAME" style="text-transform: uppercase;" oninput="filterTeamsTable()">
+        <table>
+          <thead><tr><th>Team ID</th><th>Team Name</th><th>Access Key</th><th>Round</th><th>Logged In?</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="allTeamsBody"><tr><td colspan="7">Loading...</td></tr></tbody>
+        </table>
+      </div>
+
+      <!-- PROMOTION AUTOMATOR -->
+      <div class="card">
+        <h2>&gt; TOURNAMENT PROMOTION AUTOMATOR</h2>
+        <div style="display: flex; gap: 14px;">
+          <div style="flex: 1;"><label>Promote Top N Teams:</label><input type="number" id="promoteTopN" value="10" min="1"></div>
+          <div style="flex: 1;"><label>Target Round:</label>
+            <select id="promoteTargetRound"><option value="2">Round 2</option><option value="3">Round 3</option><option value="4">Round 4</option></select>
+          </div>
+        </div>
+        <button onclick="executePromotion()" class="btn-warning">EXECUTE PROMOTION & LOCK ROUND</button>
+        <div id="promoResult" style="margin-top: 8px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentQuestions = [];
+    let currentHints = [];
+    let currentBriefing = "";
+
+    async function refreshGateStatus() {
+      const api = document.getElementById('apiBase').value;
+      const round = document.getElementById('gateRoundSelect').value;
+      const badge = document.getElementById('gateStatusBadge');
+      const timerEl = document.getElementById('gateTimerCountdown');
+      try {
+        const res = await fetch(`${api}/api/round/${round}/status`);
+        const data = await res.json();
+        if (data.is_open) {
+          badge.className = 'badge badge-open'; badge.innerText = 'OPEN';
+          const mins = Math.floor(data.remaining_seconds / 60);
+          const secs = data.remaining_seconds % 60;
+          timerEl.innerText = `Left: ${mins}m ${secs}s`;
+        } else {
+          badge.className = 'badge badge-locked'; badge.innerText = 'LOCKED';
+          timerEl.innerText = '';
+        }
+      } catch (err) { badge.className = 'badge badge-locked'; badge.innerText = 'UNKNOWN'; }
+    }
+
+    async function openRound() {
+      const api = document.getElementById('apiBase').value;
+      const key = document.getElementById('adminKey').value;
+      const round = document.getElementById('gateRoundSelect').value;
+      const duration = parseInt(document.getElementById('roundDurationInput').value) || 10;
+      const msg = document.getElementById('gateMsg');
+      if (!confirm(`Open Round ${round} for ${duration} minutes? The scoring clock starts immediately.`)) return;
+      try {
+        const res = await fetch(`${api}/api/admin/round/${round}/open`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "x-admin-key": key },
+          body: JSON.stringify({ duration_minutes: duration })
+        });
+        const data = await res.json();
+        if (res.ok) { msg.innerHTML = `<span style="color:var(--accent)">&gt; ROUND ${round} IS OPEN FOR ${duration} MINUTES.</span>`; refreshGateStatus(); }
+        else { msg.innerHTML = `<span style="color:var(--danger)">&gt; ERROR: ${data.detail}</span>`; }
+      } catch (err) { msg.innerHTML = `<span style="color:var(--danger)">&gt; REQUEST FAILED: ${err}</span>`; }
+    }
+
+    async function closeRound() {
+      const api = document.getElementById('apiBase').value;
+      const key = document.getElementById('adminKey').value;
+      const round = document.getElementById('gateRoundSelect').value;
+      const msg = document.getElementById('gateMsg');
+      if (!confirm(`Lock Round ${round}?`)) return;
+      try {
+        const res = await fetch(`${api}/api/admin/round/${round}/close`, { method: "POST", headers: { "x-admin-key": key } });
+        const data = await res.json();
+        if (res.ok) { msg.innerHTML = `<span style="color:var(--gold)">&gt; ROUND ${round} IS NOW LOCKED.</span>`; refreshGateStatus(); }
+        else { msg.innerHTML = `<span style="color:var(--danger)">&gt; ERROR: ${data.detail}</span>`; }
+      } catch (err) { msg.innerHTML = `<span style="color:var(--danger)">&gt; REQUEST FAILED: ${err}</span>`; }
+    }
+
+    async function forceSubmitCurrentRound() {
+      const api = document.getElementById('apiBase').value;
+      const key = document.getElementById('adminKey').value;
+      const round = document.getElementById('gateRoundSelect').value;
+      const msg = document.getElementById('gateMsg');
+      if (!confirm(`FORCE SUBMIT ALL teams for Round ${round}? Unsubmitted qualified teams will be evaluated immediately.`)) return;
+      try {
+        const res = await fetch(`${api}/api/admin/round/${round}/force-submit`, { method: "POST", headers: { "x-admin-key": key } });
+        const data = await res.json();
+        if (res.ok) {
+          msg.innerHTML = `<span style="color:var(--accent)">&gt; SUCCESS: FORCE-SUBMITTED AND EVALUATED ${data.force_submitted_count} TEAMS.</span>`;
+          refreshLeaderboard(); refreshGateStatus(); loadAllTeams();
+        } else { msg.innerHTML = `<span style="color:var(--danger)">&gt; ERROR: ${data.detail}</span>`; }
+      } catch (err) { msg.innerHTML = `<span style="color:var(--danger)">&gt; REQUEST FAILED: ${err}</span>`; }
+    }
+
+    async function undoRound() {
+      const api = document.getElementById('apiBase').value;
+      const key = document.getElementById('adminKey').value;
+      const round = document.getElementById('gateRoundSelect').value;
+      const msg = document.getElementById('gateMsg');
+      if (!confirm(`RESET ROUND ${round}? All logs and submissions for Round ${round} will be erased.`)) return;
+      try {
+        const res = await fetch(`${api}/api/admin/round/${round}/undo-round`, { method: "POST", headers: { "x-admin-key": key } });
+        const data = await res.json();
+        if (res.ok) { msg.innerHTML = `<span style="color:var(--gold)">&gt; ROUND ${round} RESET COMPLETED.</span>`; refreshLeaderboard(); loadAllTeams(); refreshGateStatus(); }
+        else { msg.innerHTML = `<span style="color:var(--danger)">&gt; ERROR: ${data.detail}</span>`; }
+      } catch (err) { msg.innerHTML = `<span style="color:var(--danger)">&gt; REQUEST FAILED: ${err}</span>`; }
+    }
+
+    async function loadQuestionsForEditing() {
+      const api = document.getElementById('apiBase').value;
+      const key = document.getElementById('adminKey').value;
+      const round = document.getElementById('editRoundSelect').value;
+      try {
+        const res = await fetch(`${api}/api/admin/questions/${round}`, { headers: { "x-admin-key": key } });
+        const data = await res.json();
+        currentQuestions = data.questions || [];
+        currentHints = data.hints || [];
+        currentBriefing = data.briefing || "";
+        document.getElementById('briefingEditor').value = currentBriefing;
+        renderQuestionEditor();
+        renderHintEditor();
+      } catch (err) { console.error(err); }
+    }
+
+    function renderQuestionEditor() {
+      const container = document.getElementById('questionListContainer');
+      container.innerHTML = "";
+      if (currentQuestions.length === 0) {
+        container.innerHTML = "<p class='muted'>No questions loaded for this round.</p>";
+        return;
+      }
+      currentQuestions.forEach((q, idx) => {
+        const qCard = document.createElement('div');
+        qCard.className = 'q-item-card';
+        qCard.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <strong>NODE #${idx + 1} (${q.id})</strong>
+            <button onclick="removeQuestion(${idx})" class="btn-danger" style="width: auto; padding: 2px 8px; font-size: 11px;">DELETE</button>
+          </div>
+          <input type="text" value="${q.text}" onchange="currentQuestions[${idx}].text = this.value" placeholder="Question Text">
+          <div style="display: flex; gap: 8px;">
+            <select onchange="changeQuestionType(${idx}, this.value)" style="flex: 1;">
+              <option value="text" ${q.type === 'text' ? 'selected' : ''}>Fill in the Blank</option>
+              <option value="mcq" ${q.type === 'mcq' ? 'selected' : ''}>Multiple Choice (MCQ)</option>
+            </select>
+            <input type="text" value="${q.correct_answer}" onchange="currentQuestions[${idx}].correct_answer = this.value" placeholder="Correct Answer" style="flex: 1; border-color: var(--gold); color: var(--gold);">
+            <input type="number" value="${q.points || 4}" onchange="currentQuestions[${idx}].points = parseInt(this.value)||4" placeholder="Points" style="width: 80px; border-color: var(--gold); color: var(--gold);">
+          </div>
+          ${q.type === 'mcq' ? `
+            <div style="margin-top: 6px;">
+              <textarea placeholder="Options JSON" onchange="updateMcqOptions(${idx}, this.value)" style="height: 60px; font-size: 12px;">${JSON.stringify(q.options || [])}</textarea>
+            </div>` : ''}
+        `;
+        container.appendChild(qCard);
+      });
+    }
+
+    function addBlankQuestion() {
+      const newId = `Q${currentQuestions.length + 1}`;
+      currentQuestions.push({
+        id: newId, type: "mcq", text: "New Question Text", points: 4,
+        options: [{k:"A",t:"Option 1"},{k:"B",t:"Option 2"},{k:"C",t:"Option 3"},{k:"D",t:"Option 4"}],
+        correct_answer: "A"
+      });
+      renderQuestionEditor();
+    }
+
+    function removeQuestion(index) {
+      currentQuestions.splice(index, 1);
+      currentQuestions.forEach((q, i) => q.id = `Q${i + 1}`);
+      renderQuestionEditor();
+    }
+
+    function changeQuestionType(index, type) {
+      currentQuestions[index].type = type;
+      if (type === 'mcq' && (!currentQuestions[index].options || currentQuestions[index].options.length === 0)) {
+        currentQuestions[index].options = [{k:"A",t:"Option 1"},{k:"B",t:"Option 2"},{k:"C",t:"Option 3"},{k:"D",t:"Option 4"}];
+      }
+      renderQuestionEditor();
+    }
+
+    function updateMcqOptions(index, jsonStr) {
+      try { currentQuestions[index].options = JSON.parse(jsonStr); }
+      catch(e) { alert("Invalid Options JSON format!"); }
+    }
+
+    function renderHintEditor() {
+      const container = document.getElementById('hintListContainer');
+      container.innerHTML = "";
+      if (currentHints.length === 0) {
+        container.innerHTML = "<p class='muted'>No hints configured.</p>";
+        return;
+      }
+      currentHints.sort((a,b) => a.tier - b.tier).forEach((h, idx) => {
+        const hCard = document.createElement('div');
+        hCard.className = 'hint-item-card';
+        hCard.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <strong style="color: var(--gold);">HINT TIER ${h.tier}</strong>
+            <button onclick="removeHint(${idx})" class="btn-danger" style="width: auto; padding: 2px 8px; font-size: 11px;">DELETE</button>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <input type="number" value="${h.tier}" onchange="currentHints[${idx}].tier = parseInt(this.value)||1" placeholder="Tier #" style="width: 80px;">
+            <input type="number" value="${h.point_cost}" onchange="currentHints[${idx}].point_cost = parseInt(this.value)||0" placeholder="Point Cost">
+          </div>
+          <textarea onchange="currentHints[${idx}].text = this.value" style="height: 50px; font-size: 12.5px; margin-top: 4px;" placeholder="Hint text shown to teams">${h.text}</textarea>
+        `;
+        container.appendChild(hCard);
+      });
+    }
+
+    function addBlankHint() {
+      const nextTier = currentHints.length + 1;
+      currentHints.push({ tier: nextTier, point_cost: nextTier === 1 ? 0 : 5, text: "New hint text" });
+      renderHintEditor();
+    }
+
+    function removeHint(index) {
+      currentHints.splice(index, 1);
+      renderHintEditor();
+    }
+
+    async function saveQuestionBank() {
+      const api = document.getElementById('apiBase').value;
+      const key = document.getElementById('adminKey').value;
+      const round = parseInt(document.getElementById('editRoundSelect').value);
+      const msg = document.getElementById('qSaveMsg');
+
+      currentBriefing = document.getElementById('briefingEditor').value;
+      const res = await fetch(`${api}/api/admin/questions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-admin-key": key },
+        body: JSON.stringify({ round_number: round, questions: currentQuestions, hints: currentHints, briefing: currentBriefing })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        msg.innerHTML = `<span style="color:var(--accent)">&gt; SYNCED ${data.question_count} NODES + ${data.hint_count} HINT TIERS FOR ROUND ${round}.</span>`;
+      } else {
+        msg.innerHTML = `<span style="color:var(--danger)">&gt; ERROR: ${data.detail}</span>`;
+      }
+    }
+
+    function renderTeamNameInputs() {
+      const count = parseInt(document.getElementById('teamCountInput').value) || 0;
+      const container = document.getElementById('teamNameInputsContainer');
+      container.innerHTML = "";
+      if (count < 1) return;
+      for (let i = 0; i < count; i++) {
+        const input = document.createElement('input');
+        input.type = "text"; input.id = `teamNameSlot${i}`;
+        input.placeholder = `TEAM ${i + 1} NAME`; input.style.marginBottom = "6px";
+        container.appendChild(input);
+      }
+      document.getElementById('generateAllBtn').style.display = "block";
+      document.getElementById('credGenMsg').innerHTML = "";
+    }
+
+    async function generateAllTeamCredentials() {
+      const api = document.getElementById('apiBase').value;
+      const key = document.getElementById('adminKey').value;
+      const count = parseInt(document.getElementById('teamCountInput').value) || 0;
+      const msg = document.getElementById('credGenMsg');
+      const names = [];
+      for (let i = 0; i < count; i++) {
+        const el = document.getElementById(`teamNameSlot${i}`);
+        if (el && el.value.trim()) names.push(el.value.trim());
+      }
+      if (names.length === 0) { msg.innerHTML = `<span style="color:var(--danger)">&gt; ENTER AT LEAST ONE TEAM NAME.</span>`; return; }
+      msg.innerHTML = `<span style="color:var(--gold)">&gt; GENERATING ${names.length} TEAM(S)...</span>`;
+      try {
+        const res = await fetch(`${api}/api/admin/create-teams-bulk`, {
+          method: "POST", headers: { "Content-Type": "application/json", "x-admin-key": key },
+          body: JSON.stringify({ team_names: names })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          msg.innerHTML = `<span style="color:var(--accent)">&gt; CREATED ${data.created_count} TEAM(S).</span>`;
+          document.getElementById('teamNameInputsContainer').innerHTML = "";
+          document.getElementById('generateAllBtn').style.display = "none";
+          loadAllTeams(); refreshLeaderboard();
+        } else { msg.innerHTML = `<span style="color:var(--danger)">&gt; ERROR: ${data.detail}</span>`; }
+      } catch (err) { msg.innerHTML = `<span style="color:var(--danger)">&gt; REQUEST FAILED: ${err}</span>`; }
+    }
+
+    let allTeamsCache = [];
+
+    function renderTeamsTable(teams) {
+      const tbody = document.getElementById('allTeamsBody');
+      if (teams.length === 0) { tbody.innerHTML = `<tr><td colspan="7">No matching teams.</td></tr>`; return; }
+      tbody.innerHTML = teams.map(t => `
+        <tr class="${t.status === 'ELIMINATED' ? 'elim-row' : ''}">
+          <td>${t.team_id}</td><td>${t.team_name}</td><td style="color:var(--gold)">${t.password}</td>
+          <td>${t.current_round}</td>
+          <td>
+            ${t.has_logged_in 
+              ? `<span style="color:var(--accent)">ONLINE [${t.session_status}]</span>` 
+              : `<span style="color:var(--text-muted)">NOT LOGGED IN</span>`}
+          </td>
+          <td><span class="badge ${t.status === 'QUALIFIED' ? 'badge-qual' : 'badge-elim'}">${t.status}</span></td>
+          <td style="display:flex; gap:6px;">
+            ${t.status === 'ELIMINATED' ? `<button onclick="undoElimination('${t.team_id}')" style="width:auto; padding:2px 6px; font-size:11px;" class="btn-warning">REVIVE</button>` : ''}
+            <button onclick="deleteTeam('${t.team_id}')" style="width:auto; padding:2px 6px; font-size:11px;" class="btn-danger">DELETE</button>
+          </td>
+        </tr>`).join('');
+    }
+
+    function filterTeamsTable() {
+      const query = document.getElementById('teamSearchInput').value.trim().toUpperCase();
+      if (!query) { renderTeamsTable(allTeamsCache); return; }
+      renderTeamsTable(allTeamsCache.filter(t => t.team_id.toUpperCase().includes(query) || t.team_name.toUpperCase().includes(query)));
+    }
+
+    async function loadAllTeams() {
+      const api = document.getElementById('apiBase').value;
+      const key = document.getElementById('adminKey').value;
+      const tbody = document.getElementById('allTeamsBody');
+      try {
+        const res = await fetch(`${api}/api/admin/teams`, { headers: { "x-admin-key": key } });
+        const data = await res.json();
+        if (!res.ok) { tbody.innerHTML = `<tr><td colspan="7" style="color:var(--danger)">ERROR: ${data.detail || 'Failed to load teams.'}</td></tr>`; return; }
+        allTeamsCache = data.teams;
+        filterTeamsTable();
+      } catch (err) { tbody.innerHTML = `<tr><td colspan="7" style="color:var(--danger)">REQUEST FAILED: ${err}</td></tr>`; }
+    }
+
+    async function undoElimination(teamId) {
+      const api = document.getElementById('apiBase').value;
+      const key = document.getElementById('adminKey').value;
+      await fetch(`${api}/api/admin/team/${teamId}/undo-elimination`, { method: "POST", headers: { "x-admin-key": key } });
+      loadAllTeams(); refreshLeaderboard();
+    }
+
+    async function deleteTeam(teamId) {
+      if (!confirm(`Permanently remove ${teamId} from database?`)) return;
+      const api = document.getElementById('apiBase').value;
+      const key = document.getElementById('adminKey').value;
+      await fetch(`${api}/api/admin/team/${teamId}`, { method: "DELETE", headers: { "x-admin-key": key } });
+      loadAllTeams(); refreshLeaderboard();
+    }
+
+    async function refreshLeaderboard() {
+      const api = document.getElementById('apiBase').value;
+      const key = document.getElementById('adminKey').value;
+      const round = document.getElementById('boardRoundSelect').value;
+      document.getElementById('viewingRoundNum').innerText = round;
+
+      const res = await fetch(`${api}/api/admin/leaderboard/${round}`, { headers: { "x-admin-key": key } });
+      const data = await res.json();
+      if (!res.ok) return;
+
+      document.getElementById('liveTelemetry').innerHTML = `
+        Qualified: <strong>${data.total_registered}</strong> | Logged In: <strong>${data.active_logins}</strong> | Received: <strong>${data.total_submitted}</strong>`;
+
+      const tbody = document.getElementById('boardBody');
+      if (data.leaderboard.length === 0) { tbody.innerHTML = `<tr><td colspan="8">No submissions recorded for Round ${round}.</td></tr>`; return; }
+
+      tbody.innerHTML = data.leaderboard.map(r => `
+        <tr class="${r.status === 'ELIMINATED' ? 'elim-row' : ''}">
+          <td class="${r.rank === 1 ? 'rank-1' : ''}">#${r.rank}</td>
+          <td>${r.team_id}</td><td>${r.team_name}</td>
+          <td><strong>${r.score} pts</strong></td>
+          <td>${(r.hints_used || []).length ? r.hints_used.join(', ') : '—'}</td>
+          <td>${r.time_taken_seconds}s</td><td>${r.tab_switch_count}</td>
+          <td><span class="badge ${r.status === 'QUALIFIED' ? 'badge-qual' : 'badge-elim'}">${r.status}</span></td>
+        </tr>`).join('');
+    }
+
+    async function executePromotion() {
+      const api = document.getElementById('apiBase').value;
+      const key = document.getElementById('adminKey').value;
+      const topN = parseInt(document.getElementById('promoteTopN').value);
+      const nextR = parseInt(document.getElementById('promoteTargetRound').value);
+      if (!confirm(`Confirm promotion of Top ${topN} teams to Round ${nextR}? Remaining teams will be marked ELIMINATED.`)) return;
+
+      const res = await fetch(`${api}/api/admin/promote-teams`, {
+        method: "POST", headers: { "Content-Type": "application/json", "x-admin-key": key },
+        body: JSON.stringify({ top_n_teams: topN, next_round: nextR })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        document.getElementById('promoResult').innerHTML = `<span style="color:var(--accent)">&gt; PROMOTED: ${data.promoted_count} | ELIMINATED: ${data.eliminated_count}</span>`;
+        refreshLeaderboard(); refreshGateStatus(); loadAllTeams();
+      }
+    }
+
+    const savedKey = localStorage.getItem('nexusAdminKey');
+    if (savedKey) document.getElementById('adminKey').value = savedKey;
+
+    loadQuestionsForEditing();
+    refreshLeaderboard();
+    loadAllTeams();
+    refreshGateStatus();
+    setInterval(refreshLeaderboard, 4000);
+    setInterval(refreshGateStatus, 4000);
+    setInterval(loadAllTeams, 6000);
+  </script>
+</body>
+</html>
