@@ -4,11 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PROJECT NEXUS // ASSESSMENT NODE</title>
-  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
-
   <style>
     :root {
       --bg: #07090e;
@@ -25,7 +23,6 @@
       --text-muted: #94a3b8;
       --radius: 14px;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
     body {
       background-color: var(--bg);
@@ -40,7 +37,6 @@
       align-items: center;
       padding: 24px 16px;
     }
-
     .terminal-card {
       width: 100%;
       max-width: 920px;
@@ -49,10 +45,8 @@
       backdrop-filter: blur(20px);
       border-radius: var(--radius);
       padding: 34px;
-      position: relative;
       box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7);
     }
-
     .header-bar {
       display: flex;
       justify-content: space-between;
@@ -63,14 +57,12 @@
       flex-wrap: wrap;
       gap: 12px;
     }
-
     .brand-title {
       font-family: 'JetBrains Mono', monospace;
       font-size: 14px;
       font-weight: 700;
       color: var(--accent);
     }
-
     .meta-bar {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -83,7 +75,6 @@
     }
     .meta-item { font-size: 12px; color: var(--text-muted); }
     .meta-item strong { display: block; font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--text-main); margin-top: 2px; }
-
     .round-timer-box {
       background: var(--gold-dim);
       border: 1px solid rgba(245, 158, 11, 0.25);
@@ -97,7 +88,6 @@
       font-size: 13px;
       font-weight: 600;
     }
-
     .progress-track {
       width: 100%;
       height: 6px;
@@ -106,13 +96,11 @@
       overflow: hidden;
       margin-bottom: 22px;
     }
-
     .progress-fill {
       height: 100%;
       background: linear-gradient(90deg, var(--accent), #38bdf8);
       transition: width 0.3s ease;
     }
-
     input[type="text"], input[type="password"] {
       width: 100%;
       background: rgba(255, 255, 255, 0.035);
@@ -126,7 +114,6 @@
       text-transform: uppercase;
     }
     input:focus { outline: none; border-color: var(--accent); }
-
     .action-btn {
       width: 100%;
       background: var(--accent);
@@ -143,14 +130,15 @@
     }
     .action-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
     .action-btn:active { transform: translateY(1px); filter: brightness(0.95); }
-
     .btn-secondary {
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--card-border);
       color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
     }
-    .btn-secondary:hover { background: rgba(255, 255, 255, 0.1); }
-
     .evidence-toggle-btn {
       background: rgba(0, 242, 174, 0.06);
       border: 1px dashed var(--accent);
@@ -167,8 +155,6 @@
       justify-content: space-between;
       align-items: center;
     }
-    .evidence-toggle-btn:hover { background: var(--accent-dim); }
-
     .evidence-panel {
       background: rgba(6, 9, 14, 0.96);
       border: 1px solid var(--panel-border);
@@ -180,7 +166,6 @@
       font-size: 13px;
       line-height: 1.6;
     }
-
     .options-grid { display: flex; flex-direction: column; gap: 10px; margin-top: 18px; }
     .opt-btn {
       background: var(--card-bg);
@@ -195,11 +180,39 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      transition: all 0.15s ease;
     }
     .opt-btn:hover { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); transform: translateX(4px); }
-    .opt-btn:active { transform: translateX(2px) scale(0.99); }
-
+    .hint-panel {
+      margin-top: 22px;
+      border-top: 1px dashed rgba(255, 255, 255, 0.1);
+      padding-top: 16px;
+    }
+    .hint-tier-row { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+    .hint-tier-btn {
+      flex: 1;
+      background: var(--gold-dim);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      color: var(--gold);
+      border-radius: 8px;
+      padding: 10px 12px;
+      cursor: pointer;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      font-weight: 700;
+      text-align: left;
+      min-width: 140px;
+    }
+    .hint-tier-btn:hover:not(:disabled) { background: var(--gold); color: #261600; }
+    .hint-tier-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .hint-text-box {
+      background: rgba(245, 158, 11, 0.08);
+      border-left: 3px solid var(--gold);
+      padding: 10px 14px;
+      margin-top: 8px;
+      border-radius: 0 6px 6px 0;
+      font-size: 13px;
+      color: #fef08a;
+    }
     .modal-overlay {
       position: fixed; inset: 0; background: rgba(0, 0, 0, 0.88);
       backdrop-filter: blur(8px); display: flex; justify-content: center; align-items: center; z-index: 200; padding: 20px;
@@ -209,7 +222,6 @@
       padding: 30px; max-width: 480px; text-align: center; color: #fecdd3;
     }
     .modal-box.success { background: #05140f; border-color: var(--accent); color: #a7f3d0; }
-
     .hidden { display: none !important; }
     .warning-text { color: var(--danger); font-size: 13px; margin-top: 8px; }
     .muted-text { color: var(--text-muted); font-size: 13.5px; line-height: 1.6; }
@@ -217,7 +229,7 @@
 </head>
 <body oncontextmenu="return false;">
 
-  <!-- SCREEN 1: LOGIN -->
+  <!-- Screen 1: Login -->
   <div class="terminal-card" id="loginScreen">
     <div class="header-bar">
       <div class="brand-title">PROJECT NEXUS // GATEWAY</div>
@@ -230,11 +242,11 @@
     <div id="loginMsg" class="warning-text"></div>
   </div>
 
-  <!-- SCREEN 1B: WAITING FOR ADMIN -->
+  <!-- Screen 1B: Holding Screen -->
   <div class="terminal-card hidden" id="waitingRoundScreen">
     <div class="header-bar">
       <div class="brand-title">PROJECT NEXUS // HOLDING PATTERN</div>
-      <button onclick="performLogout()" class="btn-secondary" style="padding:6px 12px; border-radius:6px; font-size:12px; cursor:pointer;">DISCONNECT</button>
+      <button onclick="performLogout()" class="btn-secondary">DISCONNECT</button>
     </div>
     <div class="meta-bar">
       <div class="meta-item">TEAM NAME<strong id="waitTeamName">-</strong></div>
@@ -245,64 +257,62 @@
     <p class="muted-text">The scoring clock has not started yet. Your terminal will automatically advance the moment the facilitator opens the round.</p>
   </div>
 
-  <!-- SCREEN 1C: PRE-ROUND BRIEFING & SECURITY AGREEMENT -->
+  <!-- Screen 1C: Briefing -->
   <div class="terminal-card hidden" id="startScreen">
     <div class="header-bar">
       <div class="brand-title">ROUND <span id="startRoundNum">-</span> // MISSION BRIEFING</div>
-      <button onclick="performLogout()" class="btn-secondary" style="padding:6px 12px; border-radius:6px; font-size:12px; cursor:pointer;">DISCONNECT</button>
+      <button onclick="performLogout()" class="btn-secondary">DISCONNECT</button>
     </div>
-
     <div class="meta-bar">
       <div class="meta-item">TEAM ID<strong id="metaNodeId">-</strong></div>
       <div class="meta-item">TEAM NAME<strong id="startTeamBadge">-</strong></div>
       <div class="meta-item">SECURITY<strong style="color:var(--danger)">FULLSCREEN REQUIRED</strong></div>
     </div>
-
     <div class="round-timer-box">
       <span>ROUND TIME LIMIT:</span>
       <span id="briefingRoundClock" style="font-family:'JetBrains Mono'; font-size:18px; font-weight:800;">--:--</span>
     </div>
-
     <div id="briefingEvidenceContainer" class="evidence-panel"></div>
-
     <button class="action-btn" id="startRoundBtn">ENGAGE FULLSCREEN & START ASSESSMENT</button>
   </div>
 
-  <!-- SCREEN 2: ACTIVE ASSESSMENT -->
+  <!-- Screen 2: Active Quiz -->
   <div class="terminal-card hidden" id="quizScreen">
     <div class="header-bar">
       <div class="brand-title" id="teamDisplay">TEAM: ---</div>
       <div id="progressDisplay" style="font-family:'JetBrains Mono'; color:var(--accent); font-weight:700;">NODE 1/--</div>
       <div id="timer" style="font-family:'JetBrains Mono'; font-size:22px; font-weight:800; color:var(--gold);">30s</div>
     </div>
-
     <div class="round-timer-box">
       <span>ROUND COUNTDOWN:</span>
       <span id="quizRoundClock" style="font-family:'JetBrains Mono'; font-size:18px; font-weight:800;">--:--</span>
     </div>
-
     <button class="evidence-toggle-btn hidden" id="quizEvidenceToggleBtn">
       <span>📂 VIEW SCENARIO DOSSIER & EVIDENCE ARCHIVE</span>
       <span id="quizEvidenceIcon">▾</span>
     </button>
     <div class="evidence-panel hidden" id="quizEvidencePanel"></div>
-
     <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
     <div id="questionText" style="font-size: 18px; font-weight: 600; line-height: 1.5; margin-bottom: 18px;"></div>
-    
     <div class="options-grid" id="optionsContainer"></div>
-
     <div id="textInputContainer" class="hidden" style="margin-top: 8px;">
       <input type="text" id="blankInput" placeholder="TYPE ANSWER & PRESS ENTER">
       <button class="action-btn" id="submitTextBtn">CONFIRM ANSWER (ENTER)</button>
     </div>
+    <div class="hint-panel hidden" id="hintPanel">
+      <div style="font-size: 11px; font-weight: 700; color: var(--gold);">
+        ⚠ HINT TERMINAL — UNLOCKING TIERS DEDUCTS POINTS FROM TOTAL SCORE
+      </div>
+      <div class="hint-tier-row" id="hintTierButtons"></div>
+      <div id="hintTextArea"></div>
+    </div>
   </div>
 
-  <!-- SCREEN 3: SUMMARY & ADVANCEMENT STANDBY -->
+  <!-- Screen 3: Summary -->
   <div class="terminal-card hidden" id="endScreen">
     <div class="header-bar">
       <div class="brand-title">TRANSMISSION SUMMARY</div>
-      <button onclick="performLogout()" class="btn-secondary" style="padding:6px 12px; border-radius:6px; font-size:12px; cursor:pointer;">DISCONNECT</button>
+      <button onclick="performLogout()" class="btn-secondary">DISCONNECT</button>
     </div>
     <p id="endStatus" style="font-size: 16px; font-weight: 600; color: var(--accent); margin-bottom: 8px;">&gt; RESPONSES COMMITTED TO CLUSTER.</p>
     <p id="subReason" class="muted-text" style="color:var(--gold); font-weight:600;"></p>
@@ -311,7 +321,7 @@
     </div>
   </div>
 
-  <!-- MODALS -->
+  <!-- Security Warning Modal -->
   <div id="warningModal" class="modal-overlay hidden">
     <div class="modal-box">
       <h2 style="font-size: 18px; font-weight: 700; margin-bottom: 10px; color: var(--danger);">SECURITY PROTOCOL BREACH</h2>
@@ -320,6 +330,7 @@
     </div>
   </div>
 
+  <!-- Qualified Modal -->
   <div id="clearedModal" class="modal-overlay hidden">
     <div class="modal-box success">
       <h2 style="font-size: 18px; font-weight: 700; margin-bottom: 10px; color: var(--accent);">QUALIFICATION DETECTED</h2>
@@ -330,7 +341,8 @@
 
   <script>
     const BACKEND_URL = window.location.origin;
-    let questions = [], currentQIdx = 0, timerInterval = null, globalRoundTimerInterval = null;
+    let questions = [], roundHints = [], hintsUsed = [], currentQIdx = 0;
+    let timerInterval = null, globalRoundTimerInterval = null;
     let globalRemainingSeconds = 0, timeLeft = 30, teamId = "", teamPassword = "", teamName = "";
     let activeRound = 1, answers = {}, tabSwitchCount = 0, quizActive = false;
     let isSubmitting = false, roundWaitPoll = null, statusPollInterval = null, localElapsedSeconds = 0;
@@ -386,7 +398,7 @@
         if (res.status === 423) {
           activeRound = parseInt(data.detail.match(/Round (\d+)/)[1]) || activeRound;
           document.getElementById('waitingRoundNum').innerText = activeRound;
-          document.getElementById('waitTeamName').innerText = teamId;
+          document.getElementById('waitTeamName').innerText = teamName || teamId;
           document.getElementById('waitTeamId').innerText = teamId;
           localStorage.setItem('nexusTeamId', teamId);
           localStorage.setItem('nexusTeamPass', teamPassword);
@@ -421,6 +433,7 @@
         const qRes = await fetch(`${BACKEND_URL}/api/questions/${activeRound}`);
         const qData = await qRes.json();
         questions = qData.questions || [];
+        roundHints = qData.hints || [];
         currentBriefingHtml = qData.briefing || "";
         
         renderDossierView();
@@ -473,10 +486,10 @@
       } catch(e) {}
       showScreen('quizScreen');
       quizActive = true;
+      renderHintPanel();
       loadQuestion();
     });
 
-    // Anti-Cheat Watcher (Strictly Active Only When `quizActive === true`)
     function handleSecurityBreach() {
       if (!quizActive || isSubmitting || cheatCooldown) return;
       cheatCooldown = true;
@@ -541,9 +554,49 @@
       }, 1000);
     }
 
+    function renderHintPanel() {
+      const panel = document.getElementById('hintPanel');
+      const btnWrap = document.getElementById('hintTierButtons');
+      btnWrap.innerHTML = '';
+
+      if (!roundHints || roundHints.length === 0) { panel.classList.add('hidden'); return; }
+      panel.classList.remove('hidden');
+
+      roundHints.forEach(h => {
+        const unlocked = hintsUsed.includes(h.tier);
+        const prevUnlocked = h.tier === 1 || hintsUsed.includes(h.tier - 1);
+        const btn = document.createElement('button');
+        btn.className = 'hint-tier-btn' + (unlocked ? ' unlocked' : '');
+        btn.disabled = !prevUnlocked && !unlocked;
+        const costLabel = h.point_cost === 0 ? 'FREE' : `-${h.point_cost} PTS`;
+        btn.innerText = unlocked ? `✓ HINT ${h.tier} REVEALED (${costLabel})` : `REVEAL HINT ${h.tier} (${costLabel})`;
+        btn.onclick = () => requestHint(h.tier);
+        btnWrap.appendChild(btn);
+      });
+    }
+
+    async function requestHint(tier) {
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/hint/request`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ team_id: teamId, password: teamPassword, round_number: activeRound, tier })
+        });
+        const data = await res.json();
+        if (!res.ok) return;
+
+        if (!hintsUsed.includes(tier)) hintsUsed.push(tier);
+        const box = document.createElement('div');
+        box.className = 'hint-text-box';
+        box.innerText = `HINT ${data.tier}: ${data.text}`;
+        document.getElementById('hintTextArea').appendChild(box);
+        renderHintPanel();
+      } catch (err) {}
+    }
+
     async function finishQuiz(status = "NORMAL_COMPLETION") {
       isSubmitting = true;
-      quizActive = false; // Immediately disable anti-cheat listeners
+      quizActive = false; // Immediately disable anti-cheat triggers
       clearInterval(timerInterval);
       
       if (document.fullscreenElement) {
@@ -592,6 +645,7 @@
     document.getElementById('proceedNextRoundBtn').addEventListener('click', () => {
       document.getElementById('clearedModal').classList.add('hidden');
       currentQIdx = 0; answers = {}; tabSwitchCount = 0; isSubmitting = false;
+      document.getElementById('hintTextArea').innerHTML = '';
       attemptLogin();
     });
 

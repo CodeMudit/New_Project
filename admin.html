@@ -59,7 +59,7 @@
   <h1>// PROJECT NEXUS: COMMAND MATRIX & UNIVERSAL CONTROLLER</h1>
 
   <div style="display:flex; gap:10px; margin-bottom:20px; align-items:center; flex-wrap:wrap;">
-    <input type="text" id="apiBase" value="https://project-victory-production-d780.up.railway.app" style="max-width:320px; margin:0;">
+    <input type="text" id="apiBase" value="" style="max-width:320px; margin:0;">
     <input type="password" id="adminKey" placeholder="ADMIN SECRET KEY" style="max-width:220px; margin:0;" oninput="localStorage.setItem('nexusAdminKey', this.value)">
     <button id="btnSync">SYNC MATRIX (ENTER)</button>
     <a href="/leaderboard" target="_blank" style="text-decoration:none;"><button type="button" class="btn-warning">📺 OPEN PUBLIC PROJECTOR BOARD</button></a>
@@ -72,7 +72,7 @@
     <div class="metric-card"><div class="title">LATE REGISTRATION LOCK</div><div class="val" id="statLockState" style="font-size:16px;">LOCKED</div></div>
   </div>
 
-  <!-- GATE CONTROL -->
+  <!-- Gate Control -->
   <div class="card">
     <h2>&gt; ROUND GATE CONTROL & AUTO-STOP TIMER</h2>
     <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
@@ -88,7 +88,7 @@
     </div>
   </div>
 
-  <!-- UNIVERSAL RESET SUITE -->
+  <!-- Universal Reset -->
   <div class="card">
     <h2>&gt; UNIVERSAL RESET CONTROLLER</h2>
     <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
@@ -108,10 +108,7 @@
         <h2>&gt; QUESTION BANK MANAGER</h2>
         <div style="display: flex; gap: 10px;">
           <select id="editRoundSelect">
-            <option value="1">Round 1 Question Bank</option>
-            <option value="2">Round 2 Question Bank</option>
-            <option value="3">Round 3 Question Bank</option>
-            <option value="4">Round 4 Question Bank</option>
+            <option value="1">Round 1</option><option value="2">Round 2</option><option value="3">Round 3</option><option value="4">Round 4</option>
           </select>
           <button id="btnAddBlankQuestion">+ ADD NODE</button>
         </div>
@@ -171,6 +168,8 @@
 
   <script>
     let currentQuestions = [];
+    document.getElementById('apiBase').value = window.location.origin;
+
     function getApi() { return document.getElementById('apiBase').value.trim(); }
     function getKey() { return document.getElementById('adminKey').value.trim(); }
 
