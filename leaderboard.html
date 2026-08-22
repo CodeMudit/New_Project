@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PROJECT NEXUS // LIVE TOURNAMENT STANDINGS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #07090e;
+      --panel: rgba(13, 17, 26, 0.94);
+      --panel-border: rgba(0, 242, 174, 0.2);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --accent: #00f2ae;
+      --accent-dim: rgba(0, 242, 174, 0.12);
+      --gold: #f59e0b;
+      --danger: #f43f5e;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(at 10% 10%, rgba(0, 242, 174, 0.08) 0px, transparent 50%),
+        radial-gradient(at 90% 90%, rgba(245, 158, 11, 0.05) 0px, transparent 50%);
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      padding: 30px 20px;
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; }
+    
+    .top-header {
+      display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 1px solid var(--card-border); padding-bottom: 20px; margin-bottom: 24px;
+      flex-wrap: wrap; gap: 16px;
+    }
+
+    .title-box h1 {
+      font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 800;
+      color: var(--accent); letter-spacing: 0.5px;
+    }
+    .title-box p { color: var(--text-muted); font-size: 13px; margin-top: 4px; }
+
+    .round-pills { display: flex; gap: 8px; }
+    .round-pill-btn {
+      background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); color: var(--text-main);
+      padding: 8px 16px; border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 13px;
+      font-weight: 700; cursor: pointer; transition: all 0.15s ease;
+    }
+    .round-pill-btn.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+
+    .telemetry-bar {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 24px;
+    }
+    .tele-card {
+      background: var(--panel); border: 1px solid var(--card-border); border-radius: 10px; padding: 14px 18px;
+    }
+    .tele-card .label { font-size: 11.5px; color: var(--text-muted); font-weight: 600; }
+    .tele-card .val { font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 800; color: var(--accent); margin-top: 2px; }
+
+    .board-card {
+      background: var(--panel); border: 1px solid var(--panel-border); border-radius: 12px;
+      padding: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); overflow-x: auto;
+    }
+
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th {
+      background: rgba(255,255,255,0.03); color: var(--accent); font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; padding: 12px 14px; border-bottom: 1px solid var(--card-border);
+    }
+    td { padding: 14px; border-bottom: 1px solid var(--card-border); font-size: 14px; }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+
+    .rank-cell { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 16px; }
+    .rank-1 { color: var(--gold); }
+    .rank-2 { color: #e2e8f0; }
+    .rank-3 { color: #f97316; }
+
+    .score-cell { font-family: 'JetBrains Mono', monospace; font-weight: 800; color: var(--accent); font-size: 16px; }
+    .badge { padding: 4px 8px; border-radius: 6px; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; }
+    .badge-qual { background: var(--accent-dim); color: var(--accent); border: 1px solid var(--panel-border); }
+    .badge-elim { background: rgba(244,63,94,0.15); color: var(--danger); border: 1px solid var(--danger); }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="top-header">
+      <div class="title-box">
+        <h1>PROJECT NEXUS // LIVE TOURNAMENT MATRIX</h1>
+        <p>REAL-TIME STREAM & SCORING TELEMETRY (NO AUTHENTICATION REQUIRED)</p>
+      </div>
+      <div class="round-pills">
+        <button class="round-pill-btn active" onclick="setRound(1)">ROUND 1</button>
+        <button class="round-pill-btn" onclick="setRound(2)">ROUND 2</button>
+        <button class="round-pill-btn" onclick="setRound(3)">ROUND 3</button>
+        <button class="round-pill-btn" onclick="setRound(4)">ROUND 4</button>
+      </div>
+    </div>
+
+    <div class="telemetry-bar">
+      <div class="tele-card"><div class="label">ROUND STATUS</div><div class="val" id="statStatus">CHECKING...</div></div>
+      <div class="tele-card"><div class="label">REMAINING TIME</div><div class="val" id="statTime" style="color:var(--gold);">--:--</div></div>
+      <div class="tele-card"><div class="label">QUALIFIED NODES</div><div class="val" id="statNodes">0</div></div>
+      <div class="tele-card"><div class="label">SUBMISSIONS COMMITTED</div><div class="val" id="statSubs">0</div></div>
+    </div>
+
+    <div class="board-card">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 80px;">RANK</th>
+            <th>TEAM IDENTIFIER</th>
+            <th>TEAM DESIGNATION</th>
+            <th>SCORE</th>
+            <th>HINTS USED</th>
+            <th>TIME RECORDED</th>
+            <th>STATUS</th>
+          </tr>
+        </thead>
+        <tbody id="boardBody">
+          <tr><td colspan="7" style="text-align:center; color:var(--text-muted);">Syncing live tournament data...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    let activeRound = 1;
+    function setRound(r) {
+      activeRound = r;
+      document.querySelectorAll('.round-pill-btn').forEach((b, idx) => {
+        b.classList.toggle('active', (idx + 1) === r);
+      });
+      fetchPublicBoard();
+    }
+
+    async function fetchPublicBoard() {
+      try {
+        const res = await fetch(`/api/public/leaderboard/${activeRound}`);
+        const data = await res.json();
+
+        document.getElementById('statStatus').innerText = data.is_open ? "LIVE CLOCK ACTIVE" : "LOCKED";
+        document.getElementById('statStatus').style.color = data.is_open ? "var(--accent)" : "var(--text-muted)";
+        
+        if (data.is_open) {
+          const m = Math.floor(data.remaining_seconds / 60), s = data.remaining_seconds % 60;
+          document.getElementById('statTime').innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        } else {
+          document.getElementById('statTime').innerText = "--:--";
+        }
+
+        document.getElementById('statNodes').innerText = data.total_registered || 0;
+        document.getElementById('statSubs').innerText = data.total_submitted || 0;
+
+        const tbody = document.getElementById('boardBody');
+        if (!data.leaderboard || data.leaderboard.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted);">No submissions recorded for Round ${activeRound} yet.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = data.leaderboard.map(r => `
+          <tr>
+            <td class="rank-cell ${r.rank === 1 ? 'rank-1' : (r.rank === 2 ? 'rank-2' : (r.rank === 3 ? 'rank-3' : ''))}">#${r.rank}</td>
+            <td style="font-family:'JetBrains Mono'; font-weight:700;">${r.team_id}</td>
+            <td><strong>${r.team_name}</strong></td>
+            <td class="score-cell">${r.score} pts</td>
+            <td>${r.hints_used_count ? `${r.hints_used_count} Tier(s)` : 'None'}</td>
+            <td style="font-family:'JetBrains Mono';">${r.time_taken_seconds}s</td>
+            <td><span class="badge ${r.status === 'QUALIFIED' ? 'badge-qual' : 'badge-elim'}">${r.status}</span></td>
+          </tr>
+        `).join('');
+      } catch (err) {}
+    }
+
+    fetchPublicBoard();
+    setInterval(fetchPublicBoard, 2500);
+  </script>
+</body>
+</html>

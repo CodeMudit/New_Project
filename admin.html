@@ -30,8 +30,6 @@
       border: 1px solid var(--card-border); color: #00f2ae !important; font-size: 13px; width: 100%; margin-bottom: 10px; border-radius: 6px; outline: none;
     }
     select option { background-color: #080d16 !important; color: #00f2ae !important; padding: 6px; }
-    
-    /* Tactile Custom Button Styling with explicit feedback */
     button {
       padding: 9px 16px; background: var(--accent); color: #03150f; font-weight: 700; cursor: pointer; border: none; border-radius: 6px;
       font-family: 'Inter', sans-serif; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
@@ -39,18 +37,14 @@
     }
     button:hover { filter: brightness(1.12); transform: translateY(-1px); }
     button:active { transform: translateY(1px) scale(0.98); box-shadow: none !important; filter: brightness(0.9); }
-    
-    .btn-danger { background: var(--danger) !important; color: #fff !important; box-shadow: 0 2px 8px rgba(244, 63, 94, 0.25) !important; }
-    .btn-warning { background: var(--gold) !important; color: #201300 !important; box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25) !important; }
-    
+    .btn-danger { background: var(--danger) !important; color: #fff !important; }
+    .btn-warning { background: var(--gold) !important; color: #201300 !important; }
     table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 12.5px; }
     th, td { border: 1px solid var(--card-border); padding: 8px 10px; text-align: left; }
     th { background: rgba(255,255,255,0.04); color: var(--accent); font-family: 'JetBrains Mono', monospace; }
     .badge { padding: 3px 7px; font-size: 11px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-weight: 700; }
     .badge-qual { background: var(--accent-dim); color: var(--accent); }
     .badge-elim { background: var(--danger-dim); color: var(--danger); }
-
-    /* Toast Notification */
     #actionToast {
       position: fixed; bottom: 20px; right: 20px; background: #00f2ae; color: #04140e;
       padding: 12px 20px; border-radius: 8px; font-weight: 700; z-index: 1000;
@@ -68,6 +62,7 @@
     <input type="text" id="apiBase" value="https://project-victory-production-d780.up.railway.app" style="max-width:320px; margin:0;">
     <input type="password" id="adminKey" placeholder="ADMIN SECRET KEY" style="max-width:220px; margin:0;" oninput="localStorage.setItem('nexusAdminKey', this.value)">
     <button id="btnSync">SYNC MATRIX (ENTER)</button>
+    <a href="/leaderboard" target="_blank" style="text-decoration:none;"><button type="button" class="btn-warning">📺 OPEN PUBLIC PROJECTOR BOARD</button></a>
   </div>
 
   <div class="analytics-grid">
@@ -77,6 +72,7 @@
     <div class="metric-card"><div class="title">LATE REGISTRATION LOCK</div><div class="val" id="statLockState" style="font-size:16px;">LOCKED</div></div>
   </div>
 
+  <!-- GATE CONTROL -->
   <div class="card">
     <h2>&gt; ROUND GATE CONTROL & AUTO-STOP TIMER</h2>
     <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
@@ -92,6 +88,7 @@
     </div>
   </div>
 
+  <!-- UNIVERSAL RESET SUITE -->
   <div class="card">
     <h2>&gt; UNIVERSAL RESET CONTROLLER</h2>
     <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
@@ -139,16 +136,18 @@
         <div style="display: flex; gap: 10px;">
           <input type="number" id="promoteTopN" value="10" placeholder="TOP N TEAMS">
           <select id="promoteTargetRound">
-            <option value="2">Promote to Round 2</option><option value="3">Promote to Round 3</option><option value="4">Promote to Round 4</option>
+            <option value="2">Promote to Round 2</option>
+            <option value="3">Promote to Round 3</option>
+            <option value="4">Promote to Round 4</option>
           </select>
         </div>
         <button id="btnPromote" class="btn-warning">PROMOTE QUALIFIED & ELIMINATE OTHERS</button>
       </div>
 
-      <!-- Historical Round-by-Round Leaderboard Navigator -->
+      <!-- Live Stream Leaderboard with Historical Round-by-Round Switcher -->
       <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-          <h2>&gt; TOURNAMENT LEADERBOARDS</h2>
+          <h2>&gt; LIVE LEADERBOARD STREAM</h2>
           <select id="viewBoardRoundSelect" style="max-width:140px; margin:0;" onchange="syncLeaderboard()">
             <option value="1">Round 1 Board</option><option value="2">Round 2 Board</option>
             <option value="3">Round 3 Board</option><option value="4">Round 4 Board</option>
@@ -163,8 +162,8 @@
       <div class="card">
         <h2>&gt; PARTICIPANT ROSTER & ACTIVE SESSIONS</h2>
         <table>
-          <thead><tr><th>Team ID</th><th>Name</th><th>Access Key</th><th>Round</th><th>Status</th><th>Action</th></tr></thead>
-          <tbody id="teamsBody"><tr><td colspan="6">Loading...</td></tr></tbody>
+          <thead><tr><th>Team ID</th><th>Name</th><th>Access Key</th><th>Round</th><th>Status</th></tr></thead>
+          <tbody id="teamsBody"><tr><td colspan="5">Loading...</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -212,8 +211,7 @@
         document.getElementById('teamsBody').innerHTML = (tData.teams || []).map(t => `
           <tr>
             <td>${t.team_id}</td><td>${t.team_name}</td><td style="color:var(--gold)">${t.password}</td><td>${t.current_round}</td>
-            <td>${t.is_logged_in ? '<span style="color:var(--accent)">ONLINE</span>' : '<span style="color:var(--text-muted)">OFFLINE</span>'}</td>
-            <td><button onclick="unlockTeam('${t.team_id}')" style="padding:2px 8px; font-size:11px;">FORCE UNLOCK</button></td>
+            <td>${t.has_logged_in ? '<span style="color:var(--accent)">ONLINE</span>' : '<span style="color:var(--text-muted)">OFFLINE</span>'}</td>
           </tr>
         `).join('');
       } catch(e){}
@@ -231,12 +229,6 @@
           </tr>
         `).join('') || '<tr><td colspan="6">No submissions recorded for this round.</td></tr>';
       } catch(e){}
-    }
-
-    async function unlockTeam(id) {
-      await fetch(`${getApi()}/api/admin/team/${id}/force-logout`, { method: "POST", headers: { "x-admin-key": getKey() } });
-      triggerToast(`Unlocked team ${id}`);
-      syncAll();
     }
 
     async function loadQuestionsForEditing() {
