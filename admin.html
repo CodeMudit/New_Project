@@ -108,10 +108,7 @@
         <h2>&gt; QUESTION BANK MANAGER</h2>
         <div style="display: flex; gap: 10px;">
           <select id="editRoundSelect">
-            <option value="1">Round 1 Question Bank</option>
-            <option value="2">Round 2 Question Bank</option>
-            <option value="3">Round 3 Question Bank</option>
-            <option value="4">Round 4 Question Bank</option>
+            <option value="1">Round 1</option><option value="2">Round 2</option><option value="3">Round 3</option><option value="4">Round 4</option>
           </select>
           <button id="btnAddBlankQuestion">+ ADD NODE</button>
         </div>
@@ -136,9 +133,7 @@
         <div style="display: flex; gap: 10px;">
           <input type="number" id="promoteTopN" value="10" placeholder="TOP N TEAMS">
           <select id="promoteTargetRound">
-            <option value="2">Promote to Round 2</option>
-            <option value="3">Promote to Round 3</option>
-            <option value="4">Promote to Round 4</option>
+            <option value="2">Promote to Round 2</option><option value="3">Promote to Round 3</option><option value="4">Promote to Round 4</option>
           </select>
         </div>
         <button id="btnPromote" class="btn-warning">PROMOTE QUALIFIED & ELIMINATE OTHERS</button>
@@ -162,7 +157,7 @@
       <div class="card">
         <h2>&gt; PARTICIPANT ROSTER & ACTIVE SESSIONS</h2>
         <table>
-          <thead><tr><th>Team ID</th><th>Name</th><th>Access Key</th><th>Round</th><th>Status</th></tr></thead>
+          <thead><tr><th>Team ID</th><th>Name</th><th>Access Key</th><th>Round</th><th>Status & Reason</th></tr></thead>
           <tbody id="teamsBody"><tr><td colspan="5">Loading...</td></tr></tbody>
         </table>
       </div>
@@ -211,7 +206,10 @@
         document.getElementById('teamsBody').innerHTML = (tData.teams || []).map(t => `
           <tr>
             <td>${t.team_id}</td><td>${t.team_name}</td><td style="color:var(--gold)">${t.password}</td><td>${t.current_round}</td>
-            <td>${t.has_logged_in ? '<span style="color:var(--accent)">ONLINE</span>' : '<span style="color:var(--text-muted)">OFFLINE</span>'}</td>
+            <td>
+              ${t.has_logged_in ? '<span style="color:var(--accent)">ONLINE</span>' : '<span style="color:var(--text-muted)">OFFLINE</span>'}
+              ${t.elimination_reason ? `<br><small style="color:var(--danger)">(${t.elimination_reason})</small>` : ''}
+            </td>
           </tr>
         `).join('');
       } catch(e){}
@@ -225,7 +223,10 @@
         document.getElementById('lbBody').innerHTML = (lData.leaderboard || []).map(r => `
           <tr>
             <td>#${r.rank}</td><td>${r.team_id}</td><td>${r.team_name}</td><td><strong>${r.score}</strong></td><td>${r.time_taken_seconds}s</td>
-            <td><span class="badge ${r.status==='QUALIFIED'?'badge-qual':'badge-elim'}">${r.status} (${r.submission_status})</span></td>
+            <td>
+              <span class="badge ${r.status==='QUALIFIED'?'badge-qual':'badge-elim'}">${r.status}</span>
+              <br><small style="color:var(--text-muted)">${r.elimination_reason || r.submission_status}</small>
+            </td>
           </tr>
         `).join('') || '<tr><td colspan="6">No submissions recorded for this round.</td></tr>';
       } catch(e){}

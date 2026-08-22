@@ -151,6 +151,37 @@
     }
     .btn-secondary:hover { background: rgba(255, 255, 255, 0.1); }
 
+    /* Evidence Drawer In-Quiz */
+    .evidence-toggle-btn {
+      background: rgba(0, 242, 174, 0.06);
+      border: 1px dashed var(--accent);
+      color: var(--accent);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 10px 14px;
+      width: 100%;
+      cursor: pointer;
+      border-radius: 8px;
+      margin: 12px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .evidence-toggle-btn:hover { background: var(--accent-dim); }
+
+    .evidence-panel {
+      background: rgba(6, 9, 14, 0.96);
+      border: 1px solid var(--panel-border);
+      border-radius: 10px;
+      padding: 18px;
+      max-height: 350px;
+      overflow-y: auto;
+      margin-bottom: 18px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
     .options-grid { display: flex; flex-direction: column; gap: 10px; margin-top: 18px; }
     .opt-btn {
       background: var(--card-bg);
@@ -169,18 +200,6 @@
     }
     .opt-btn:hover { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); transform: translateX(4px); }
     .opt-btn:active { transform: translateX(2px) scale(0.99); }
-
-    .evidence-panel {
-      background: rgba(6, 9, 14, 0.96);
-      border: 1px solid var(--panel-border);
-      border-radius: 10px;
-      padding: 18px;
-      max-height: 350px;
-      overflow-y: auto;
-      margin-bottom: 18px;
-      font-size: 13px;
-      line-height: 1.6;
-    }
 
     .modal-overlay {
       position: fixed; inset: 0; background: rgba(0, 0, 0, 0.88);
@@ -263,6 +282,13 @@
       <span id="quizRoundClock" style="font-family:'JetBrains Mono'; font-size:18px; font-weight:800;">--:--</span>
     </div>
 
+    <!-- Restored Evidence Accordion In-Quiz -->
+    <button class="evidence-toggle-btn hidden" id="quizEvidenceToggleBtn">
+      <span>📂 VIEW SCENARIO DOSSIER & EVIDENCE ARCHIVE</span>
+      <span id="quizEvidenceIcon">▾</span>
+    </button>
+    <div class="evidence-panel hidden" id="quizEvidencePanel"></div>
+
     <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
     <div id="questionText" style="font-size: 18px; font-weight: 600; line-height: 1.5; margin-bottom: 18px;"></div>
     
@@ -310,7 +336,7 @@
     let globalRemainingSeconds = 0, timeLeft = 30, teamId = "", teamPassword = "", teamName = "";
     let activeRound = 1, answers = {}, tabSwitchCount = 0, quizActive = false;
     let isSubmitting = false, roundWaitPoll = null, statusPollInterval = null, localElapsedSeconds = 0;
-    let cheatCooldown = false;
+    let cheatCooldown = false, currentBriefingHtml = "";
 
     function showScreen(id) {
       ['loginScreen', 'waitingRoundScreen', 'startScreen', 'quizScreen', 'endScreen'].forEach(s => {
@@ -319,12 +345,6 @@
     }
 
     async function performLogout() {
-      if (teamId && teamPassword) {
-        await fetch(`${BACKEND_URL}/api/auth/logout`, {
-          method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ team_id: teamId, password: teamPassword })
-        });
-      }
       localStorage.removeItem('nexusTeamId');
       localStorage.removeItem('nexusTeamPass');
       teamId = ""; teamPassword = "";
@@ -390,12 +410,37 @@
         const qRes = await fetch(`${BACKEND_URL}/api/questions/${activeRound}`);
         const qData = await qRes.json();
         questions = qData.questions || [];
-        document.getElementById('briefingEvidenceContainer').innerHTML = qData.briefing || "<p class='muted-text'>No scenario documents needed for this round.</p>";
-
+        currentBriefingHtml = qData.briefing || "";
+        
+        renderDossierView();
         startGlobalRoundTimer();
         showScreen('startScreen');
       } catch (e) { if (!isSilent) msg.innerText = "Connection error. Ensure backend is reachable."; }
     }
+
+    function renderDossierView() {
+      const briefingContainer = document.getElementById('briefingEvidenceContainer');
+      const quizPanel = document.getElementById('quizEvidencePanel');
+      const toggleBtn = document.getElementById('quizEvidenceToggleBtn');
+
+      if (currentBriefingHtml && currentBriefingHtml.trim()) {
+        briefingContainer.innerHTML = currentBriefingHtml;
+        briefingContainer.classList.remove('hidden');
+        quizPanel.innerHTML = currentBriefingHtml;
+        toggleBtn.classList.remove('hidden');
+      } else {
+        briefingContainer.innerHTML = "<p class='muted-text'>No evidence files needed for this round.</p>";
+        quizPanel.innerHTML = "";
+        toggleBtn.classList.add('hidden');
+      }
+    }
+
+    document.getElementById('quizEvidenceToggleBtn').addEventListener('click', () => {
+      const panel = document.getElementById('quizEvidencePanel');
+      const icon = document.getElementById('quizEvidenceIcon');
+      const nowHidden = panel.classList.toggle('hidden');
+      icon.innerText = nowHidden ? '▾' : '▴';
+    });
 
     function startGlobalRoundTimer() {
       clearInterval(globalRoundTimerInterval);
@@ -518,7 +563,7 @@
           document.getElementById('eliminationStatusArea').innerHTML = `
             <div style="background:rgba(244,63,94,0.1); border:1px solid var(--danger); padding:16px; border-radius:8px;">
               <strong style="color:var(--danger)">STAGE ELIMINATION NOTICE:</strong>
-              <p style="color:#fca5a5; margin-top:4px;">Your team was eliminated from the tournament based on round evaluation and will not proceed.</p>
+              <p style="color:#fca5a5; margin-top:4px;">${d.elimination_reason || 'Eliminated based on round ranking cutoff.'}</p>
             </div>`;
         } else if (d.current_round > activeRound) {
           clearInterval(statusPollInterval);
