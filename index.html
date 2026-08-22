@@ -43,7 +43,7 @@
 
     .terminal-card {
       width: 100%;
-      max-width: 900px;
+      max-width: 920px;
       background: var(--panel);
       border: 1px solid var(--panel-border);
       backdrop-filter: blur(20px);
@@ -69,17 +69,6 @@
       font-size: 14px;
       font-weight: 700;
       color: var(--accent);
-    }
-
-    .badge-pill {
-      background: var(--accent-dim);
-      border: 1px solid var(--panel-border);
-      color: var(--accent);
-      padding: 5px 12px;
-      border-radius: 9999px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      font-weight: 700;
     }
 
     .meta-bar {
@@ -154,6 +143,13 @@
     }
     .action-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
 
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+    }
+    .btn-secondary:hover { background: rgba(255, 255, 255, 0.1); }
+
     .options-grid { display: flex; flex-direction: column; gap: 10px; margin-top: 18px; }
     .opt-btn {
       background: var(--card-bg);
@@ -204,9 +200,9 @@
   <div class="terminal-card" id="loginScreen">
     <div class="header-bar">
       <div class="brand-title">PROJECT NEXUS // GATEWAY</div>
-      <div class="badge-pill">STUDENT ACCESS</div>
+      <div style="font-size:12px; color:var(--text-muted);">STUDENT ACCESS NODE</div>
     </div>
-    <p class="muted-text" style="margin-bottom: 18px;">Authenticate using credentials dispatched by tournament directors.</p>
+    <p class="muted-text" style="margin-bottom: 18px;">Authenticate using credentials dispatched by facilitators.</p>
     <input type="text" id="loginTeamId" placeholder="TEAM ID (E.G. NEX-4920)" autocomplete="off">
     <input type="password" id="loginPass" placeholder="ACCESS KEY" autocomplete="off">
     <button class="action-btn" id="loginBtn">AUTHENTICATE NODE</button>
@@ -217,25 +213,28 @@
   <div class="terminal-card hidden" id="waitingRoundScreen">
     <div class="header-bar">
       <div class="brand-title">PROJECT NEXUS // HOLDING PATTERN</div>
-      <button onclick="performLogout()" style="background:transparent; color:var(--text-muted); border:1px solid var(--card-border); padding:4px 10px; border-radius:6px; cursor:pointer; font-size:11px;">DISCONNECT</button>
+      <button onclick="performLogout()" class="btn-secondary" style="padding:6px 12px; border-radius:6px; font-size:12px; cursor:pointer;">DISCONNECT</button>
     </div>
-    <div style="padding: 20px 0;">
-      <p style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">ROUND <span id="waitingRoundNum">-</span> IS CURRENTLY LOCKED</p>
-      <p class="muted-text">The evaluation node is preparing questions. Your terminal will sync immediately once the clock starts.</p>
+    <div class="meta-bar">
+      <div class="meta-item">TEAM NAME<strong id="waitTeamName">-</strong></div>
+      <div class="meta-item">NODE ID<strong id="waitTeamId">-</strong></div>
+      <div class="meta-item">TARGET ROUND<strong id="waitingRoundNum">-</strong></div>
     </div>
+    <p style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">ROUND IS CURRENTLY LOCKED</p>
+    <p class="muted-text">The scoring clock has not started yet. Your terminal will automatically advance the moment the facilitator opens the round.</p>
   </div>
 
   <!-- SCREEN 1C: PRE-ROUND BRIEFING & SECURITY AGREEMENT -->
   <div class="terminal-card hidden" id="startScreen">
     <div class="header-bar">
       <div class="brand-title">ROUND <span id="startRoundNum">-</span> // MISSION BRIEFING</div>
-      <div class="badge-pill" id="startTeamBadge">TEAM: ---</div>
+      <button onclick="performLogout()" class="btn-secondary" style="padding:6px 12px; border-radius:6px; font-size:12px; cursor:pointer;">DISCONNECT</button>
     </div>
 
     <div class="meta-bar">
-      <div class="meta-item">ASSIGNED NODE<strong id="metaNodeId">-</strong></div>
-      <div class="meta-item">SECURITY PROTOCOL<strong>FULLSCREEN MANDATORY</strong></div>
-      <div class="meta-item">STRIKES ALLOWED<strong>1 STRIKE / TERMINATION</strong></div>
+      <div class="meta-item">TEAM ID<strong id="metaNodeId">-</strong></div>
+      <div class="meta-item">TEAM NAME<strong id="startTeamBadge">-</strong></div>
+      <div class="meta-item">SECURITY<strong style="color:var(--danger)">FULLSCREEN REQUIRED</strong></div>
     </div>
 
     <div class="round-timer-box">
@@ -245,14 +244,14 @@
 
     <div id="briefingEvidenceContainer" class="evidence-panel"></div>
 
-    <button class="action-btn" id="startRoundBtn">ENGAGE SECURE FULLSCREEN & BEGIN</button>
+    <button class="action-btn" id="startRoundBtn">ENGAGE FULLSCREEN & START ASSESSMENT</button>
   </div>
 
   <!-- SCREEN 2: ACTIVE ASSESSMENT -->
   <div class="terminal-card hidden" id="quizScreen">
     <div class="header-bar">
       <div class="brand-title" id="teamDisplay">TEAM: ---</div>
-      <div class="badge-pill" id="progressDisplay">NODE 1/--</div>
+      <div id="progressDisplay" style="font-family:'JetBrains Mono'; color:var(--accent); font-weight:700;">NODE 1/--</div>
       <div id="timer" style="font-family:'JetBrains Mono'; font-size:22px; font-weight:800; color:var(--gold);">30s</div>
     </div>
 
@@ -274,7 +273,10 @@
 
   <!-- SCREEN 3: SUMMARY & ADVANCEMENT STANDBY -->
   <div class="terminal-card hidden" id="endScreen">
-    <div class="header-bar"><div class="brand-title">TRANSMISSION SUMMARY</div></div>
+    <div class="header-bar">
+      <div class="brand-title">TRANSMISSION SUMMARY</div>
+      <button onclick="performLogout()" class="btn-secondary" style="padding:6px 12px; border-radius:6px; font-size:12px; cursor:pointer;">DISCONNECT</button>
+    </div>
     <p id="endStatus" style="font-size: 16px; font-weight: 600; color: var(--accent); margin-bottom: 8px;">&gt; RESPONSES COMMITTED TO CLUSTER.</p>
     <p id="subReason" class="muted-text"></p>
     <div id="eliminationStatusArea" style="margin-top: 24px; border-top: 1px solid var(--card-border); padding-top: 18px;">
@@ -286,7 +288,7 @@
   <div id="warningModal" class="modal-overlay hidden">
     <div class="modal-box">
       <h2 style="font-size: 18px; font-weight: 700; margin-bottom: 10px; color: var(--danger);">SECURITY PROTOCOL BREACH</h2>
-      <p style="font-size: 14px; margin-bottom: 20px;">TAB SWITCH / FULLSCREEN EXIT DETECTED (STRIKE 1/2). Next breach will terminate test.</p>
+      <p style="font-size: 14px; margin-bottom: 20px;">FULLSCREEN EXIT / TAB FOCUS SHIFT DETECTED (STRIKE 1/2). Next breach will terminate test.</p>
       <button class="action-btn" style="background: var(--danger); color: #fff;" id="dismissWarningBtn">RESUME FULLSCREEN</button>
     </div>
   </div>
@@ -303,7 +305,7 @@
     const BACKEND_URL = "https://project-victory-production-d780.up.railway.app";
     let questions = [], currentQIdx = 0, timerInterval = null, globalRoundTimerInterval = null;
     let globalRemainingSeconds = 0, timeLeft = 30, teamId = "", teamPassword = "", teamName = "";
-    let activeRound = 1, answers = {}, tabSwitchCount = 0, warnedAlready = false, quizActive = false;
+    let activeRound = 1, answers = {}, tabSwitchCount = 0, quizActive = false;
     let isSubmitting = false, roundWaitPoll = null, statusPollInterval = null, localElapsedSeconds = 0;
 
     function showScreen(id) {
@@ -319,7 +321,10 @@
           body: JSON.stringify({ team_id: teamId, password: teamPassword })
         });
       }
+      localStorage.removeItem('nexusTeamId');
+      localStorage.removeItem('nexusTeamPass');
       teamId = ""; teamPassword = "";
+      if (roundWaitPoll) { clearInterval(roundWaitPoll); roundWaitPoll = null; }
       showScreen('loginScreen');
     }
 
@@ -343,8 +348,12 @@
         if (res.status === 423) {
           activeRound = parseInt(data.detail.match(/Round (\d+)/)[1]) || activeRound;
           document.getElementById('waitingRoundNum').innerText = activeRound;
+          document.getElementById('waitTeamName').innerText = teamId;
+          document.getElementById('waitTeamId').innerText = teamId;
+          localStorage.setItem('nexusTeamId', teamId);
+          localStorage.setItem('nexusTeamPass', teamPassword);
           showScreen('waitingRoundScreen');
-          if (!roundWaitPoll) roundWaitPoll = setInterval(() => attemptLogin(true), 4000);
+          if (!roundWaitPoll) roundWaitPoll = setInterval(() => attemptLogin(true), 3000);
           return;
         }
 
@@ -355,23 +364,26 @@
         }
 
         if (roundWaitPoll) { clearInterval(roundWaitPoll); roundWaitPoll = null; }
+        localStorage.setItem('nexusTeamId', teamId);
+        localStorage.setItem('nexusTeamPass', teamPassword);
+
         teamName = data.team_name;
         activeRound = data.current_round;
         globalRemainingSeconds = data.round_remaining_seconds || 600;
 
         document.getElementById('teamDisplay').innerText = `${teamName} (${teamId})`;
-        document.getElementById('startTeamBadge').innerText = `TEAM: ${teamName}`;
+        document.getElementById('startTeamBadge').innerText = teamName;
         document.getElementById('metaNodeId').innerText = teamId;
         document.getElementById('startRoundNum').innerText = activeRound;
 
         const qRes = await fetch(`${BACKEND_URL}/api/questions/${activeRound}`);
         const qData = await qRes.json();
         questions = qData.questions || [];
-        document.getElementById('briefingEvidenceContainer').innerHTML = qData.briefing || "<p class='muted-text'>No evidence files needed for this round.</p>";
+        document.getElementById('briefingEvidenceContainer').innerHTML = qData.briefing || "<p class='muted-text'>No scenario documents needed for this round.</p>";
 
         startGlobalRoundTimer();
         showScreen('startScreen');
-      } catch (e) { if (!isSilent) msg.innerText = "Connection error."; }
+      } catch (e) { if (!isSilent) msg.innerText = "Connection error. Ensure backend is reachable."; }
     }
 
     function startGlobalRoundTimer() {
@@ -462,7 +474,6 @@
         })
       });
 
-      // Poll for advancement
       statusPollInterval = setInterval(async () => {
         const r = await fetch(`${BACKEND_URL}/api/team/status/${teamId}`);
         const d = await r.json();
@@ -480,6 +491,16 @@
       document.getElementById('clearedModal').classList.add('hidden');
       currentQIdx = 0; answers = {}; tabSwitchCount = 0; isSubmitting = false;
       attemptLogin();
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedId = localStorage.getItem('nexusTeamId');
+      const savedPass = localStorage.getItem('nexusTeamPass');
+      if (savedId && savedPass) {
+        teamId = savedId;
+        teamPassword = savedPass;
+        attemptLogin();
+      }
     });
   </script>
 </body>

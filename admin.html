@@ -9,118 +9,44 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #07090e;
-      --panel: #0d131f;
-      --panel-border: rgba(0, 242, 174, 0.18);
-      --card-border: rgba(255, 255, 255, 0.09);
-      --accent: #00f2ae;
-      --accent-dim: rgba(0, 242, 174, 0.12);
-      --gold: #f59e0b;
-      --gold-dim: rgba(245, 158, 11, 0.12);
-      --danger: #f43f5e;
-      --danger-dim: rgba(244, 63, 94, 0.12);
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
+      --bg: #07090e; --panel: #0d131f; --panel-border: rgba(0, 242, 174, 0.18);
+      --card-border: rgba(255, 255, 255, 0.09); --accent: #00f2ae; --accent-dim: rgba(0, 242, 174, 0.12);
+      --gold: #f59e0b; --gold-dim: rgba(245, 158, 11, 0.12); --danger: #f43f5e; --danger-dim: rgba(244, 63, 94, 0.12);
+      --text-main: #f8fafc; --text-muted: #94a3b8;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: var(--bg);
-      background-image: radial-gradient(circle at 50% 0%, rgba(0, 242, 174, 0.05) 0%, transparent 60%);
-      color: var(--text-main);
-      font-family: 'Inter', sans-serif;
-      padding: 24px;
-      font-size: 13.5px;
-    }
-
-    h1 {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 19px;
-      font-weight: 800;
-      color: var(--accent);
-      margin-bottom: 20px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid var(--card-border);
-      letter-spacing: 0.5px;
-    }
-
-    h2 {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--accent);
-      margin-bottom: 12px;
-    }
-
-    .top-bar { display: flex; gap: 10px; margin-bottom: 20px; align-items: center; flex-wrap: wrap; }
-    .card { background: var(--panel); border: 1px solid var(--card-border); border-radius: 10px; padding: 18px; margin-bottom: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.4); }
-
+    body { background: var(--bg); color: var(--text-main); font-family: 'Inter', sans-serif; padding: 24px; font-size: 13.5px; }
+    h1 { font-family: 'JetBrains Mono', monospace; font-size: 19px; font-weight: 800; color: var(--accent); margin-bottom: 20px; border-bottom: 1px solid var(--card-border); padding-bottom: 10px; }
+    h2 { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 12px; }
+    .card { background: var(--panel); border: 1px solid var(--card-border); border-radius: 10px; padding: 18px; margin-bottom: 20px; }
     .analytics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 20px; }
     .metric-card { background: rgba(255,255,255,0.02); border: 1px solid var(--card-border); border-radius: 8px; padding: 14px; }
     .metric-card .title { font-size: 11.5px; color: var(--text-muted); font-weight: 600; }
     .metric-card .val { font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 800; color: var(--accent); margin-top: 4px; }
-
     .layout-grid { display: grid; grid-template-columns: 1.15fr 1.85fr; gap: 20px; }
     @media (max-width: 1080px) { .layout-grid { grid-template-columns: 1fr; } }
-
     input, select, textarea {
-      font-family: 'JetBrains Mono', monospace;
-      padding: 9px 12px;
-      background: #080d16 !important;
-      border: 1px solid var(--card-border);
-      color: #00f2ae !important;
-      font-size: 13px;
-      width: 100%;
-      margin-bottom: 10px;
-      border-radius: 6px;
-      outline: none;
+      font-family: 'JetBrains Mono', monospace; padding: 9px 12px; background: #080d16 !important;
+      border: 1px solid var(--card-border); color: #00f2ae !important; font-size: 13px; width: 100%; margin-bottom: 10px; border-radius: 6px; outline: none;
     }
-
-    select option { background-color: #080d16 !important; color: #00f2ae !important; }
-    input:focus, select:focus, textarea:focus { border-color: var(--accent); }
-
-    button {
-      padding: 9px 15px;
-      background: var(--accent);
-      color: #03150f;
-      font-weight: 700;
-      cursor: pointer;
-      border: none;
-      border-radius: 6px;
-      font-family: 'Inter', sans-serif;
-      font-size: 13px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: filter 0.15s ease;
-    }
-    button:hover { filter: brightness(1.15); }
+    button { padding: 9px 15px; background: var(--accent); color: #03150f; font-weight: 700; cursor: pointer; border: none; border-radius: 6px; font-family: 'Inter', sans-serif; font-size: 13px; }
     .btn-danger { background: var(--danger) !important; color: #fff !important; }
     .btn-warning { background: var(--gold) !important; color: #201300 !important; }
-
     table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 12.5px; }
     th, td { border: 1px solid var(--card-border); padding: 8px 10px; text-align: left; }
     th { background: rgba(255,255,255,0.04); color: var(--accent); font-family: 'JetBrains Mono', monospace; }
-
-    .q-item-card { background: rgba(0, 242, 174, 0.025); border: 1px solid var(--panel-border); padding: 12px; margin-bottom: 10px; border-radius: 6px; }
-    .hint-item-card { background: var(--gold-dim); border: 1px solid rgba(245, 158, 11, 0.25); padding: 12px; margin-bottom: 10px; border-radius: 6px; }
-    .badge { padding: 3px 7px; font-size: 11px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-weight: 700; }
-    .badge-qual { background: var(--accent-dim); color: var(--accent); }
-    .badge-elim { background: var(--danger-dim); color: var(--danger); }
   </style>
 </head>
 <body>
 
   <h1>// PROJECT NEXUS: COMMAND MATRIX & UNIVERSAL CONTROLLER</h1>
 
-  <div class="top-bar">
+  <div style="display:flex; gap:10px; margin-bottom:20px; align-items:center; flex-wrap:wrap;">
     <input type="text" id="apiBase" value="https://project-victory-production-d780.up.railway.app" style="max-width:320px; margin:0;">
     <input type="password" id="adminKey" placeholder="ADMIN SECRET KEY" style="max-width:220px; margin:0;" oninput="localStorage.setItem('nexusAdminKey', this.value)">
     <button id="btnSync">SYNC MATRIX</button>
   </div>
 
-  <!-- LIVE ANALYTICS BENTO -->
   <div class="analytics-grid">
     <div class="metric-card"><div class="title">TOTAL TEAMS</div><div class="val" id="statTotalTeams">-</div></div>
     <div class="metric-card"><div class="title">ACTIVE LOGINS</div><div class="val" id="statLogins" style="color:var(--gold);">-</div></div>
@@ -128,7 +54,6 @@
     <div class="metric-card"><div class="title">LATE REGISTRATION LOCK</div><div class="val" id="statLockState" style="font-size:16px;">LOCKED</div></div>
   </div>
 
-  <!-- GATE CONTROL -->
   <div class="card">
     <h2>&gt; ROUND GATE CONTROL & AUTO-STOP TIMER</h2>
     <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
@@ -144,7 +69,6 @@
     </div>
   </div>
 
-  <!-- UNIVERSAL RESET SUITE -->
   <div class="card">
     <h2>&gt; UNIVERSAL RESET CONTROLLER</h2>
     <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
@@ -160,37 +84,18 @@
 
   <div class="layout-grid">
     <div>
-      <!-- QUESTION BANK MANAGER -->
       <div class="card">
-        <h2>&gt; QUESTION & ANSWER-KEY MANAGER</h2>
+        <h2>&gt; QUESTION BANK MANAGER</h2>
         <div style="display: flex; gap: 10px;">
           <select id="editRoundSelect">
-            <option value="1">Round 1 Question Bank</option>
-            <option value="2">Round 2 Question Bank</option>
-            <option value="3">Round 3 Question Bank</option>
-            <option value="4">Round 4 Question Bank</option>
+            <option value="1">Round 1</option><option value="2">Round 2</option><option value="3">Round 3</option><option value="4">Round 4</option>
           </select>
-          <button id="btnAddBlankQuestion" style="width: 140px;">+ ADD NODE</button>
+          <button id="btnAddBlankQuestion">+ ADD NODE</button>
         </div>
         <div id="questionListContainer" style="max-height: 340px; overflow-y: auto; margin-top: 10px;"></div>
         <button id="btnSaveQuestionBank" class="btn-warning" style="margin-top: 10px;">SAVE & SYNC TO DB</button>
-        <div id="qSaveMsg" style="font-size: 12px; margin-top: 6px;"></div>
       </div>
 
-      <!-- HINT LADDER MANAGER -->
-      <div class="card">
-        <h2>&gt; HINT LADDER MANAGER</h2>
-        <div id="hintListContainer" style="max-height: 200px; overflow-y: auto;"></div>
-        <button id="btnAddBlankHint" style="width: auto; padding: 6px 12px;">+ ADD HINT TIER</button>
-      </div>
-
-      <!-- EVIDENCE BRIEFING EDITOR -->
-      <div class="card">
-        <h2>&gt; EVIDENCE DOSSIER (HTML BRIEFING)</h2>
-        <textarea id="briefingEditor" style="height: 160px; font-size: 12px; line-height: 1.4;" placeholder="<div class='evidence-doc'>...</div>"></textarea>
-      </div>
-
-      <!-- BULK GENERATOR -->
       <div class="card">
         <h2>&gt; BULK CREDENTIAL GENERATOR</h2>
         <div style="display: flex; gap: 10px;">
@@ -203,21 +108,17 @@
     </div>
 
     <div>
-      <!-- PROMOTION AUTOMATOR -->
       <div class="card">
-        <h2>&gt; TOURNAMENT PROMOTION AUTOMATOR</h2>
+        <h2>&gt; PROMOTION AUTOMATOR</h2>
         <div style="display: flex; gap: 10px;">
           <input type="number" id="promoteTopN" value="10" placeholder="TOP N TEAMS">
           <select id="promoteTargetRound">
-            <option value="2">Promote to Round 2</option>
-            <option value="3">Promote to Round 3</option>
-            <option value="4">Promote to Round 4</option>
+            <option value="2">Promote to Round 2</option><option value="3">Promote to Round 3</option><option value="4">Promote to Round 4</option>
           </select>
         </div>
         <button id="btnPromote" class="btn-warning">PROMOTE QUALIFIED & ELIMINATE OTHERS</button>
       </div>
 
-      <!-- LIVE LEADERBOARD -->
       <div class="card">
         <h2>&gt; LIVE LEADERBOARD (ROUND <span id="lbRoundNum">1</span>)</h2>
         <table>
@@ -226,11 +127,10 @@
         </table>
       </div>
 
-      <!-- PARTICIPANT ROSTER & ACTIVE SESSIONS -->
       <div class="card">
         <h2>&gt; PARTICIPANT ROSTER & MONITOR</h2>
         <table>
-          <thead><tr><th>Team ID</th><th>Name</th><th>Access Key</th><th>Round</th><th>Logged In?</th><th>Action</th></tr></thead>
+          <thead><tr><th>Team ID</th><th>Name</th><th>Key</th><th>Round</th><th>Logged In?</th><th>Action</th></tr></thead>
           <tbody id="teamsBody"><tr><td colspan="6">Loading...</td></tr></tbody>
         </table>
       </div>
@@ -238,7 +138,7 @@
   </div>
 
   <script>
-    let currentQuestions = [], currentHints = [], currentBriefing = "";
+    let currentQuestions = [];
     function getApi() { return document.getElementById('apiBase').value.trim(); }
     function getKey() { return document.getElementById('adminKey').value.trim(); }
 
@@ -271,7 +171,7 @@
         const lRes = await fetch(`${api}/api/admin/leaderboard/${round}`, { headers: { "x-admin-key": key } });
         const lData = await lRes.json();
         document.getElementById('lbBody').innerHTML = (lData.leaderboard || []).map(r => `
-          <tr><td>#${r.rank}</td><td>${r.team_id}</td><td>${r.team_name}</td><td><strong>${r.score}</strong></td><td>${r.time_taken_seconds}s</td><td><span class="badge ${r.status==='QUALIFIED'?'badge-qual':'badge-elim'}">${r.status}</span></td></tr>
+          <tr><td>#${r.rank}</td><td>${r.team_id}</td><td>${r.team_name}</td><td><strong>${r.score}</strong></td><td>${r.time_taken_seconds}s</td><td>${r.status}</td></tr>
         `).join('') || '<tr><td colspan="6">No submissions.</td></tr>';
       } catch(e){}
 
@@ -282,7 +182,7 @@
           <tr>
             <td>${t.team_id}</td><td>${t.team_name}</td><td style="color:var(--gold)">${t.password}</td><td>${t.current_round}</td>
             <td>${t.is_logged_in ? '<span style="color:var(--accent)">ONLINE</span>' : '<span style="color:var(--text-muted)">OFFLINE</span>'}</td>
-            <td><button onclick="unlockTeam('${t.team_id}')" style="padding:2px 6px; font-size:11px;">FORCE UNLOCK</button></td>
+            <td><button onclick="unlockTeam('${t.team_id}')" style="padding:2px 6px; font-size:11px;">UNLOCK</button></td>
           </tr>
         `).join('');
       } catch(e){}
@@ -299,56 +199,32 @@
         const res = await fetch(`${getApi()}/api/admin/questions/${round}`, { headers: { "x-admin-key": getKey() } });
         const data = await res.json();
         currentQuestions = data.questions || [];
-        currentHints = data.hints || [];
-        document.getElementById('briefingEditor').value = data.briefing || "";
-        renderQuestions(); renderHints();
+        renderQuestions();
       } catch(e){}
     }
 
     function renderQuestions() {
       const container = document.getElementById('questionListContainer');
       container.innerHTML = (currentQuestions || []).map((q, idx) => `
-        <div class="q-item-card">
-          <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-            <strong>NODE #${idx+1} (${q.id})</strong>
-            <button onclick="currentQuestions.splice(${idx},1); renderQuestions();" class="btn-danger" style="padding:2px 6px; font-size:10px;">DELETE</button>
-          </div>
+        <div style="border:1px solid var(--card-border); padding:8px; margin-bottom:8px; border-radius:6px;">
           <input type="text" value="${q.text}" oninput="currentQuestions[${idx}].text=this.value" placeholder="Question Text">
           <input type="text" value="${q.correct_answer}" oninput="currentQuestions[${idx}].correct_answer=this.value" placeholder="Correct Answer">
         </div>
       `).join('');
     }
 
-    function renderHints() {
-      const container = document.getElementById('hintListContainer');
-      container.innerHTML = (currentHints || []).map((h, idx) => `
-        <div class="hint-item-card">
-          <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-            <strong>HINT TIER ${h.tier}</strong>
-            <button onclick="currentHints.splice(${idx},1); renderHints();" class="btn-danger" style="padding:2px 6px; font-size:10px;">DELETE</button>
-          </div>
-          <input type="text" value="${h.text}" oninput="currentHints[${idx}].text=this.value" placeholder="Hint Text">
-        </div>
-      `).join('');
-    }
-
     document.getElementById('btnAddBlankQuestion').onclick = () => {
-      currentQuestions.push({ id: `Q${currentQuestions.length+1}`, type: "mcq", text: "New Question", options: [{k:"A",t:"Opt 1"},{k:"B",t:"Opt 2"}], correct_answer: "A", points: 4 });
+      currentQuestions.push({ id: `Q${currentQuestions.length+1}`, type: "mcq", text: "New Question", options: [{k:"A",t:"Opt 1"}], correct_answer: "A", points: 4 });
       renderQuestions();
-    };
-
-    document.getElementById('btnAddBlankHint').onclick = () => {
-      currentHints.push({ tier: currentHints.length+1, point_cost: 5, text: "Hint text" });
-      renderHints();
     };
 
     document.getElementById('btnSaveQuestionBank').onclick = async () => {
       const round = parseInt(document.getElementById('editRoundSelect').value);
       await fetch(`${getApi()}/api/admin/questions`, {
         method: "POST", headers: { "Content-Type": "application/json", "x-admin-key": getKey() },
-        body: JSON.stringify({ round_number: round, questions: currentQuestions, hints: currentHints, briefing: document.getElementById('briefingEditor').value })
+        body: JSON.stringify({ round_number: round, questions: currentQuestions, hints: [], briefing: "" })
       });
-      document.getElementById('qSaveMsg').innerText = "Questions successfully saved.";
+      alert("Questions saved.");
     };
 
     document.getElementById('btnOpenRound').onclick = async () => {
@@ -382,7 +258,7 @@
     document.getElementById('btnExecuteReset').onclick = async () => {
       const type = document.getElementById('resetTypeSelect').value;
       const r = parseInt(document.getElementById('gateRoundSelect').value) || 1;
-      if (!confirm(`Are you sure you want to execute: ${type}?`)) return;
+      if (!confirm(`Confirm reset: ${type}?`)) return;
       await fetch(`${getApi()}/api/admin/universal-reset`, {
         method: "POST", headers: { "Content-Type": "application/json", "x-admin-key": getKey() },
         body: JSON.stringify({ reset_type: type, round_number: r })
@@ -429,7 +305,7 @@
 
     document.getElementById('btnSync').onclick = syncAll;
     document.getElementById('editRoundSelect').onchange = loadQuestionsForEditing;
-    document.addEventListener("DOMContentLoaded", () => {
+    window.addEventListener("DOMContentLoaded", () => {
       const k = localStorage.getItem('nexusAdminKey');
       if (k) document.getElementById('adminKey').value = k;
       loadQuestionsForEditing();
