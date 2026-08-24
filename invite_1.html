@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Project Nexus // Classified Invitation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Plus+Jakarta+Sans:wght@400;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    :root {
+      --bg: #06090e;
+      --card-bg: #0f172a;
+      --accent: #10b981;
+      --gold: #fbbf24;
+      --cyan: #38bdf8;
+      --purple: #a855f7;
+      --danger: #f43f5e;
+    }
+    body {
+      background-color: var(--bg);
+      color: #f8fafc;
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      overflow-x: hidden;
+    }
+    .grid-bg {
+      position: fixed; inset: 0; pointer-events: none;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 32px 32px;
+      z-index: 1;
+    }
+    .stage-wrapper {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 460px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 480px;
+    }
+
+    .envelope-card {
+      width: 100%;
+      height: 270px;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      position: relative;
+      cursor: pointer;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: transform 0.2s ease;
+      margin-top: 15px;
+    }
+    .envelope-card:active { transform: scale(0.98); }
+    .envelope-flap {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 120px;
+      background: linear-gradient(180deg, #1e293b, #0f172a);
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+      transform-origin: top;
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 5;
+      border-top: 1px solid #475569;
+    }
+    .envelope-card.opened .envelope-flap {
+      transform: rotateX(180deg);
+      z-index: 1;
+    }
+    .wax-seal {
+      position: absolute;
+      top: 90px;
+      width: 58px;
+      height: 58px;
+      background: radial-gradient(circle at 35% 35%, #e11d48, #881337);
+      border-radius: 50%;
+      box-shadow: 0 4px 14px rgba(225, 29, 72, 0.4), inset 0 2px 4px rgba(255,255,255,0.4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 800;
+      color: #ffe4e6;
+      font-size: 14px;
+      z-index: 6;
+      transition: all 0.3s ease;
+    }
+    .envelope-card.opened .wax-seal {
+      opacity: 0;
+      transform: scale(1.4);
+      pointer-events: none;
+    }
+
+    .invite-modal {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid var(--accent);
+      border-radius: 14px;
+      padding: 24px 20px;
+      box-shadow: 0 15px 50px rgba(0,0,0,0.85), 0 0 35px rgba(16, 185, 129, 0.25);
+      animation: passAppear 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+    @keyframes passAppear {
+      from { transform: scale(0.55) translateY(50px); opacity: 0; }
+      to { transform: scale(1) translateY(0); opacity: 1; }
+    }
+    .pass-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px dashed #334155;
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+    .pass-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 18px;
+      font-weight: 900;
+      color: #ffffff;
+    }
+    .pass-title span { color: var(--accent); }
+    .pass-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      color: var(--cyan);
+      background: rgba(56, 189, 248, 0.1);
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    .terms-matrix {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 16px 0 20px 0;
+    }
+    .matrix-item {
+      background: #0b1120;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 10px 12px;
+      border-left: 3px solid var(--cyan);
+      opacity: 0;
+      transform: translateY(12px);
+      animation: matrixIn 0.45s ease forwards;
+    }
+    .matrix-item:nth-child(1) { animation-delay: 0.15s; }
+    .matrix-item:nth-child(2) { border-left-color: var(--gold); animation-delay: 0.25s; }
+    .matrix-item:nth-child(3) { border-left-color: var(--purple); animation-delay: 0.35s; }
+    .matrix-item:nth-child(4) { border-left-color: var(--accent); animation-delay: 0.45s; }
+    @keyframes matrixIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .matrix-label {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 10px;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 3px;
+    }
+    .matrix-val {
+      font-size: 13px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .btn-register {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 50px;
+      background: var(--accent);
+      color: #041018;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35);
+      transition: filter 0.15s ease, transform 0.15s ease;
+      opacity: 0;
+      animation: matrixIn 0.4s ease 0.55s forwards;
+    }
+    .btn-register:active { filter: brightness(0.9); transform: scale(0.98); }
+
+    .action-caption {
+      margin-top: 14px;
+      font-size: 13px;
+      color: var(--gold);
+      font-family: 'JetBrains Mono', monospace;
+      text-align: center;
+    }
+
+    .scan-line {
+      position: absolute;
+      left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 20;
+    }
+    .scan-line.active {
+      opacity: 1;
+      animation: scanDown 0.9s ease-out forwards;
+    }
+    @keyframes scanDown {
+      0% { top: 0; opacity: 0.9; }
+      100% { top: 100%; opacity: 0; }
+    }
+
+    .glow-ring {
+      position: absolute;
+      width: 120px; height: 120px;
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 15;
+    }
+    .glow-ring.active {
+      animation: ringExpand 0.7s ease-out forwards;
+    }
+    @keyframes ringExpand {
+      0% { transform: scale(0.3); opacity: 0.8; }
+      100% { transform: scale(2.8); opacity: 0; }
+    }
+
+    .typewriter {
+      overflow: hidden;
+      white-space: nowrap;
+      border-right: 2px solid var(--gold);
+      animation: typing 1.4s steps(28) 0.3s both, blink 0.6s step-end infinite;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--gold);
+      margin-bottom: 10px;
+      max-width: 0;
+    }
+    @keyframes typing {
+      from { max-width: 0; }
+      to { max-width: 100%; }
+    }
+    @keyframes blink {
+      50% { border-color: transparent; }
+    }
+
+    .warp-curtain {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      z-index: 999;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(-100%);
+      transition: transform 0.9s cubic-bezier(0.7, 0, 0.3, 1), opacity 0.4s ease;
+    }
+    .warp-curtain.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .warp-lines {
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        180deg,
+        transparent,
+        transparent 20px,
+        rgba(0, 255, 140, 0.3) 20px,
+        rgba(0, 255, 140, 0.3) 40px
+      );
+      animation: warpSpeed 0.18s linear infinite;
+    }
+    @keyframes warpSpeed {
+      0% { background-position: 0 0; }
+      100% { background-position: 0 200px; }
+    }
+
+    .hidden { display: none !important; }
+    canvas { position: fixed; inset: 0; pointer-events: none; z-index: 50; }
+  </style>
+</head>
+<body>
+
+  <div class="grid-bg"></div>
+  <canvas id="particleCanvas"></canvas>
+
+  <div class="stage-wrapper">
+    <div id="viewEnv" style="width: 100%; position: relative;">
+      <div class="envelope-card" id="envelopeCard" onclick="openEnvelope()">
+        <div class="envelope-flap"></div>
+        <div class="wax-seal">NX</div>
+        <div class="scan-line" id="scanLine"></div>
+        <div class="glow-ring" id="glowRing"></div>
+      </div>
+      <div class="action-caption" id="envCaption">&gt; TAP WAX SEAL TO DECRYPT INVITATION &lt;</div>
+    </div>
+
+    <div class="invite-modal hidden" id="inviteModal">
+      <div class="typewriter" id="typeLine">CLEARANCE GRANTED · LEVEL 5</div>
+      <div class="pass-header">
+        <div class="pass-title">PROJECT <span>NEXUS</span></div>
+        <div class="pass-num">CLEARANCE PASS #0492</div>
+      </div>
+
+      <p style="font-size: 14px; color: #cbd5e1; line-height: 1.5;">
+        You have been cleared to compete in the <strong>Official AI & Cyber Investigation Challenge</strong>.
+      </p>
+
+      <div class="terms-matrix">
+        <div class="matrix-item">
+          <div class="matrix-label">NODE 01 // FORMAT</div>
+          <div class="matrix-val">30s Rapid Fire</div>
+        </div>
+        <div class="matrix-item">
+          <div class="matrix-label">NODE 02 // CIPHER</div>
+          <div class="matrix-val">Network T9 Decryption</div>
+        </div>
+        <div class="matrix-item">
+          <div class="matrix-label">NODE 03 // FORENSICS</div>
+          <div class="matrix-val">RFID & Alibi Investigation</div>
+        </div>
+        <div class="matrix-item">
+          <div class="matrix-label">ENTRY FEE</div>
+          <div class="matrix-val">₹100 / Team (Max 4)</div>
+        </div>
+      </div>
+
+      <button class="btn-register" onclick="acceptAndDive()">
+        ACCEPT INVITATION & ENTER →
+      </button>
+    </div>
+  </div>
+
+  <div class="warp-curtain" id="warpCurtain">
+    <div class="warp-lines"></div>
+  </div>
+
+  <script>
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    function playPopSound() {
+      if (ctx.state === 'suspended') ctx.resume();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(220, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.4, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.2);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.2);
+    }
+
+    function playChimeSound() {
+      if (ctx.state === 'suspended') ctx.resume();
+      [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.2, ctx.currentTime + i * 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.08 + 0.4);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(ctx.currentTime + i * 0.08);
+        osc.stop(ctx.currentTime + i * 0.08 + 0.4);
+      });
+    }
+
+    function playScanSound() {
+      if (ctx.state === 'suspended') ctx.resume();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(180, ctx.currentTime);
+      osc.frequency.linearRampToValueAtTime(720, ctx.currentTime + 0.35);
+      gain.gain.setValueAtTime(0.12, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.4);
+    }
+
+    function playWarpSound() {
+      if (ctx.state === 'suspended') ctx.resume();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sawtooth";
+      osc.frequency.setValueAtTime(300, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(30, ctx.currentTime + 1.0);
+      gain.gain.setValueAtTime(0.4, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1.0);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 1.0);
+    }
+
+    const canvas = document.getElementById('particleCanvas');
+    const c = canvas.getContext('2d');
+    let particles = [];
+    function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function spawnParticles(x, y) {
+      for (let i = 0; i < 55; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 7 + 2;
+        particles.push({
+          x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+          size: Math.random() * 4 + 2,
+          color: ['#fbbf24', '#38bdf8', '#10b981', '#ffffff', '#a855f7'][Math.floor(Math.random() * 5)],
+          life: 1
+        });
+      }
+      animateParticles();
+    }
+
+    function animateParticles() {
+      c.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach((p, idx) => {
+        p.x += p.vx; p.y += p.vy; p.vy += 0.15; p.life -= 0.018;
+        c.fillStyle = p.color; c.globalAlpha = Math.max(0, p.life);
+        c.beginPath(); c.arc(p.x, p.y, p.size, 0, Math.PI * 2); c.fill();
+        if (p.life <= 0) particles.splice(idx, 1);
+      });
+      if (particles.length > 0) requestAnimationFrame(animateParticles);
+    }
+
+    let opened = false;
+    function openEnvelope() {
+      if (opened) return;
+      opened = true;
+      playPopSound();
+      if (navigator.vibrate) navigator.vibrate([40, 40, 30]);
+
+      const card = document.getElementById('envelopeCard');
+      card.classList.add('opened');
+      document.getElementById('envCaption').classList.add('hidden');
+
+      const rect = card.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      spawnParticles(cx, cy);
+
+      const ring = document.getElementById('glowRing');
+      ring.style.left = (cx - 60) + 'px';
+      ring.style.top = (cy - 60) + 'px';
+      ring.classList.add('active');
+
+      setTimeout(() => {
+        playScanSound();
+        document.getElementById('scanLine').classList.add('active');
+      }, 180);
+
+      setTimeout(() => {
+        playChimeSound();
+        card.classList.add('hidden');
+        document.getElementById('inviteModal').classList.remove('hidden');
+      }, 620);
+    }
+
+    function acceptAndDive() {
+      playWarpSound();
+      document.getElementById('warpCurtain').classList.add('active');
+      document.body.style.transform = "translateY(120px) scale(0.9)";
+      document.body.style.transition = "transform 0.9s cubic-bezier(0.7, 0, 0.3, 1)";
+      setTimeout(() => {
+        window.location.href = '/register.html';
+      }, 950);
+    }
+  </script>
+</body>
+</html>
