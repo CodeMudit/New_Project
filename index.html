@@ -342,7 +342,7 @@
   <script>
     const BACKEND_URL = "https://project-victory-production-d780.up.railway.app";
     let questions = [], roundHints = [], hintsUsed = [], currentQIdx = 0;
-    let timerInterval = null, globalRoundTimerInterval = null;
+    let timerInterval = null, globalRoundTimerInterval = null, roundLockPoll = null;
     let globalRemainingSeconds = 0, timeLeft = 30, teamId = "", teamPassword = "", teamName = "";
     let activeRound = 1, answers = {}, tabSwitchCount = 0, quizActive = false;
     let isSubmitting = false, roundWaitPoll = null, statusPollInterval = null, localElapsedSeconds = 0;
@@ -366,9 +366,16 @@
       localStorage.removeItem('nexusTeamId');
       localStorage.removeItem('nexusTeamPass');
       teamId = ""; teamPassword = "";
+      stopAllPolls();
+      showScreen('loginScreen');
+    }
+
+    function stopAllPolls() {
       if (roundWaitPoll) { clearInterval(roundWaitPoll); roundWaitPoll = null; }
       if (statusPollInterval) { clearInterval(statusPollInterval); statusPollInterval = null; }
-      showScreen('loginScreen');
+      if (roundLockPoll) { clearInterval(roundLockPoll); roundLockPoll = null; }
+      if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+      if (globalRoundTimerInterval) { clearInterval(globalRoundTimerInterval); globalRoundTimerInterval = null; }
     }
 
     document.getElementById('loginBtn').addEventListener('click', doLoginSubmit);
@@ -396,7 +403,7 @@
         const data = await res.json();
 
         if (res.status === 423) {
-          activeRound = parseInt(data.detail.match(/Round (\d+)/)[1]) || activeRound;
+          activeRound = parseInt((data.detail || "").match(/Round (\d+)/)?.[1]) || activeRound;
           document.getElementById('waitingRoundNum').innerText = activeRound;
           document.getElementById('waitTeamName').innerText = teamName || teamId;
           document.getElementById('waitTeamId').innerText = teamId;
@@ -439,7 +446,9 @@
         renderDossierView();
         startGlobalRoundTimer();
         showScreen('startScreen');
-      } catch (e) { if (!isSilent) msg.innerText = "Connection error. Ensure backend is reachable."; }
+      } catch (e) {
+        if (!isSilent) msg.innerText = "Connection error. Ensure backend is reachable.";
+      }
     }
 
     function renderDossierView() {
@@ -480,6 +489,25 @@
       globalRoundTimerInterval = setInterval(tick, 1000);
     }
 
+    // ===== NEW: Aggressive round-lock polling while quiz is active =====
+    function startRoundLockWatcher() {
+      if (roundLockPoll) clearInterval(roundLockPoll);
+      roundLockPoll = setInterval(async () => {
+        if (!quizActive || isSubmitting) return;
+        try {
+          const res = await fetch(`${BACKEND_URL}/api/round/${activeRound}/status`);
+          const d = await res.json();
+          if (!d.is_open) {
+            // Admin locked the round → force finish immediately
+            finishQuiz("ROUND_LOCKED");
+          } else if (typeof d.remaining_seconds === 'number') {
+            // Keep local countdown roughly in sync
+            globalRemainingSeconds = d.remaining_seconds;
+          }
+        } catch (e) {}
+      }, 4000);
+    }
+
     document.getElementById('startRoundBtn').addEventListener('click', async () => {
       try {
         if (!document.fullscreenElement) await document.documentElement.requestFullscreen();
@@ -488,6 +516,7 @@
       quizActive = true;
       renderHintPanel();
       loadQuestion();
+      startRoundLockWatcher();          // ← start watching for admin lock
     });
 
     function handleSecurityBreach() {
@@ -516,6 +545,7 @@
     });
 
     function loadQuestion() {
+      if (!quizActive || isSubmitting) return;
       if (currentQIdx >= questions.length) { finishQuiz("NORMAL_COMPLETION"); return; }
       clearInterval(timerInterval);
       timeLeft = (activeRound === 1) ? 30 : 60;
@@ -534,7 +564,13 @@
           const b = document.createElement('button');
           b.className = 'opt-btn';
           b.innerHTML = `<strong>[${opt.k}]</strong> ${opt.t}`;
-          b.onclick = () => { answers[q.id] = opt.k; currentQIdx++; loadQuestion(); };
+          b.onclick = () => {
+            if (!quizActive || isSubmitting) return;
+            answers[q.id] = opt.k;
+            currentQIdx++;
+            saveProgress();
+            loadQuestion();
+          };
           optBox.appendChild(b);
         });
       } else {
@@ -542,16 +578,49 @@
         txtBox.classList.remove('hidden');
         const inp = document.getElementById('blankInput');
         inp.value = ''; inp.focus();
-        const submitText = () => { answers[q.id] = inp.value.trim(); currentQIdx++; loadQuestion(); };
+        const submitText = () => {
+          if (!quizActive || isSubmitting) return;
+          answers[q.id] = inp.value.trim();
+          currentQIdx++;
+          saveProgress();
+          loadQuestion();
+        };
         document.getElementById('submitTextBtn').onclick = submitText;
         inp.onkeydown = (e) => { if (e.key === 'Enter') submitText(); };
       }
 
       timerInterval = setInterval(() => {
+        if (!quizActive || isSubmitting) { clearInterval(timerInterval); return; }
         timeLeft--;
         document.getElementById('timer').innerText = `${timeLeft}s`;
-        if (timeLeft <= 0) { clearInterval(timerInterval); answers[q.id] = "TIMEOUT"; currentQIdx++; loadQuestion(); }
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          answers[q.id] = "TIMEOUT";
+          currentQIdx++;
+          saveProgress();
+          loadQuestion();
+        }
       }, 1000);
+    }
+
+    // Save progress to server so force-submit has data
+    async function saveProgress() {
+      if (!teamId || !teamPassword || isSubmitting) return;
+      try {
+        await fetch(`${BACKEND_URL}/api/session/progress`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            team_id: teamId,
+            password: teamPassword,
+            round_number: activeRound,
+            current_index: currentQIdx,
+            answers: answers,
+            tab_switch_count: tabSwitchCount,
+            warned: tabSwitchCount > 0
+          })
+        });
+      } catch (e) {}
     }
 
     function renderHintPanel() {
@@ -576,6 +645,7 @@
     }
 
     async function requestHint(tier) {
+      if (!quizActive || isSubmitting) return;
       try {
         const res = await fetch(`${BACKEND_URL}/api/hint/request`, {
           method: "POST",
@@ -583,7 +653,10 @@
           body: JSON.stringify({ team_id: teamId, password: teamPassword, round_number: activeRound, tier })
         });
         const data = await res.json();
-        if (!res.ok) return;
+        if (!res.ok) {
+          if (res.status === 423) finishQuiz("ROUND_LOCKED");
+          return;
+        }
 
         if (!hintsUsed.includes(tier)) hintsUsed.push(tier);
         const box = document.createElement('div');
@@ -595,10 +668,11 @@
     }
 
     async function finishQuiz(status = "NORMAL_COMPLETION") {
+      if (isSubmitting) return;          // prevent double submit
       isSubmitting = true;
-      quizActive = false; // Immediately disable anti-cheat triggers
-      clearInterval(timerInterval);
-      
+      quizActive = false;
+      stopAllPolls();
+
       if (document.fullscreenElement) {
         try { await document.exitFullscreen(); } catch(e){}
       }
@@ -611,41 +685,51 @@
         reasonEl.innerText = "[!] DISQUALIFIED: Direct strike violation detected.";
       } else if (status === "ROUND_TIME_EXPIRED") {
         reasonEl.innerText = "[!] ROUND CLOCK EXPIRED: Exam automatically evaluated.";
+      } else if (status === "ROUND_LOCKED") {
+        reasonEl.innerText = "[!] ROUND LOCKED BY ADMIN: Your answers have been force-submitted.";
       } else {
         reasonEl.innerText = "[✓] Round completed successfully.";
       }
 
-      await fetch(`${BACKEND_URL}/api/submit-quiz`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          team_id: teamId, password: teamPassword, round_number: activeRound,
-          answers: answers, tab_switch_count: tabSwitchCount,
-          time_taken_seconds: localElapsedSeconds, submission_status: status
-        })
-      });
+      try {
+        await fetch(`${BACKEND_URL}/api/submit-quiz`, {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            team_id: teamId, password: teamPassword, round_number: activeRound,
+            answers: answers, tab_switch_count: tabSwitchCount,
+            time_taken_seconds: localElapsedSeconds, submission_status: status
+          })
+        });
+      } catch (e) {
+        // Even if submit fails (round already locked), server force-submit will catch it
+      }
 
       statusPollInterval = setInterval(async () => {
-        const r = await fetch(`${BACKEND_URL}/api/team/status/${teamId}`);
-        const d = await r.json();
-        if (d.status === "ELIMINATED") {
-          clearInterval(statusPollInterval);
-          document.getElementById('eliminationStatusArea').innerHTML = `
-            <div style="background:rgba(244,63,94,0.1); border:1px solid var(--danger); padding:16px; border-radius:8px;">
-              <strong style="color:var(--danger)">STAGE ELIMINATION NOTICE:</strong>
-              <p style="color:#fca5a5; margin-top:4px;">${d.elimination_reason || 'Eliminated based on round ranking cutoff.'}</p>
-            </div>`;
-        } else if (d.current_round > activeRound) {
-          clearInterval(statusPollInterval);
-          document.getElementById('clearedMsg').innerText = `Your team cleared Round ${activeRound} and has advanced to Round ${d.current_round}!`;
-          document.getElementById('clearedModal').classList.remove('hidden');
-        }
+        try {
+          const r = await fetch(`${BACKEND_URL}/api/team/status/${teamId}`);
+          const d = await r.json();
+          if (d.status === "ELIMINATED") {
+            clearInterval(statusPollInterval);
+            document.getElementById('eliminationStatusArea').innerHTML = `
+              <div style="background:rgba(244,63,94,0.1); border:1px solid var(--danger); padding:16px; border-radius:8px;">
+                <strong style="color:var(--danger)">STAGE ELIMINATION NOTICE:</strong>
+                <p style="color:#fca5a5; margin-top:4px;">${d.elimination_reason || 'Eliminated based on round ranking cutoff.'}</p>
+              </div>`;
+          } else if (d.current_round > activeRound) {
+            clearInterval(statusPollInterval);
+            document.getElementById('clearedMsg').innerText = `Your team cleared Round ${activeRound} and has advanced to Round ${d.current_round}!`;
+            document.getElementById('clearedModal').classList.remove('hidden');
+          }
+        } catch (e) {}
       }, 3000);
     }
 
     document.getElementById('proceedNextRoundBtn').addEventListener('click', () => {
       document.getElementById('clearedModal').classList.add('hidden');
       currentQIdx = 0; answers = {}; tabSwitchCount = 0; isSubmitting = false;
+      hintsUsed = [];
       document.getElementById('hintTextArea').innerHTML = '';
+      stopAllPolls();
       attemptLogin();
     });
 
