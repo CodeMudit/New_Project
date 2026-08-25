@@ -31,11 +31,14 @@
     button:hover { filter: brightness(1.12); transform: translateY(-1px); }
     .btn-danger { background: var(--danger) !important; color: #fff !important; }
     .btn-warning { background: var(--gold) !important; color: #201300 !important; }
+    .btn-ghost {
+      background: rgba(255,255,255,0.06) !important; color: var(--accent) !important;
+      border: 1px solid var(--card-border);
+      box-shadow: none;
+    }
     table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 12.5px; }
-    th, td { border: 1px solid var(--card-border); padding: 8px 10px; text-align: left; }
+    th, td { border: 1px solid var(--card-border); padding: 8px 10px; text-align: left; vertical-align: top; }
     th { background: rgba(255,255,255,0.04); color: var(--accent); font-family: 'JetBrains Mono', monospace; }
-    .badge { padding: 3px 7px; font-size: 11px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-weight: 700; }
-    .badge-pending { background: var(--gold-dim); color: var(--gold); }
     #actionToast {
       position: fixed; bottom: 20px; right: 20px; background: #00f2ae; color: #04140e;
       padding: 12px 20px; border-radius: 8px; font-weight: 700; z-index: 1000;
@@ -43,6 +46,16 @@
     }
     #actionToast.show { opacity: 1; }
     .meta-row { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center;
+      z-index: 2000; padding: 20px;
+    }
+    .modal-box {
+      background: var(--panel); border: 1px solid var(--accent); border-radius: 12px; padding: 18px;
+      max-width: 720px; width: 100%; max-height: 90vh; overflow: auto;
+    }
+    .modal-box img { max-width: 100%; border-radius: 8px; border: 1px solid var(--card-border); }
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
@@ -57,8 +70,8 @@
   </div>
 
   <div class="card">
-    <h2>&gt; APPROVAL QUEUE (Team Name · Payer · Timestamp)</h2>
-    <p style="color:var(--text-muted); font-size:12px; margin-bottom:10px;">Approve only after you have confirmed the ₹100 UPI payment from the listed payer name.</p>
+    <h2>&gt; APPROVAL QUEUE (Team · Payer · Receipt · Timestamp)</h2>
+    <p style="color:var(--text-muted); font-size:12px; margin-bottom:10px;">Approve only after you have confirmed the ₹100 UPI payment using the receipt screenshot and payer name.</p>
     <table>
       <thead>
         <tr>
@@ -66,19 +79,29 @@
           <th>Leader</th>
           <th>Phone</th>
           <th>Payer Name</th>
+          <th>Claim Key</th>
           <th>Submitted At</th>
-          <th>Members</th>
+          <th>Receipt</th>
           <th>Action</th>
         </tr>
       </thead>
       <tbody id="pendingBody">
-        <tr><td colspan="7">Enter admin key and refresh.</td></tr>
+        <tr><td colspan="8">Enter admin key and refresh.</td></tr>
       </tbody>
     </table>
   </div>
 
+  <div class="modal-overlay hidden" id="ssModal">
+    <div class="modal-box">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <h2 style="margin:0;" id="ssModalTitle">Payment Receipt</h2>
+        <button type="button" class="btn-danger" style="padding:6px 12px;font-size:12px;" onclick="closeScreenshot()">CLOSE</button>
+      </div>
+      <div id="ssModalBody" style="text-align:center;color:var(--text-muted);">Loading…</div>
+    </div>
+  </div>
+
   <script>
-    document.getElementById('apiBase') || null;
     const DEFAULT_API = "https://project-victory-production-d780.up.railway.app";
 
     function getApi() { return DEFAULT_API; }
@@ -90,31 +113,40 @@
       setTimeout(() => t.classList.remove('show'), 2200);
     }
 
+    function escapeHtml(s) {
+      return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
     async function loadPending() {
       const key = getKey();
-      if (!key) { document.getElementById('pendingBody').innerHTML = '<tr><td colspan="7">Enter admin key first.</td></tr>'; return; }
+      if (!key) { document.getElementById('pendingBody').innerHTML = '<tr><td colspan="8">Enter admin key first.</td></tr>'; return; }
       try {
         const res = await fetch(`${getApi()}/api/admin/pending-registrations`, {
           headers: { "x-admin-key": key }
         });
         if (!res.ok) {
-          document.getElementById('pendingBody').innerHTML = '<tr><td colspan="7">Unauthorized or error.</td></tr>';
+          document.getElementById('pendingBody').innerHTML = '<tr><td colspan="8">Unauthorized or error.</td></tr>';
           return;
         }
         const data = await res.json();
         const list = data.pending || [];
         if (!list.length) {
-          document.getElementById('pendingBody').innerHTML = '<tr><td colspan="7" style="color:var(--text-muted);">No pending registrations.</td></tr>';
+          document.getElementById('pendingBody').innerHTML = '<tr><td colspan="8" style="color:var(--text-muted);">No pending registrations.</td></tr>';
           return;
         }
         document.getElementById('pendingBody').innerHTML = list.map(p => `
           <tr>
-            <td><strong>${p.team_name}</strong></td>
-            <td>${p.leader_name}<br><small style="color:var(--text-muted)">${p.leader_roll} · ${p.course} Y${p.year}</small></td>
-            <td style="font-family:'JetBrains Mono';">${p.leader_phone}</td>
-            <td style="color:var(--gold); font-weight:700;">${p.payer_name}</td>
-            <td style="font-family:'JetBrains Mono'; font-size:11px;">${p.submitted_at}</td>
-            <td>${(p.members || []).length} extra</td>
+            <td><strong>${escapeHtml(p.team_name)}</strong></td>
+            <td>${escapeHtml(p.leader_name)}<br><small style="color:var(--text-muted)">${escapeHtml(p.leader_roll)} · B.Tech Y${escapeHtml(String(p.year || ''))}</small></td>
+            <td style="font-family:'JetBrains Mono';">${escapeHtml(p.leader_phone)}</td>
+            <td style="color:var(--gold); font-weight:700;">${escapeHtml(p.payer_name)}</td>
+            <td style="font-family:'JetBrains Mono'; font-size:11px;">${escapeHtml(p.claim_token || '—')}</td>
+            <td style="font-family:'JetBrains Mono'; font-size:11px;">${escapeHtml(p.submitted_at)}</td>
+            <td>
+              ${p.has_screenshot
+                ? `<button type="button" class="btn-ghost" style="padding:5px 10px;font-size:11px;" onclick="viewScreenshot('${p.id}')">🖼 VIEW</button>`
+                : '<span style="color:var(--text-muted);font-size:11px;">None</span>'}
+            </td>
             <td style="white-space:nowrap;">
               <button type="button" style="padding:5px 10px; font-size:11px;" onclick="approve('${p.id}')">✓ APPROVE</button>
               <button type="button" class="btn-danger" style="padding:5px 10px; font-size:11px;" onclick="reject('${p.id}')">✕ REJECT</button>
@@ -122,8 +154,35 @@
           </tr>
         `).join('');
       } catch (e) {
-        document.getElementById('pendingBody').innerHTML = '<tr><td colspan="7">Network error.</td></tr>';
+        document.getElementById('pendingBody').innerHTML = '<tr><td colspan="8">Network error.</td></tr>';
       }
+    }
+
+    async function viewScreenshot(id) {
+      const modal = document.getElementById('ssModal');
+      const body = document.getElementById('ssModalBody');
+      document.getElementById('ssModalTitle').innerText = 'Payment Receipt';
+      body.innerHTML = '<p>Loading screenshot…</p>';
+      modal.classList.remove('hidden');
+      try {
+        const res = await fetch(`${getApi()}/api/admin/pending/${id}/screenshot`, {
+          headers: { 'x-admin-key': getKey() }
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          body.innerHTML = `<p style="color:var(--danger);">${escapeHtml(data.detail || 'Failed to load')}</p>`;
+          return;
+        }
+        document.getElementById('ssModalTitle').innerText = 'Receipt · ' + (data.team_name || id);
+        body.innerHTML = `<img src="${data.screenshot}" alt="Payment receipt">`;
+      } catch (e) {
+        body.innerHTML = '<p style="color:var(--danger);">Network error loading screenshot.</p>';
+      }
+    }
+
+    function closeScreenshot() {
+      document.getElementById('ssModal').classList.add('hidden');
+      document.getElementById('ssModalBody').innerHTML = '';
     }
 
     async function approve(id) {
