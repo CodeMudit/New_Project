@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Project Nexus // Team Registration</title>
+  <title>Level 04 : The Last Login // Team Registration</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <style>
@@ -66,9 +66,9 @@
 <body>
   <div class="container">
     <div class="header">
-      <div class="badge"><div class="badge-dot"></div>COLLEGE EVENT 2026 · B.TECH ONLY</div>
+      <div class="badge"><div class="badge-dot"></div>LEVEL 04 · THE LAST LOGIN · B.TECH ONLY</div>
       <h1>Team Registration</h1>
-      <p class="subtitle">Complete details below. Fee is ₹100 per team (max 4). You receive a unique Claim Key after submit — use it later to get Team ID &amp; Access Key once admin verifies payment.</p>
+      <p class="subtitle">Complete details below. Fee is ₹100 per team (max 3 members including leader). You receive a unique Claim Key after submit — use it later to get Team ID &amp; Access Key once admin verifies payment.</p>
     </div>
     <form id="regForm" onsubmit="handleRegistration(event)">
       <div class="card">
@@ -87,15 +87,15 @@
         </div>
       </div>
       <div class="card">
-        <div class="section-title"><span>2. Team Members</span><span style="font-size: 11px; color: var(--text-muted); font-weight: normal;">(Max 4 total)</span></div>
+        <div class="section-title"><span>2. Team Members</span><span style="font-size: 11px; color: var(--text-muted); font-weight: normal;">(Max 3 total incl. leader)</span></div>
         <div id="membersContainer"></div>
-        <button type="button" class="btn-add-member" id="addBtn" onclick="addMemberSlot()">+ Add Team Member (Up to 3)</button>
+        <button type="button" class="btn-add-member" id="addBtn" onclick="addMemberSlot()">+ Add Team Member (Up to 2)</button>
       </div>
       <div class="card">
         <div class="section-title">3. Entry Fee Payment</div>
         <div class="payment-summary"><span>Registration Fee</span><span class="pay-amount">₹100</span></div>
-        <div class="qr-container"><img class="qr-image" src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=upi%3A%2F%2Fpay%3Fpa%3Dmuditsapra%40pnb%26pn%3DProjectNexus%26am%3D100%26cu%3DINR" alt="Payment QR"></div>
-        <a href="upi://pay?pa=muditsapra@pnb&pn=Project%20Nexus&am=100&cu=INR&tn=Nexus%20Registration" class="btn-upi">⚡ Pay ₹100 via UPI (GPay / PhonePe / Paytm)</a>
+        <div class="qr-container"><img class="qr-image" src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=upi%3A%2F%2Fpay%3Fpa%3Dmuditsapra%40pnb%26pn%3DLevel04TheLastLogin%26am%3D100%26cu%3DINR" alt="Payment QR"></div>
+        <a href="upi://pay?pa=muditsapra@pnb&pn=Level%2004%20The%20Last%20Login&am=100&cu=INR&tn=Level04%20Registration" class="btn-upi">⚡ Pay ₹100 via UPI (GPay / PhonePe / Paytm)</a>
         <div class="form-group"><label>Name of the Person Who Paid (Account Holder) <span class="req">*</span></label><input type="text" id="payerName" required placeholder="Name on bank / UPI app" autocomplete="off" maxlength="80"></div>
         <div class="form-group">
           <label>Payment Receipt Screenshot <span class="req">*</span></label>
@@ -157,7 +157,7 @@
     let memberCount = 0;
     let paymentScreenshotDataUrl = "";
     function addMemberSlot() {
-      if (memberCount >= 3) return;
+      if (memberCount >= 2) return;
       memberCount++;
       const container = document.getElementById('membersContainer');
       const div = document.createElement('div');
@@ -168,7 +168,7 @@
         <div class="form-group"><input type="text" id="mRoll_${memberCount}" required inputmode="numeric" pattern="[0-9]{3,15}" placeholder="Roll Number (digits only)" maxlength="15"></div>
         <div class="form-group"><select id="mYear_${memberCount}"><option value="1">1st Year</option><option value="2">2nd Year</option><option value="3">3rd Year</option><option value="4">4th Year</option></select></div>`;
       container.appendChild(div);
-      if (memberCount >= 3) document.getElementById('addBtn').style.display = 'none';
+      if (memberCount >= 2) document.getElementById('addBtn').style.display = 'none';
     }
     function removeSlot(id) {
       const el = document.getElementById(`mem_${id}`);
@@ -225,7 +225,7 @@
       if (!paymentScreenshotDataUrl || !paymentScreenshotDataUrl.startsWith('data:image/')) { err.innerText = 'Please upload a clear screenshot of your payment receipt.'; return; }
       btn.disabled = true; btn.innerText = 'Submitting...';
       const members = [];
-      for (let i = 1; i <= 3; i++) {
+      for (let i = 1; i <= 2; i++) {
         const n = document.getElementById(`mName_${i}`);
         const r = document.getElementById(`mRoll_${i}`);
         const y = document.getElementById(`mYear_${i}`);

@@ -2,12 +2,10 @@
   "cleanUrls": true,
   "rewrites": [
     { "source": "/invite", "destination": "/invite.html" },
-    { "source": "/invite_1", "destination": "/invite_1.html" },
-    { "source": "/register", "destination": "/register.html" },
+    { "source": "/registeration_form_1", "destination": "/register.html" },
     { "source": "/pending", "destination": "/pending.html" },
     { "source": "/", "destination": "/index.html" },
-    { "source": "/admin", "destination": "/admin.html" },
-    { "source": "/leaderboard", "destination": "/leaderboard.html" },
-    { "source": "/invite_other", "destination": "/invite_other.html" }
+    { "source": "/admin_activate", "destination": "/admin.html" },
+    { "source": "/leaderboard", "destination": "/leaderboard.html" }
   ]
 }

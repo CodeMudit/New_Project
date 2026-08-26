@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>PROJECT NEXUS // CLASSIFIED INVITATION</title>
+  <title>LEVEL 04 : THE LAST LOGIN // CLASSIFIED INVITATION</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Plus+Jakarta+Sans:wght@400;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <style>
@@ -56,7 +56,7 @@
       min-height: 520px;
     }
 
-    /* ===== CUBE (from invite.html language) ===== */
+    /* ===== CUBE ===== */
     .box-scene {
       width: 180px;
       height: 180px;
@@ -113,6 +113,57 @@
       100% { transform: scale(0) rotateY(0deg); opacity: 0; }
     }
 
+    /* ===== GLOVED HAND TAP SEQUENCE ===== */
+    .hand-pointer {
+      position: absolute;
+      width: 88px;
+      height: 88px;
+      right: -34px;
+      bottom: -22px;
+      z-index: 20;
+      pointer-events: none;
+      opacity: 0;
+      transform-origin: 30% 80%;
+      animation: glovedHandSequence 5.2s ease-in-out infinite;
+      filter: drop-shadow(0 6px 14px rgba(0,0,0,0.65));
+    }
+    .hand-pointer svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    /* Sequence: appear → 3 taps → disappear → pause → loop */
+    @keyframes glovedHandSequence {
+      /* Appear */
+      0%   { opacity: 0; transform: translateY(28px) rotate(-18deg) scale(0.7); }
+      8%  { opacity: 1; transform: translateY(0) rotate(-12deg) scale(1); }
+
+      /* Tap 1 */
+      14%  { transform: translateY(-16px) rotate(-8deg) scale(1.06); }
+      18%  { transform: translateY(7px) rotate(-15deg) scale(0.9); }
+      22%  { transform: translateY(0) rotate(-12deg) scale(1); }
+
+      /* Tap 2 */
+      28%  { transform: translateY(-18px) rotate(-7deg) scale(1.07); }
+      32%  { transform: translateY(8px) rotate(-16deg) scale(0.88); }
+      36%  { transform: translateY(0) rotate(-12deg) scale(1); }
+
+      /* Tap 3 */
+      42%  { transform: translateY(-15px) rotate(-9deg) scale(1.05); }
+      46%  { transform: translateY(6px) rotate(-14deg) scale(0.91); }
+      50%  { transform: translateY(0) rotate(-12deg) scale(1); opacity: 1; }
+
+      /* Disappear */
+      58%  { opacity: 0; transform: translateY(22px) rotate(-20deg) scale(0.65); }
+      100% { opacity: 0; transform: translateY(28px) rotate(-18deg) scale(0.7); }
+    }
+    .box-scene.opening .hand-pointer {
+      animation: handVanish 0.35s ease-out forwards !important;
+    }
+    @keyframes handVanish {
+      to { opacity: 0; transform: translateY(36px) scale(0.4) rotate(25deg); }
+    }
+
     .prompt-text-group {
       text-align: center;
       width: 100%;
@@ -126,6 +177,13 @@
       font-family: 'JetBrains Mono', monospace;
       letter-spacing: 1.5px;
       text-shadow: 0 0 10px rgba(251, 191, 36, 0.6), 0 2px 4px rgba(0, 0, 0, 0.8);
+    }
+    .prompt-text-group .sub-prompt {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-top: 8px;
+      letter-spacing: 0.5px;
+      font-weight: 500;
     }
 
     /* Scan + glow after cube opens */
@@ -187,9 +245,10 @@
     }
     .pass-title {
       font-family: 'Orbitron', sans-serif;
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 900;
       color: #ffffff;
+      line-height: 1.25;
     }
     .pass-title span { color: var(--accent); }
     .pass-num {
@@ -199,6 +258,7 @@
       background: rgba(56, 189, 248, 0.1);
       padding: 3px 8px;
       border-radius: 4px;
+      white-space: nowrap;
     }
     .typewriter {
       overflow: hidden;
@@ -217,6 +277,20 @@
     }
     @keyframes blink {
       50% { border-color: transparent; }
+    }
+
+    .event-brief {
+      font-size: 13.5px;
+      color: #cbd5e1;
+      line-height: 1.55;
+      margin-bottom: 14px;
+    }
+    .event-brief strong {
+      color: #f8fafc;
+    }
+    .event-brief .highlight {
+      color: var(--accent);
+      font-weight: 600;
     }
 
     .terms-matrix {
@@ -320,7 +394,7 @@
   <div class="glow-ring" id="glowRing"></div>
 
   <div class="stage-wrapper">
-    <!-- STAGE 1: CUBE -->
+    <!-- STAGE 1: CUBE + HAND -->
     <div id="viewBox">
       <div class="box-scene" id="boxScene" onclick="openMysteryBox()">
         <div class="cube">
@@ -331,22 +405,47 @@
           <div class="cube-face top">★</div>
           <div class="cube-face bottom"></div>
         </div>
+        <!-- Gloved hand: appears → taps 3 times → disappears → repeats -->
+        <div class="hand-pointer" id="handPointer" aria-hidden="true">
+          <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Glove base (dark tactical glove) -->
+            <path d="M32 10c-3.5 0-6.5 2.8-6.5 6.3v18.2l-4.8-4.6c-2.4-2.3-6.2-2.2-8.4.3-2.2 2.4-2 6.2.4 8.5l15.8 15.2c1.2 1.1 2.7 1.7 4.3 1.7h11.2c4.6 0 8.4-3.7 8.4-8.3V28.5c0-3.5-2.8-6.3-6.3-6.3s-6.3 2.8-6.3 6.3v1.8h-2.2V16.3c0-3.5-2.8-6.3-6.3-6.3s-6.3 2.8-6.3 6.3v12.5h-2.2V16.3c0-3.5-2.8-6.3-6.3-6.3z" fill="#1e293b" stroke="#38bdf8" stroke-width="1.8" stroke-linejoin="round"/>
+            <!-- Glove knuckle pads -->
+            <rect x="30" y="22" width="5.5" height="7" rx="1.5" fill="#334155"/>
+            <rect x="37" y="20" width="5.5" height="7" rx="1.5" fill="#334155"/>
+            <rect x="44" y="22" width="5.5" height="7" rx="1.5" fill="#334155"/>
+            <!-- Accent stripe on glove -->
+            <path d="M28 38h18" stroke="#10b981" stroke-width="2.2" stroke-linecap="round" opacity="0.9"/>
+            <!-- Soft highlight on fingers -->
+            <path d="M33 14c1.2-1 2.8-1.2 4.2-.4" stroke="#64748b" stroke-width="1.4" stroke-linecap="round" opacity="0.7"/>
+            <!-- Small energy ring near fingertip (tap indicator) -->
+            <circle cx="22" cy="48" r="5.5" fill="none" stroke="#fbbf24" stroke-width="1.6" opacity="0.85"/>
+            <circle cx="22" cy="48" r="2.2" fill="#fbbf24" opacity="0.9"/>
+          </svg>
+        </div>
       </div>
       <div class="prompt-text-group" id="boxCaption">
         <p>&gt; TAP THE MYSTERY BOX TO UNLOCK &lt;</p>
+        <p class="sub-prompt">A classified clearance is waiting inside</p>
       </div>
     </div>
 
     <!-- STAGE 2: CLEARANCE CARD -->
     <div class="invite-modal hidden" id="inviteModal">
-      <div class="typewriter">CLEARANCE GRANTED · LEVEL 5</div>
+      <div class="typewriter">CLEARANCE GRANTED · LEVEL 04</div>
       <div class="pass-header">
-        <div class="pass-title">PROJECT <span>NEXUS</span></div>
+        <div class="pass-title">LEVEL 04<br><span>THE LAST LOGIN</span></div>
         <div class="pass-num">CLEARANCE PASS #0492</div>
       </div>
 
-      <p style="font-size: 14px; color: #cbd5e1; line-height: 1.5;">
-        You have been cleared to compete in the <strong>Official AI & Cyber Investigation Challenge</strong>.
+      <p class="event-brief">
+        You have been cleared for <strong>Level 04 : The Last Login</strong> — an official multi-stage
+        <span class="highlight">AI &amp; Cyber Investigation Challenge</span>.
+        Teams race through live terminal nodes, decode intercepted ciphers, investigate forensic evidence,
+        and race against the clock in a high-pressure system-override finale.
+      </p>
+      <p class="event-brief" style="margin-bottom: 4px;">
+        Bring your logic, observation skills, and teamwork. Only the sharpest nodes survive each round.
       </p>
 
       <div class="terms-matrix">
@@ -360,16 +459,16 @@
         </div>
         <div class="matrix-item">
           <div class="matrix-label">NODE 03 // FORENSICS</div>
-          <div class="matrix-val">RFID & Alibi Investigation</div>
+          <div class="matrix-val">RFID &amp; Alibi Investigation</div>
         </div>
         <div class="matrix-item">
           <div class="matrix-label">ENTRY FEE</div>
-          <div class="matrix-val">₹100 / Team (Max 4)</div>
+          <div class="matrix-val">₹100 / Team (Max 3)</div>
         </div>
       </div>
 
       <button class="btn-register" onclick="acceptAndDive()">
-        ACCEPT INVITATION & ENTER →
+        ACCEPT INVITATION &amp; ENTER →
       </button>
     </div>
   </div>
