@@ -103,6 +103,7 @@
 
   <script>
     const DEFAULT_API = "https://project-victory-production-d780.up.railway.app";
+    const pendingPhoneMap = {}; // id -> leader phone
 
     function getApi() { return DEFAULT_API; }
     function getKey() { return document.getElementById('adminKey').value.trim(); }
@@ -134,6 +135,7 @@
           document.getElementById('pendingBody').innerHTML = '<tr><td colspan="8" style="color:var(--text-muted);">No pending registrations.</td></tr>';
           return;
         }
+        list.forEach(p => { pendingPhoneMap[p.id] = p.leader_phone || ''; });
         document.getElementById('pendingBody').innerHTML = list.map(p => `
           <tr>
             <td><strong>${escapeHtml(p.team_name)}</strong></td>
@@ -211,14 +213,21 @@
         const data = await res.json();
         if (res.ok) {
           triggerToast(`Approved → ${data.team_id} / ${data.password}`);
-          loadPending();
+          const phone = data.leader_phone || pendingPhoneMap[id] || '';
           const waUrl = buildApprovalWhatsAppUrl(
-            data.team_id, data.password, data.team_name, data.leader_phone
+            data.team_id, data.password, data.team_name || '', phone
           );
-          if (waUrl && confirm(
-            `Team approved.\n\nTeam ID: ${data.team_id}\nAccess Key: ${data.password}\n\nOpen WhatsApp to send credentials to the team leader now?`
-          )) {
-            window.open(waUrl, '_blank');
+          loadPending();
+          if (waUrl) {
+            if (confirm(
+              `Team approved.\n\nTeam ID: ${data.team_id}\nAccess Key: ${data.password}\n\nOpen WhatsApp to message the team leader?`
+            )) {
+              window.open(waUrl, '_blank');
+            }
+          } else {
+            alert(
+              `Team approved.\n\nTeam ID: ${data.team_id}\nAccess Key: ${data.password}\n\nNo valid leader phone on file — copy credentials manually.`
+            );
           }
         } else {
           triggerToast(data.detail || 'Approve failed');
