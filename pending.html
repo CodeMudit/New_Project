@@ -185,6 +185,22 @@
       document.getElementById('ssModalBody').innerHTML = '';
     }
 
+    function buildApprovalWhatsAppUrl(teamId, password, teamName, phone) {
+      const cleanPhone = String(phone || '').replace(/\D/g, '');
+      if (cleanPhone.length < 10) return null;
+      const withCountry = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone;
+      const msg =
+        `🎉 *LEVEL 04 : THE LAST LOGIN* — Your team has been APPROVED!\n\n` +
+        `Team Name: *${teamName}*\n` +
+        `Team ID: *${teamId}*\n` +
+        `Access Key: *${password}*\n\n` +
+        `⚠️ *IMPORTANT:* Do NOT share these credentials with anyone outside your team.\n\n` +
+        `Paste your Team ID and Access Key on the official contest login page when facilitators open the round.\n` +
+        `Portal: https://project-victory-production-d780.up.railway.app/\n\n` +
+        `Good luck — beat the level!`;
+      return `https://wa.me/${withCountry}?text=${encodeURIComponent(msg)}`;
+    }
+
     async function approve(id) {
       if (!confirm('Confirm payment received and approve this team? Credentials will be generated instantly.')) return;
       try {
@@ -196,6 +212,14 @@
         if (res.ok) {
           triggerToast(`Approved → ${data.team_id} / ${data.password}`);
           loadPending();
+          const waUrl = buildApprovalWhatsAppUrl(
+            data.team_id, data.password, data.team_name, data.leader_phone
+          );
+          if (waUrl && confirm(
+            `Team approved.\n\nTeam ID: ${data.team_id}\nAccess Key: ${data.password}\n\nOpen WhatsApp to send credentials to the team leader now?`
+          )) {
+            window.open(waUrl, '_blank');
+          }
         } else {
           triggerToast(data.detail || 'Approve failed');
         }

@@ -111,7 +111,6 @@
       font-size: 14px;
       padding: 13px 16px;
       margin-bottom: 14px;
-      text-transform: uppercase;
     }
     input:focus { outline: none; border-color: var(--accent); }
     .action-btn {
@@ -235,9 +234,9 @@
       <div class="brand-title">LEVEL 04 : THE LAST LOGIN // GATEWAY</div>
       <div style="font-size:12px; color:var(--text-muted);">STUDENT ACCESS NODE</div>
     </div>
-    <p class="muted-text" style="margin-bottom: 18px;">Authenticate using credentials dispatched by facilitators (Press Enter to Submit).</p>
-    <input type="text" id="loginTeamId" placeholder="TEAM ID (E.G. NEX-4920)" autocomplete="off">
-    <input type="password" id="loginPass" placeholder="ACCESS KEY" autocomplete="off">
+    <p class="muted-text" style="margin-bottom: 18px;">Participating teams only. Paste your <strong>Team ID</strong> and <strong>Access Key</strong> (Enter to submit).</p>
+    <input type="text" id="loginTeamId" placeholder="TEAM ID (e.g. NEX-4920)" autocomplete="off" spellcheck="false" autocapitalize="characters">
+    <input type="text" id="loginPass" placeholder="ACCESS KEY (paste here)" autocomplete="off" spellcheck="false" autocapitalize="characters">
     <button class="action-btn" id="loginBtn">AUTHENTICATE NODE</button>
     <div id="loginMsg" class="warning-text"></div>
   </div>

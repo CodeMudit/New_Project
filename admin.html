@@ -62,7 +62,7 @@
     <input type="text" id="apiBase" value="" style="max-width:320px; margin:0;">
     <input type="password" id="adminKey" placeholder="ADMIN SECRET KEY" style="max-width:220px; margin:0;" oninput="localStorage.setItem('nexusAdminKey', this.value)">
     <button id="btnSync">SYNC MATRIX (ENTER)</button>
-    <a href="/leaderboard" target="_blank" style="text-decoration:none;"><button type="button" class="btn-warning">📺 OPEN PUBLIC PROJECTOR BOARD</button></a>
+    <a href="/leaderboard.html" target="_blank" style="text-decoration:none;"><button type="button" class="btn-warning">📺 OPEN PUBLIC PROJECTOR BOARD</button></a>
   </div>
 
   <div class="analytics-grid">
@@ -263,7 +263,7 @@
     async function syncLeaderboard() {
       try {
         const round = document.getElementById('viewBoardRoundSelect').value;
-        const lRes = await fetch(`${getApi()}/api/admin/leaderboard/${round}`, { headers: { "x-admin-key": getKey() } });
+        const lRes = await fetch(`${getApi()}/api/admin/leaderboard.html/${round}`, { headers: { "x-admin-key": getKey() } });
         const lData = await lRes.json();
         document.getElementById('lbBody').innerHTML = (lData.leaderboard || []).map(r => `
           <tr>

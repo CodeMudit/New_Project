@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>LEVEL 04 : THE LAST LOGIN // EVENT RULE BOOK</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Plus+Jakarta+Sans:wght@400;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#06090e;--card:#0f172a;--accent:#10b981;--gold:#fbbf24;--cyan:#38bdf8;--muted:#94a3b8}
+    body{background:var(--bg);color:#f8fafc;font-family:'Plus Jakarta Sans',sans-serif;min-height:100vh;padding:20px 16px 48px;display:flex;justify-content:center}
+    .grid{position:fixed;inset:0;pointer-events:none;background-image:linear-gradient(to right,rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(to bottom,rgba(255,255,255,.02) 1px,transparent 1px);background-size:32px 32px}
+    .c{position:relative;z-index:1;width:100%;max-width:560px}
+    .h{text-align:center;margin-bottom:22px;padding-bottom:16px;border-bottom:1px dashed #1e293b}
+    .badge{display:inline-flex;padding:4px 10px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);border-radius:6px;font-size:11px;font-weight:700;color:var(--accent);font-family:'JetBrains Mono',monospace;margin-bottom:10px}
+    h1{font-family:Orbitron,sans-serif;font-size:20px;font-weight:900;line-height:1.3;margin-bottom:6px}
+    h1 span{color:var(--accent)}
+    .tag{font-size:13px;color:var(--muted);line-height:1.45}
+    .meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+    .mc{background:var(--card);border:1px solid #1e293b;border-radius:10px;padding:12px 14px;border-left:3px solid var(--cyan)}
+    .mc:nth-child(2){border-left-color:var(--gold)}.mc:nth-child(3){border-left-color:var(--accent)}.mc:nth-child(4){border-left-color:#a855f7}
+    .ml{font-family:Orbitron,sans-serif;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px}
+    .mv{font-size:14px;font-weight:700}
+    .sec{background:var(--card);border:1px solid #1e293b;border-radius:12px;padding:16px 14px;margin-bottom:14px}
+    .st{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--accent);margin-bottom:12px}
+    .st::before{content:'> ';color:var(--gold)}
+    ul{list-style:none}li{position:relative;padding-left:16px;margin-bottom:9px;font-size:13.5px;line-height:1.5;color:#cbd5e1}
+    li::before{content:'•';position:absolute;left:0;color:var(--cyan);font-weight:700}li strong{color:#f8fafc}
+    .hl{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.25);border-radius:8px;padding:12px 14px;margin-top:8px;font-size:13px;color:#fef08a;line-height:1.45}
+    .btn{display:flex;justify-content:center;align-items:center;width:100%;height:50px;background:var(--accent);color:#041018;font-family:Orbitron,sans-serif;font-size:14px;font-weight:800;border:none;border-radius:8px;text-decoration:none;box-shadow:0 4px 16px rgba(16,185,129,.3)}
+    .ghost{display:inline-block;margin-top:12px;font-size:13px;color:var(--muted);text-decoration:none}
+    .cl{text-align:center;margin-top:20px;padding-top:16px;border-top:1px dashed #1e293b;font-size:13px;color:var(--muted)}.cl strong{color:var(--gold)}
+  </style>
+</head>
+<body>
+<div class="grid"></div>
+<div class="c">
+  <div class="h"><div class="badge">OFFICIAL EVENT RULE BOOK</div>
+  <h1>LEVEL 04<br><span>THE LAST LOGIN</span></h1>
+  <p class="tag">3 Members · ₹100 · One Team · Multiple Levels · One Goal — Beat the Level.</p></div>
+  <div class="meta">
+    <div class="mc"><div class="ml">Event Name</div><div class="mv">LEVEL:04</div></div>
+    <div class="mc"><div class="ml">Team Size</div><div class="mv">Max 3 Members</div></div>
+    <div class="mc"><div class="ml">Entry Fee</div><div class="mv">₹100 / Team</div></div>
+    <div class="mc"><div class="ml">Levels</div><div class="mv">4 Rounds</div></div>
+  </div>
+  <div class="sec"><div class="st">1. Registration Rules</div><ul>
+    <li>Each team must consist of <strong>at most 3 members</strong>.</li>
+    <li>The <strong>entry fee is ₹100 per team</strong>.</li>
+    <li>Registration must be completed before the event begins.</li>
+    <li>Once registered, team members cannot be changed without permission from the organisers.</li>
+  </ul></div>
+  <div class="sec"><div class="st">2. Event Rules</div><ul>
+    <li>All team members must participate actively in the event.</li>
+    <li>The event will consist of <strong>4 Levels</strong>.</li>
+    <li>Teams must follow the instructions given by the organisers at every stage.</li>
+    <li>Each challenge must be completed within the specified time limit.</li>
+    <li>Each team must have <strong>at least one laptop</strong> among its members.</li>
+    <li>Any form of cheating, unfair assistance, or violation of event instructions may lead to <strong>immediate disqualification</strong>.</li>
+  </ul></div>
+  <div class="sec"><div class="st">3. Scoring &amp; Winners</div><ul>
+    <li>Points will be awarded based on <strong>accuracy, speed, and successful completion</strong> of challenges.</li>
+    <li>In case of a tie, a <strong>tie-breaker challenge</strong> may be conducted.</li>
+    <li>The team with the highest final score will be declared the winner.</li>
+    <li>The organisers' decision regarding scoring and results will be <strong>final</strong>.</li>
+  </ul></div>
+  <div class="sec"><div class="st">4. Code of Conduct</div><ul>
+    <li>Participants must maintain discipline and respect for fellow participants and organisers.</li>
+    <li>Misbehaviour, damage to college/event property, or disruption of the event may result in disqualification.</li>
+    <li>Participants are responsible for their personal belongings.</li>
+  </ul></div>
+  <div class="sec"><div class="st">5. Important Instructions</div><ul>
+    <li>Participants must report to the venue <strong>before the reporting time</strong>.</li>
+    <li>Late entry may not be permitted once a round has started.</li>
+    <li>Participants must carry their <strong>college ID card</strong>.</li>
+    <li>Organisers reserve the right to modify the rules if required for the smooth conduct of the event.</li>
+  </ul>
+  <div class="hl">Fullscreen + tab-switch monitoring is active during rounds. Security breaches can lead to immediate termination of your session.</div></div>
+  <div style="text-align:center;margin-top:8px">
+    <a href="/register.html" class="btn">BACK TO REGISTRATION →</a>
+    <a href="/invite.html" class="ghost">← Back to Invitation</a>
+  </div>
+  <div class="cl"><strong>Good luck, players.</strong><br>May the best team conquer LEVEL:04!</div>
+</div>
+</body>
+</html>
