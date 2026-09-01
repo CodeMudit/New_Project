@@ -62,7 +62,7 @@
     <input type="text" id="apiBase" value="" style="max-width:320px; margin:0;">
     <input type="password" id="adminKey" placeholder="ADMIN SECRET KEY" style="max-width:220px; margin:0;" oninput="localStorage.setItem('nexusAdminKey', this.value)">
     <button id="btnSync">SYNC MATRIX (ENTER)</button>
-    <a href="/leaderboard.html" target="_blank" style="text-decoration:none;"><button type="button" class="btn-warning">📺 OPEN PUBLIC PROJECTOR BOARD</button></a>
+    <a href="/leaderboard" target="_blank" style="text-decoration:none;"><button type="button" class="btn-warning">📺 OPEN PUBLIC PROJECTOR BOARD</button></a>
   </div>
 
   <div class="analytics-grid">
@@ -186,26 +186,60 @@
     let lastTeamsSnapshot = [];
     document.getElementById('apiBase').value = "https://project-victory-production-d780.up.railway.app";
 
-    function getApi() { return document.getElementById('apiBase').value.trim(); }
-    function getKey() { return document.getElementById('adminKey').value.trim(); }
+    function getApi() { return document.getElementById('apiBase').value.trim().replace(/\/$/, ''); }
+    function getKey() { return (document.getElementById('adminKey').value || '').trim(); }
 
     function triggerToast(msg) {
       const t = document.getElementById('actionToast');
-      t.innerText = msg; t.classList.add('show');
-      setTimeout(() => t.classList.remove('show'), 2000);
+      t.innerText = String(msg || 'Done');
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2800);
+    }
+
+    function detailFrom(data, status) {
+      if (!data) return `HTTP ${status}`;
+      if (typeof data.detail === 'string') return data.detail;
+      if (Array.isArray(data.detail)) {
+        try { return data.detail.map(d => d.msg || JSON.stringify(d)).join('; '); } catch (e) {}
+      }
+      if (data.message) return data.message;
+      return `HTTP ${status}`;
+    }
+
+    async function adminFetch(path, options = {}) {
+      const key = getKey();
+      if (!key) {
+        triggerToast('Enter ADMIN SECRET KEY first');
+        throw new Error('Missing admin key');
+      }
+      const api = getApi();
+      if (!api) {
+        triggerToast('API base URL is empty');
+        throw new Error('Missing API base');
+      }
+      const headers = Object.assign({}, options.headers || {}, { 'x-admin-key': key });
+      const res = await fetch(`${api}${path}`, Object.assign({}, options, { headers }));
+      let data = null;
+      try { data = await res.json(); } catch (e) { data = null; }
+      if (!res.ok) {
+        const msg = detailFrom(data, res.status);
+        triggerToast('Error: ' + msg);
+        throw new Error(msg);
+      }
+      return data;
     }
 
     async function syncAll() {
       const api = getApi(), key = getKey();
+      if (!key) return;
       try {
-        const aRes = await fetch(`${api}/api/admin/analytics`, { headers: { "x-admin-key": key } });
-        const aData = await aRes.json();
+        const aData = await adminFetch('/api/admin/analytics');
         document.getElementById('statTotalTeams').innerText = aData.total_teams_generated || 0;
         document.getElementById('statLogins').innerText = aData.total_authenticated_logins || 0;
         const currR = document.getElementById('gateRoundSelect').value;
-        document.getElementById('statSubmissions').innerText = aData.round_metrics[`round_${currR}`]?.submitted || 0;
+        document.getElementById('statSubmissions').innerText = aData.round_metrics?.[`round_${currR}`]?.submitted || 0;
         document.getElementById('statLockState').innerText = (aData.r1_started && !aData.allow_late_logins) ? "LOCKED" : "OPEN";
-      } catch(e){}
+      } catch (e) { console.warn('analytics', e); }
 
       try {
         const r = document.getElementById('gateRoundSelect').value;
@@ -216,13 +250,12 @@
           const m = Math.floor(d.remaining_seconds / 60), s = d.remaining_seconds % 60;
           tEl.innerText = `OPEN (${m}m ${s}s)`;
         } else { tEl.innerText = "LOCKED"; }
-      } catch(e){}
+      } catch (e) {}
 
       syncLeaderboard();
 
       try {
-        const tRes = await fetch(`${api}/api/admin/teams`, { headers: { "x-admin-key": key } });
-        const tData = await tRes.json();
+        const tData = await adminFetch('/api/admin/teams');
         lastTeamsSnapshot = tData.teams || [];
         document.getElementById('teamsBody').innerHTML = lastTeamsSnapshot.map(t => `
           <tr>
@@ -231,19 +264,19 @@
               ${t.has_logged_in ? '<span style="color:var(--accent)">ONLINE</span>' : '<span style="color:var(--text-muted)">OFFLINE</span>'}
               ${t.elimination_reason ? `<br><small style="color:var(--danger)">(${t.elimination_reason})</small>` : ''}
             </td>
-            <td><button type="button" class="btn-warning" style="width:auto; padding:5px 9px; font-size:11px;" onclick="reviveTeam('${t.team_id}')">🔓 REVIVE / UNLOCK</button></td>
+            <td><button type="button" class="btn-warning" style="width:auto; padding:5px 9px; font-size:11px;" onclick="reviveTeam('${t.team_id}')">REVIVE / UNLOCK</button></td>
           </tr>
         `).join('') || '<tr><td colspan="6">No teams generated yet.</td></tr>';
-      } catch(e){}
+      } catch (e) { console.warn('teams', e); }
     }
 
     async function reviveTeam(teamId) {
       if (!confirm(`Force-unlock / revive team ${teamId}? This clears their elimination status and any submission for their current round so they can resume.`)) return;
       try {
-        await fetch(`${getApi()}/api/admin/team/${teamId}/revive`, { method: "POST", headers: { "x-admin-key": getKey() } });
+        await adminFetch(`/api/admin/team/${encodeURIComponent(teamId)}/revive`, { method: 'POST' });
         triggerToast(`Team ${teamId} revived / unlocked`);
         syncAll();
-      } catch(e){}
+      } catch (e) {}
     }
 
     document.getElementById('btnExportCsv').onclick = () => {
@@ -263,31 +296,29 @@
     async function syncLeaderboard() {
       try {
         const round = document.getElementById('viewBoardRoundSelect').value;
-        const lRes = await fetch(`${getApi()}/api/admin/leaderboard.html/${round}`, { headers: { "x-admin-key": getKey() } });
-        const lData = await lRes.json();
+        const lData = await adminFetch(`/api/admin/leaderboard/${round}`);
         document.getElementById('lbBody').innerHTML = (lData.leaderboard || []).map(r => `
           <tr>
             <td>#${r.rank}</td><td>${r.team_id}</td><td>${r.team_name}</td><td><strong>${r.score}</strong></td><td>${r.time_taken_seconds}s</td>
             <td>
               <span class="badge ${r.status==='QUALIFIED'?'badge-qual':'badge-elim'}">${r.status}</span>
-              <br><small style="color:var(--text-muted)">${r.elimination_reason || r.submission_status}</small>
+              <br><small style="color:var(--text-muted)">${r.elimination_reason || r.submission_status || ''}</small>
             </td>
           </tr>
         `).join('') || '<tr><td colspan="6">No submissions recorded for this round.</td></tr>';
-      } catch(e){}
+      } catch (e) {}
     }
 
     async function loadQuestionsForEditing() {
       const round = document.getElementById('editRoundSelect').value;
       try {
-        const res = await fetch(`${getApi()}/api/admin/questions/${round}`, { headers: { "x-admin-key": getKey() } });
-        const data = await res.json();
+        const data = await adminFetch(`/api/admin/questions/${round}`);
         currentQuestions = data.questions || [];
         currentHints = data.hints || [];
         document.getElementById('briefingEditor').value = data.briefing || "";
         renderQuestions();
         renderHintEditor();
-      } catch(e){}
+      } catch (e) {}
     }
 
     function optionsToText(options) {
@@ -310,7 +341,7 @@
               <option value="mcq" ${q.type==='mcq'?'selected':''}>MCQ</option>
             </select>
             <input type="number" value="${q.points ?? 4}" style="width:80px; margin:0;" oninput="currentQuestions[${idx}].points=parseInt(this.value)||0" placeholder="Pts">
-            <button type="button" class="btn-danger" style="width:auto; padding:6px 10px; font-size:11px;" onclick="currentQuestions.splice(${idx},1); renderQuestions();">✕ REMOVE</button>
+            <button type="button" class="btn-danger" style="width:auto; padding:6px 10px; font-size:11px;" onclick="currentQuestions.splice(${idx},1); renderQuestions();">REMOVE</button>
           </div>
           <input type="text" value="${(q.text||'').replace(/"/g,'&quot;')}" oninput="currentQuestions[${idx}].text=this.value" placeholder="Question Text">
           <input type="text" value="${(q.correct_answer||'').replace(/"/g,'&quot;')}" oninput="currentQuestions[${idx}].correct_answer=this.value" placeholder="Correct Answer">
@@ -326,7 +357,7 @@
           <input type="number" value="${h.tier}" style="width:70px; margin:0;" oninput="currentHints[${idx}].tier=parseInt(this.value)||1" placeholder="Tier">
           <input type="number" value="${h.point_cost}" style="width:90px; margin:0;" oninput="currentHints[${idx}].point_cost=parseInt(this.value)||0" placeholder="Cost">
           <input type="text" value="${(h.text||'').replace(/"/g,'&quot;')}" style="margin:0;" oninput="currentHints[${idx}].text=this.value" placeholder="Hint text">
-          <button type="button" class="btn-danger" style="width:auto; padding:6px 10px; font-size:11px;" onclick="currentHints.splice(${idx},1); renderHintEditor();">✕</button>
+          <button type="button" class="btn-danger" style="width:auto; padding:6px 10px; font-size:11px;" onclick="currentHints.splice(${idx},1); renderHintEditor();">X</button>
         </div>
       `).join('') || '<p style="color:var(--text-muted); font-size:12px;">No hint tiers configured for this round.</p>';
     }
@@ -346,56 +377,71 @@
     document.getElementById('btnSaveQuestionBank').onclick = async () => {
       const round = parseInt(document.getElementById('editRoundSelect').value);
       const briefing = document.getElementById('briefingEditor').value;
-      await fetch(`${getApi()}/api/admin/questions`, {
-        method: "POST", headers: { "Content-Type": "application/json", "x-admin-key": getKey() },
-        body: JSON.stringify({ round_number: round, questions: currentQuestions, hints: currentHints, briefing: briefing })
-      });
-      triggerToast(`Synced questions, hints & briefing for Round ${round}`);
+      try {
+        await adminFetch('/api/admin/questions', {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ round_number: round, questions: currentQuestions, hints: currentHints, briefing: briefing })
+        });
+        triggerToast(`Synced questions, hints & briefing for Round ${round}`);
+      } catch (e) {}
     };
 
     document.getElementById('btnOpenRound').onclick = async () => {
       const r = document.getElementById('gateRoundSelect').value;
       const d = parseInt(document.getElementById('roundDurationInput').value) || 10;
-      await fetch(`${getApi()}/api/admin/round/${r}/open`, {
-        method: "POST", headers: { "Content-Type": "application/json", "x-admin-key": getKey() },
-        body: JSON.stringify({ duration_minutes: d })
-      });
-      triggerToast(`Round ${r} opened for ${d} mins`);
-      syncAll();
+      try {
+        await adminFetch(`/api/admin/round/${r}/open`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ duration_minutes: d })
+        });
+        triggerToast(`Round ${r} opened for ${d} mins`);
+        syncAll();
+      } catch (e) {}
     };
 
     document.getElementById('btnCloseRound').onclick = async () => {
       const r = document.getElementById('gateRoundSelect').value;
-      await fetch(`${getApi()}/api/admin/round/${r}/close`, { method: "POST", headers: { "x-admin-key": getKey() } });
-      triggerToast(`Round ${r} locked`);
-      syncAll();
+      try {
+        await adminFetch(`/api/admin/round/${r}/close`, { method: "POST" });
+        triggerToast(`Round ${r} locked`);
+        syncAll();
+      } catch (e) {}
     };
 
     document.getElementById('btnToggleLate').onclick = async () => {
-      const res = await fetch(`${getApi()}/api/admin/toggle-late-logins`, { method: "POST", headers: { "x-admin-key": getKey() } });
-      const d = await res.json();
-      triggerToast(`Late Logins: ${d.allow_late_logins ? "ENABLED" : "LOCKED"}`);
-      syncAll();
+      try {
+        const d = await adminFetch('/api/admin/toggle-late-logins', { method: "POST" });
+        triggerToast(`Late Logins: ${d.allow_late_logins ? "ENABLED" : "LOCKED"}`);
+        syncAll();
+      } catch (e) {}
     };
 
     document.getElementById('btnForceSubmit').onclick = async () => {
       const r = document.getElementById('gateRoundSelect').value;
       if (!confirm(`Force submit all teams for Round ${r}?`)) return;
-      await fetch(`${getApi()}/api/admin/round/${r}/force-submit`, { method: "POST", headers: { "x-admin-key": getKey() } });
-      triggerToast(`Force submitted Round ${r}`);
-      syncAll();
+      try {
+        await adminFetch(`/api/admin/round/${r}/force-submit`, { method: "POST" });
+        triggerToast(`Force submitted Round ${r}`);
+        syncAll();
+      } catch (e) {}
     };
 
     document.getElementById('btnExecuteReset').onclick = async () => {
       const type = document.getElementById('resetTypeSelect').value;
       const r = parseInt(document.getElementById('gateRoundSelect').value) || 1;
-      if (!confirm(`Confirm reset partition: ${type}?`)) return;
-      await fetch(`${getApi()}/api/admin/universal-reset`, {
-        method: "POST", headers: { "Content-Type": "application/json", "x-admin-key": getKey() },
-        body: JSON.stringify({ reset_type: type, round_number: r })
-      });
-      triggerToast(`Reset completed: ${type}`);
-      syncAll();
+      if (!getKey()) { triggerToast('Enter ADMIN SECRET KEY first'); return; }
+      if (!confirm(`Confirm reset partition: ${type}? This cannot be undone.`)) return;
+      try {
+        const data = await adminFetch('/api/admin/universal-reset', {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ reset_type: type, round_number: r })
+        });
+        triggerToast(data.message || `Reset completed: ${type}`);
+        syncAll();
+      } catch (e) {}
     };
 
     document.getElementById('btnGenerateSlots').onclick = () => {
@@ -416,37 +462,51 @@
         const v = document.getElementById(`tSlot${i}`)?.value.trim();
         if (v) names.push(v);
       }
-      await fetch(`${getApi()}/api/admin/create-teams-bulk`, {
-        method: "POST", headers: { "Content-Type": "application/json", "x-admin-key": getKey() },
-        body: JSON.stringify({ team_names: names })
-      });
-      document.getElementById('slotsContainer').innerHTML = '';
-      document.getElementById('btnCreateTeams').style.display = 'none';
-      triggerToast(`Generated ${names.length} teams`);
-      syncAll();
+      if (!names.length) { triggerToast('Enter at least one team name'); return; }
+      try {
+        const data = await adminFetch('/api/admin/create-teams-bulk', {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ team_names: names })
+        });
+        document.getElementById('slotsContainer').innerHTML = '';
+        document.getElementById('btnCreateTeams').style.display = 'none';
+        triggerToast(`Generated ${data.created_count || names.length} teams`);
+        syncAll();
+      } catch (e) {}
     };
 
     document.getElementById('btnPromote').onclick = async () => {
       const n = parseInt(document.getElementById('promoteTopN').value);
       const r = parseInt(document.getElementById('promoteTargetRound').value);
-      await fetch(`${getApi()}/api/admin/promote-teams`, {
-        method: "POST", headers: { "Content-Type": "application/json", "x-admin-key": getKey() },
-        body: JSON.stringify({ top_n_teams: n, next_round: r })
-      });
-      triggerToast(`Promoted top ${n} teams to Round ${r}`);
-      syncAll();
+      if (!confirm(`Promote top ${n} teams to Round ${r} and eliminate the rest?`)) return;
+      try {
+        const data = await adminFetch('/api/admin/promote-teams', {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ top_n_teams: n, next_round: r })
+        });
+        triggerToast(`Promoted ${data.promoted_count || n} · Eliminated ${data.eliminated_count || 0}`);
+        syncAll();
+      } catch (e) {}
     };
 
-    document.getElementById('btnSync').onclick = syncAll;
-    document.getElementById('adminKey').addEventListener('keydown', (e) => { if (e.key === 'Enter') syncAll(); });
+    document.getElementById('btnSync').onclick = () => {
+      if (!getKey()) { triggerToast('Enter ADMIN SECRET KEY first'); return; }
+      syncAll();
+      triggerToast('Syncing…');
+    };
+    document.getElementById('adminKey').addEventListener('keydown', (e) => { if (e.key === 'Enter') { syncAll(); } });
     document.getElementById('editRoundSelect').onchange = loadQuestionsForEditing;
     window.addEventListener("DOMContentLoaded", () => {
       const k = localStorage.getItem('nexusAdminKey');
       if (k) document.getElementById('adminKey').value = k;
-      loadQuestionsForEditing();
-      syncAll();
-      setInterval(syncAll, 4000);
+      if (getKey()) {
+        loadQuestionsForEditing();
+        syncAll();
+      }
+      setInterval(() => { if (getKey()) syncAll(); }, 4000);
     });
-  </script>
+</script>
 </body>
 </html>
