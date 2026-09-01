@@ -192,11 +192,11 @@
       if (cleanPhone.length < 10) return null;
       const withCountry = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone;
       const msg =
-        `🎉 *LEVEL 04 : THE LAST LOGIN* — Your team has been APPROVED!\n\n` +
+        `\u{1F389} *LEVEL 04 : THE LAST LOGIN* — Your team has been APPROVED!\n\n` +
         `Team Name: *${teamName}*\n` +
         `Team ID: *${teamId}*\n` +
         `Access Key: *${password}*\n\n` +
-        `⚠️ *IMPORTANT:* Do NOT share these credentials with anyone outside your team.\n\n` +
+        `\u{26A0}\u{FE0F} *IMPORTANT:* Do NOT share these credentials with anyone outside your team.\n\n` +
         `Paste your Team ID and Access Key on the official contest login page when facilitators open the round.\n` +
         `Good luck — beat the level!`;
       return `https://wa.me/${withCountry}?text=${encodeURIComponent(msg)}`;
