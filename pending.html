@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>LEVEL 04 : THE LAST LOGIN // PENDING REGISTRATIONS</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,44 +15,139 @@
       --text-main: #f8fafc; --text-muted: #94a3b8;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: var(--bg); color: var(--text-main); font-family: 'Inter', sans-serif; padding: 24px; font-size: 13.5px; }
-    h1 { font-family: 'JetBrains Mono', monospace; font-size: 19px; font-weight: 800; color: var(--accent); margin-bottom: 20px; border-bottom: 1px solid var(--card-border); padding-bottom: 10px; }
-    h2 { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 12px; }
-    .card { background: var(--panel); border: 1px solid var(--card-border); border-radius: 10px; padding: 18px; margin-bottom: 20px; }
+    body {
+      background: var(--bg); color: var(--text-main); font-family: 'Inter', sans-serif;
+      padding: 12px; font-size: 13.5px; padding-bottom: 40px;
+    }
+    @media (min-width: 768px) { body { padding: 24px; } }
+
+    h1 {
+      font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 800; color: var(--accent);
+      margin-bottom: 14px; border-bottom: 1px solid var(--card-border); padding-bottom: 10px; line-height: 1.35;
+    }
+    @media (min-width: 768px) { h1 { font-size: 19px; margin-bottom: 20px; } }
+
+    h2 {
+      font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700;
+      color: var(--accent); margin-bottom: 10px;
+    }
+
+    .meta-row {
+      display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px;
+    }
+    @media (min-width: 640px) {
+      .meta-row { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 10px; }
+    }
+    .meta-row input {
+      width: 100%; margin: 0 !important;
+    }
+    @media (min-width: 640px) {
+      .meta-row input { max-width: 260px; flex: 1 1 200px; }
+    }
+    .meta-row .btn-row {
+      display: flex; gap: 8px; flex-wrap: wrap;
+    }
+    .meta-row .btn-row button,
+    .meta-row .btn-row a {
+      flex: 1 1 auto; min-width: 0;
+    }
+    .meta-row .btn-row a { text-decoration: none; display: flex; }
+    .meta-row .btn-row a button { width: 100%; }
+
     input {
-      font-family: 'JetBrains Mono', monospace; padding: 9px 12px; background: #080d16 !important;
-      border: 1px solid var(--card-border); color: #00f2ae !important; font-size: 13px; width: 100%; margin-bottom: 10px; border-radius: 6px; outline: none;
+      font-family: 'JetBrains Mono', monospace; padding: 12px 14px; background: #080d16 !important;
+      border: 1px solid var(--card-border); color: #00f2ae !important; font-size: 14px;
+      width: 100%; margin-bottom: 10px; border-radius: 8px; outline: none;
     }
+
     button {
-      padding: 9px 16px; background: var(--accent); color: #03150f; font-weight: 700; cursor: pointer; border: none; border-radius: 6px;
-      font-family: 'Inter', sans-serif; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 12px 16px; background: var(--accent); color: #03150f; font-weight: 700; cursor: pointer;
+      border: none; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 13px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
       box-shadow: 0 2px 8px rgba(0, 242, 174, 0.2); transition: all 0.1s ease;
+      min-height: 44px; /* touch target */
     }
-    button:hover { filter: brightness(1.12); transform: translateY(-1px); }
-    .btn-danger { background: var(--danger) !important; color: #fff !important; }
+    button:hover { filter: brightness(1.12); }
+    button:active { transform: scale(0.98); }
+    .btn-danger { background: var(--danger) !important; color: #fff !important; box-shadow: 0 2px 8px rgba(244,63,94,0.25); }
     .btn-warning { background: var(--gold) !important; color: #201300 !important; }
     .btn-ghost {
       background: rgba(255,255,255,0.06) !important; color: var(--accent) !important;
-      border: 1px solid var(--card-border);
-      box-shadow: none;
+      border: 1px solid var(--card-border); box-shadow: none;
     }
-    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 12.5px; }
+
+    .card {
+      background: var(--panel); border: 1px solid var(--card-border); border-radius: 12px;
+      padding: 14px; margin-bottom: 14px;
+    }
+    @media (min-width: 768px) { .card { padding: 18px; } }
+
+    .hint {
+      color: var(--text-muted); font-size: 12px; margin-bottom: 12px; line-height: 1.45;
+    }
+
+    /* ===== Mobile cards ===== */
+    #mobileList { display: flex; flex-direction: column; gap: 12px; }
+    @media (min-width: 900px) { #mobileList { display: none; } }
+
+    .team-card {
+      background: rgba(255,255,255,0.02); border: 1px solid var(--card-border);
+      border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px;
+    }
+    .team-card .tc-title {
+      font-size: 16px; font-weight: 800; color: #fff; line-height: 1.3;
+    }
+    .team-card .tc-row {
+      display: flex; justify-content: space-between; gap: 8px; font-size: 13px;
+      border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;
+    }
+    .team-card .tc-row:last-of-type { border-bottom: none; }
+    .team-card .tc-label { color: var(--text-muted); flex-shrink: 0; }
+    .team-card .tc-val { color: var(--text-main); text-align: right; word-break: break-word; font-weight: 600; }
+    .team-card .tc-val.gold { color: var(--gold); }
+    .team-card .tc-val.mono { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; }
+
+    .tc-actions {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px;
+    }
+    .tc-actions .full { grid-column: 1 / -1; }
+    .tc-actions button { width: 100%; font-size: 13px; padding: 12px 10px; }
+
+    .empty-state {
+      text-align: center; color: var(--text-muted); padding: 28px 12px; font-size: 13px;
+    }
+
+    /* ===== Desktop table ===== */
+    .table-wrap { display: none; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    @media (min-width: 900px) { .table-wrap { display: block; } }
+    table { width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 700px; }
     th, td { border: 1px solid var(--card-border); padding: 8px 10px; text-align: left; vertical-align: top; }
     th { background: rgba(255,255,255,0.04); color: var(--accent); font-family: 'JetBrains Mono', monospace; }
+
     #actionToast {
-      position: fixed; bottom: 20px; right: 20px; background: #00f2ae; color: #04140e;
-      padding: 12px 20px; border-radius: 8px; font-weight: 700; z-index: 1000;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+      position: fixed; bottom: 16px; left: 12px; right: 12px; background: #00f2ae; color: #04140e;
+      padding: 14px 18px; border-radius: 10px; font-weight: 700; z-index: 1000;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5); opacity: 0; pointer-events: none;
+      transition: opacity 0.2s ease; text-align: center; max-width: 480px; margin: 0 auto;
+    }
+    @media (min-width: 640px) {
+      #actionToast { left: auto; right: 20px; bottom: 20px; text-align: left; }
     }
     #actionToast.show { opacity: 1; }
-    .meta-row { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+
     .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center;
-      z-index: 2000; padding: 20px;
+      position: fixed; inset: 0; background: rgba(0,0,0,0.88); display: flex;
+      justify-content: center; align-items: flex-end; z-index: 2000; padding: 0;
+    }
+    @media (min-width: 640px) {
+      .modal-overlay { align-items: center; padding: 20px; }
     }
     .modal-box {
-      background: var(--panel); border: 1px solid var(--accent); border-radius: 12px; padding: 18px;
-      max-width: 720px; width: 100%; max-height: 90vh; overflow: auto;
+      background: var(--panel); border: 1px solid var(--accent); border-radius: 16px 16px 0 0;
+      padding: 16px; width: 100%; max-height: 88vh; overflow: auto;
+    }
+    @media (min-width: 640px) {
+      .modal-box { border-radius: 12px; max-width: 720px; padding: 18px; }
     }
     .modal-box img { max-width: 100%; border-radius: 8px; border: 1px solid var(--card-border); }
     .hidden { display: none !important; }
@@ -61,40 +156,52 @@
 <body>
 
   <div id="actionToast">Action Executed Successfully</div>
-  <h1>// LEVEL 04 : THE LAST LOGIN — PENDING REGISTRATIONS</h1>
+  <h1>// LEVEL 04 — PENDING REGISTRATIONS</h1>
 
   <div class="meta-row">
-    <input type="password" id="adminKey" placeholder="ADMIN SECRET KEY" style="max-width:240px; margin:0;" oninput="localStorage.setItem('nexusAdminKey', this.value)">
-    <button id="btnRefresh">REFRESH QUEUE</button>
-    <a href="/admin.html" style="text-decoration:none;"><button type="button" class="btn-warning">← BACK TO COMMAND MATRIX</button></a>
+    <input type="password" id="adminKey" placeholder="ADMIN SECRET KEY" oninput="localStorage.setItem('nexusAdminKey', this.value)">
+    <div class="btn-row">
+      <button type="button" id="btnRefresh">REFRESH QUEUE</button>
+      <a href="/admin.html"><button type="button" class="btn-warning">← COMMAND MATRIX</button></a>
+    </div>
   </div>
 
   <div class="card">
-    <h2>&gt; APPROVAL QUEUE (Team · Payer · Receipt · Timestamp)</h2>
-    <p style="color:var(--text-muted); font-size:12px; margin-bottom:10px;">Approve only after you have confirmed the ₹100 UPI payment using the receipt screenshot and payer name.</p>
-    <table>
-      <thead>
-        <tr>
-          <th>Team Name</th>
-          <th>Leader</th>
-          <th>Phone</th>
-          <th>Payer Name</th>
-                    <th>Submitted At</th>
-          <th>Receipt</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody id="pendingBody">
-        <tr><td colspan="7">Enter admin key and refresh.</td></tr>
-      </tbody>
-    </table>
+    <h2>&gt; APPROVAL QUEUE</h2>
+    <p class="hint">Approve only after you have confirmed the ₹100 UPI payment (receipt + payer name). On approve, WhatsApp opens with credentials for the team leader.</p>
+
+    <!-- Mobile card list -->
+    <div id="mobileList">
+      <div class="empty-state">Enter admin key and tap REFRESH QUEUE.</div>
+    </div>
+
+    <!-- Desktop table -->
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Team Name</th>
+            <th>Leader</th>
+            <th>Phone</th>
+            <th>Payer</th>
+            <th>Course</th>
+            <th>Submitted</th>
+            <th>Receipt</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="pendingBody">
+          <tr><td colspan="8">Enter admin key and refresh.</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <div class="modal-overlay hidden" id="ssModal">
     <div class="modal-box">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <h2 style="margin:0;" id="ssModalTitle">Payment Receipt</h2>
-        <button type="button" class="btn-danger" style="padding:6px 12px;font-size:12px;" onclick="closeScreenshot()">CLOSE</button>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:10px;">
+        <h2 style="margin:0;flex:1;" id="ssModalTitle">Payment Receipt</h2>
+        <button type="button" class="btn-danger" style="padding:10px 14px;font-size:13px;min-height:40px;" onclick="closeScreenshot()">CLOSE</button>
       </div>
       <div id="ssModalBody" style="text-align:center;color:var(--text-muted);">Loading…</div>
     </div>
@@ -102,85 +209,20 @@
 
   <script>
     const DEFAULT_API = "https://project-victory-production-d780.up.railway.app";
+    const pendingPhoneMap = {};
 
     function getApi() { return DEFAULT_API; }
-    function getKey() { return document.getElementById('adminKey').value.trim(); }
+    function getKey() { return (document.getElementById('adminKey').value || '').trim(); }
 
     function triggerToast(msg) {
       const t = document.getElementById('actionToast');
-      t.innerText = msg; t.classList.add('show');
-      setTimeout(() => t.classList.remove('show'), 2200);
+      t.innerText = String(msg || 'Done');
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2800);
     }
 
     function escapeHtml(s) {
       return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    }
-
-    async function loadPending() {
-      const key = getKey();
-      if (!key) { document.getElementById('pendingBody').innerHTML = '<tr><td colspan="7">Enter admin key first.</td></tr>'; return; }
-      try {
-        const res = await fetch(`${getApi()}/api/admin/pending-registrations`, {
-          headers: { "x-admin-key": key }
-        });
-        if (!res.ok) {
-          document.getElementById('pendingBody').innerHTML = '<tr><td colspan="7">Unauthorized or error.</td></tr>';
-          return;
-        }
-        const data = await res.json();
-        const list = data.pending || [];
-        if (!list.length) {
-          document.getElementById('pendingBody').innerHTML = '<tr><td colspan="7" style="color:var(--text-muted);">No pending registrations.</td></tr>';
-          return;
-        }
-        document.getElementById('pendingBody').innerHTML = list.map(p => `
-          <tr>
-            <td><strong>${escapeHtml(p.team_name)}</strong></td>
-            <td>${escapeHtml(p.leader_name)}<br><small style="color:var(--text-muted)">${escapeHtml(p.leader_roll)} · B.Tech Y${escapeHtml(String(p.year || ''))}</small></td>
-            <td style="font-family:'JetBrains Mono';">${escapeHtml(p.leader_phone)}</td>
-            <td style="color:var(--gold); font-weight:700;">${escapeHtml(p.payer_name)}</td>
-            <td style="font-family:'JetBrains Mono'; font-size:11px;">${escapeHtml(p.submitted_at)}</td>
-            <td>
-              ${p.has_screenshot
-                ? `<button type="button" class="btn-ghost" style="padding:5px 10px;font-size:11px;" onclick="viewScreenshot('${p.id}')">🖼 VIEW</button>`
-                : '<span style="color:var(--text-muted);font-size:11px;">None</span>'}
-            </td>
-            <td style="white-space:nowrap;">
-              <button type="button" style="padding:5px 10px; font-size:11px;" onclick="approve('${p.id}')">✓ APPROVE</button>
-              <button type="button" class="btn-danger" style="padding:5px 10px; font-size:11px;" onclick="reject('${p.id}')">✕ REJECT</button>
-            </td>
-          </tr>
-        `).join('');
-      } catch (e) {
-        document.getElementById('pendingBody').innerHTML = '<tr><td colspan="7">Network error.</td></tr>';
-      }
-    }
-
-    async function viewScreenshot(id) {
-      const modal = document.getElementById('ssModal');
-      const body = document.getElementById('ssModalBody');
-      document.getElementById('ssModalTitle').innerText = 'Payment Receipt';
-      body.innerHTML = '<p>Loading screenshot…</p>';
-      modal.classList.remove('hidden');
-      try {
-        const res = await fetch(`${getApi()}/api/admin/pending/${id}/screenshot`, {
-          headers: { 'x-admin-key': getKey() }
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          body.innerHTML = `<p style="color:var(--danger);">${escapeHtml(data.detail || 'Failed to load')}</p>`;
-          return;
-        }
-        document.getElementById('ssModalTitle').innerText = 'Receipt · ' + (data.team_name || id);
-        body.innerHTML = `<img src="${data.screenshot}" alt="Payment receipt">`;
-      } catch (e) {
-        body.innerHTML = '<p style="color:var(--danger);">Network error loading screenshot.</p>';
-      }
-    }
-
-    function closeScreenshot() {
-      document.getElementById('ssModal').classList.add('hidden');
-      document.getElementById('ssModalBody').innerHTML = '';
     }
 
     function buildApprovalWhatsAppUrl(teamId, password, teamName, phone) {
@@ -198,25 +240,145 @@
       return `https://wa.me/${withCountry}?text=${encodeURIComponent(msg)}`;
     }
 
-    async function approve(id) {
-      if (!confirm('Confirm payment received and approve this team? Credentials will be generated instantly.')) return;
+    function openWhatsApp(url) {
+      if (!url) return;
+      const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+      if (isMobile) window.location.href = url;
+      else window.open(url, '_blank');
+    }
+
+    function renderMobileCards(list) {
+      const wrap = document.getElementById('mobileList');
+      if (!list.length) {
+        wrap.innerHTML = '<div class="empty-state">No pending registrations.</div>';
+        return;
+      }
+      wrap.innerHTML = list.map(p => {
+        const id = escapeHtml(p.id);
+        const viewBtn = p.has_screenshot
+          ? `<button type="button" class="btn-ghost full" data-id="${id}" data-act="view">VIEW RECEIPT</button>`
+          : `<button type="button" class="btn-ghost full" disabled style="opacity:0.4;">NO RECEIPT</button>`;
+        return `<div class="team-card">
+          <div class="tc-title">${escapeHtml(p.team_name)}</div>
+          <div class="tc-row"><span class="tc-label">Leader</span><span class="tc-val">${escapeHtml(p.leader_name)}</span></div>
+          <div class="tc-row"><span class="tc-label">Roll · Course</span><span class="tc-val">${escapeHtml(p.leader_roll)} · ${escapeHtml(p.course || '')} Y${escapeHtml(String(p.year || ''))}</span></div>
+          <div class="tc-row"><span class="tc-label">Phone</span><span class="tc-val mono">${escapeHtml(p.leader_phone)}</span></div>
+          <div class="tc-row"><span class="tc-label">Payer</span><span class="tc-val gold">${escapeHtml(p.payer_name)}</span></div>
+          <div class="tc-row"><span class="tc-label">Submitted</span><span class="tc-val mono">${escapeHtml(p.submitted_at)}</span></div>
+          <div class="tc-actions">
+            ${viewBtn}
+            <button type="button" data-id="${id}" data-act="approve">APPROVE</button>
+            <button type="button" class="btn-danger" data-id="${id}" data-act="reject">REJECT</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function renderDesktopTable(list) {
+      const body = document.getElementById('pendingBody');
+      if (!list.length) {
+        body.innerHTML = '<tr><td colspan="8" style="color:var(--text-muted);">No pending registrations.</td></tr>';
+        return;
+      }
+      body.innerHTML = list.map(p => {
+        const id = escapeHtml(p.id);
+        const viewBtn = p.has_screenshot
+          ? `<button type="button" class="btn-ghost" style="padding:8px 10px;font-size:11px;" data-id="${id}" data-act="view">VIEW</button>`
+          : '<span style="color:var(--text-muted);font-size:11px;">None</span>';
+        return `<tr>
+          <td><strong>${escapeHtml(p.team_name)}</strong></td>
+          <td>${escapeHtml(p.leader_name)}<br><small style="color:var(--text-muted)">${escapeHtml(p.leader_roll)}</small></td>
+          <td style="font-family:'JetBrains Mono';">${escapeHtml(p.leader_phone)}</td>
+          <td style="color:var(--gold);font-weight:700;">${escapeHtml(p.payer_name)}</td>
+          <td>${escapeHtml(p.course || '')} Y${escapeHtml(String(p.year || ''))}</td>
+          <td style="font-family:'JetBrains Mono';font-size:11px;">${escapeHtml(p.submitted_at)}</td>
+          <td>${viewBtn}</td>
+          <td style="white-space:nowrap;">
+            <button type="button" style="padding:8px 10px;font-size:11px;" data-id="${id}" data-act="approve">APPROVE</button>
+            <button type="button" class="btn-danger" style="padding:8px 10px;font-size:11px;" data-id="${id}" data-act="reject">REJECT</button>
+          </td>
+        </tr>`;
+      }).join('');
+    }
+
+    async function loadPending() {
+      const key = getKey();
+      const mobile = document.getElementById('mobileList');
+      const body = document.getElementById('pendingBody');
+      if (!key) {
+        mobile.innerHTML = '<div class="empty-state">Enter admin key and tap REFRESH QUEUE.</div>';
+        body.innerHTML = '<tr><td colspan="8">Enter admin key first.</td></tr>';
+        return;
+      }
+      mobile.innerHTML = '<div class="empty-state">Loading…</div>';
+      body.innerHTML = '<tr><td colspan="8">Loading…</td></tr>';
       try {
-        const res = await fetch(`${getApi()}/api/admin/pending/${id}/approve`, {
+        const res = await fetch(`${getApi()}/api/admin/pending-registrations`, {
+          headers: { 'x-admin-key': key }
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          const msg = (data && data.detail) || 'Unauthorized or error';
+          mobile.innerHTML = `<div class="empty-state" style="color:var(--danger);">${escapeHtml(msg)}</div>`;
+          body.innerHTML = `<tr><td colspan="8" style="color:var(--danger);">${escapeHtml(msg)}</td></tr>`;
+          return;
+        }
+        const list = data.pending || [];
+        Object.keys(pendingPhoneMap).forEach(k => delete pendingPhoneMap[k]);
+        list.forEach(p => { pendingPhoneMap[p.id] = p.leader_phone || ''; });
+        renderMobileCards(list);
+        renderDesktopTable(list);
+      } catch (e) {
+        mobile.innerHTML = '<div class="empty-state" style="color:var(--danger);">Network error.</div>';
+        body.innerHTML = '<tr><td colspan="8">Network error.</td></tr>';
+      }
+    }
+
+    async function viewScreenshot(id) {
+      if (!getKey()) { triggerToast('Enter admin key first'); return; }
+      const modal = document.getElementById('ssModal');
+      const body = document.getElementById('ssModalBody');
+      document.getElementById('ssModalTitle').innerText = 'Payment Receipt';
+      body.innerHTML = '<p>Loading screenshot…</p>';
+      modal.classList.remove('hidden');
+      try {
+        const res = await fetch(`${getApi()}/api/admin/pending/${encodeURIComponent(id)}/screenshot`, {
+          headers: { 'x-admin-key': getKey() }
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          body.innerHTML = `<p style="color:var(--danger);">${escapeHtml(data.detail || 'Failed to load')}</p>`;
+          return;
+        }
+        document.getElementById('ssModalTitle').innerText = 'Receipt · ' + (data.team_name || id);
+        body.innerHTML = `<img src="${data.screenshot}" alt="Payment receipt">`;
+      } catch (e) {
+        body.innerHTML = '<p style="color:var(--danger);">Network error loading screenshot.</p>';
+      }
+    }
+
+    function closeScreenshot() {
+      document.getElementById('ssModal').classList.add('hidden');
+      document.getElementById('ssModalBody').innerHTML = '';
+    }
+
+    async function approve(id) {
+      if (!getKey()) { triggerToast('Enter admin key first'); return; }
+      if (!confirm('Confirm payment received and approve this team?')) return;
+      try {
+        const res = await fetch(`${getApi()}/api/admin/pending/${encodeURIComponent(id)}/approve`, {
           method: 'POST',
           headers: { 'x-admin-key': getKey() }
         });
-        const data = await res.json();
+        const data = await res.json().catch(() => ({}));
         if (res.ok) {
           triggerToast(`Approved → ${data.team_id} / ${data.password}`);
-          loadPending();
+          const phone = data.leader_phone || pendingPhoneMap[id] || '';
           const waUrl = buildApprovalWhatsAppUrl(
-            data.team_id, data.password, data.team_name, data.leader_phone
+            data.team_id, data.password, data.team_name || '', phone
           );
-          if (waUrl && confirm(
-            `Team approved.\n\nTeam ID: ${data.team_id}\nAccess Key: ${data.password}\n\nOpen WhatsApp to send credentials to the team leader now?`
-          )) {
-            window.open(waUrl, '_blank');
-          }
+          if (waUrl) openWhatsApp(waUrl);
+          loadPending();
         } else {
           triggerToast(data.detail || 'Approve failed');
         }
@@ -224,9 +386,10 @@
     }
 
     async function reject(id) {
+      if (!getKey()) { triggerToast('Enter admin key first'); return; }
       if (!confirm('Reject this registration?')) return;
       try {
-        const res = await fetch(`${getApi()}/api/admin/pending/${id}/reject`, {
+        const res = await fetch(`${getApi()}/api/admin/pending/${encodeURIComponent(id)}/reject`, {
           method: 'POST',
           headers: { 'x-admin-key': getKey() }
         });
@@ -234,14 +397,28 @@
           triggerToast('Registration rejected');
           loadPending();
         } else {
-          const data = await res.json();
+          const data = await res.json().catch(() => ({}));
           triggerToast(data.detail || 'Reject failed');
         }
       } catch (e) { triggerToast('Network error'); }
     }
 
+    // Event delegation for mobile cards + desktop table
+    document.body.addEventListener('click', (ev) => {
+      const btn = ev.target.closest('button[data-act]');
+      if (!btn) return;
+      const id = btn.getAttribute('data-id');
+      const act = btn.getAttribute('data-act');
+      if (!id || !act) return;
+      if (act === 'approve') approve(id);
+      else if (act === 'reject') reject(id);
+      else if (act === 'view') viewScreenshot(id);
+    });
+
     document.getElementById('btnRefresh').onclick = loadPending;
-    document.getElementById('adminKey').addEventListener('keydown', (e) => { if (e.key === 'Enter') loadPending(); });
+    document.getElementById('adminKey').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') loadPending();
+    });
     window.addEventListener('DOMContentLoaded', () => {
       const k = localStorage.getItem('nexusAdminKey');
       if (k) document.getElementById('adminKey').value = k;
