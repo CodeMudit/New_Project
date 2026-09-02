@@ -51,7 +51,6 @@
     .cred-line { display: flex; justify-content: space-between; align-items: center; font-size: 14px; margin-bottom: 6px; gap: 8px; }
     .cred-line:last-child { margin-bottom: 0; }
     .cred-val { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--gold); font-size: 16px; word-break: break-all; }
-    .status-check-box { margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--card-border); }
     .hidden { display: none !important; }
     .course-note { font-size: 12px; color: var(--text-muted); background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; }
     .ss-preview { margin-top: 10px; text-align: center; }
@@ -66,7 +65,7 @@
 <body>
   <div class="container">
     <div class="header">
-      <div class="badge"><div class="badge-dot"></div>LEVEL 04 · THE LAST LOGIN · B.TECH ONLY</div>
+      <div class="badge"><div class="badge-dot"></div>LEVEL 04 · THE LAST LOGIN · PIET</div>
       <h1>Team Registration</h1>
       <p class="subtitle">Complete details below. Fee is ₹100 per team (max 3 members including leader). You receive a unique Claim Key after submit — use it later to get Team ID &amp; Access Key once admin verifies payment.</p>
       <p style="margin-top:10px;font-size:13px;"><a href="/rules.html" style="color:#38bdf8;text-decoration:none;font-weight:600;">📜 View Official Rule Book</a></p>
@@ -74,10 +73,34 @@
     <form id="regForm" onsubmit="handleRegistration(event)">
       <div class="card">
         <div class="section-title">1. Team &amp; Leader Details</div>
-        <div class="course-note">Only <strong>B.Tech</strong> students are eligible for this event. Course is fixed automatically.</div>
+        <div class="course-note">Open to <strong>PIET Panipat</strong> students across UG &amp; PG programmes. Select your course below (or Other if not listed).</div>
         <div class="form-group"><label>Team Name <span class="req">*</span></label><input type="text" id="teamName" required placeholder="e.g. BinaryBeasts" autocomplete="off" maxlength="60"></div>
         <div class="form-group"><label>Team Leader Name <span class="req">*</span></label><input type="text" id="leaderName" required placeholder="Full Name" autocomplete="name" maxlength="80"></div>
-        <div class="form-group"><label>Year <span class="req">*</span></label>
+        <div class="form-group"><label>Course / Programme <span class="req">*</span></label>
+          <select id="courseSelect" required>
+            <option value="">— Select course —</option>
+            <optgroup label="Undergraduate (UG)">
+              <option value="B.Tech">B.Tech</option>
+              <option value="BCA">BCA</option>
+              <option value="BBA">BBA</option>
+              <option value="B.Pharm">B.Pharm (Pharmacy)</option>
+              <option value="B.Voc">B.Voc</option>
+              <option value="Diploma">Diploma (Engg / Other)</option>
+              <option value="D.Pharm">D.Pharm</option>
+            </optgroup>
+            <optgroup label="Postgraduate (PG)">
+              <option value="M.Tech">M.Tech</option>
+              <option value="MBA">MBA</option>
+              <option value="MCA">MCA</option>
+            </optgroup>
+            <option value="Other">Other (specify below)</option>
+          </select>
+        </div>
+        <div class="form-group hidden" id="otherCourseWrap">
+          <label>Specify Course <span class="req">*</span></label>
+          <input type="text" id="otherCourse" placeholder="e.g. B.Des, BFAD…" maxlength="60" autocomplete="off">
+        </div>
+        <div class="form-group"><label>Year of Study <span class="req">*</span></label>
           <select id="yearSelect" required>
             <option value="1">1st Year</option><option value="2">2nd Year</option><option value="3">3rd Year</option><option value="4">4th Year</option>
           </select>
@@ -111,15 +134,6 @@
       <div class="error-msg" id="errMsg"></div>
       <div class="info-msg" id="infoMsg"></div>
     </form>
-    <div class="card status-check-box">
-      <div class="section-title">Already Registered? Check Status</div>
-      <p style="font-size:12.5px;color:var(--text-muted);margin-bottom:10px;">Enter the <strong>Claim Key</strong> (e.g. NX-A1B2C3) you received when you submitted registration. Do not share it.</p>
-      <div class="form-group"><label>Claim Key</label><input type="text" id="checkClaimKey" placeholder="NX-XXXXXX" autocomplete="off" style="text-transform:uppercase;font-family:'JetBrains Mono',monospace;"></div>
-      <button type="button" class="btn-secondary" onclick="checkStatus()">Check Status / Get Credentials</button>
-      <div class="error-msg" id="statusErr"></div>
-      <div class="info-msg" id="statusInfo"></div>
-    </div>
-  </div>
   <div class="modal-overlay hidden" id="pendingModal">
     <div class="modal">
       <div style="font-size: 30px; margin-bottom: 6px;">⏳</div>
@@ -212,6 +226,19 @@
         document.getElementById('ssPreviewWrap').classList.remove('hidden');
       } catch (ex) { err.innerText = ex.message || 'Invalid image'; e.target.value = ''; }
     });
+    function getSelectedCourse() {
+      const sel = document.getElementById('courseSelect').value;
+      if (sel === 'Other') {
+        return (document.getElementById('otherCourse').value || '').trim() || 'Other';
+      }
+      return sel;
+    }
+    document.getElementById('courseSelect').addEventListener('change', () => {
+      const isOther = document.getElementById('courseSelect').value === 'Other';
+      document.getElementById('otherCourseWrap').classList.toggle('hidden', !isOther);
+      document.getElementById('otherCourse').required = isOther;
+    });
+
     function enforceNumeric(el) { el.addEventListener('input', () => { el.value = el.value.replace(/\D/g, '').slice(0, 15); }); }
     enforceNumeric(document.getElementById('leaderRoll'));
     document.getElementById('leaderPhone').addEventListener('input', (e) => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10); });
@@ -221,6 +248,9 @@
       const err = document.getElementById('errMsg');
       const info = document.getElementById('infoMsg');
       err.innerText = ''; info.innerText = '';
+      const courseVal = getSelectedCourse();
+      if (!document.getElementById('courseSelect').value) { err.innerText = 'Please select your course.'; return; }
+      if (document.getElementById('courseSelect').value === 'Other' && !(document.getElementById('otherCourse').value || '').trim()) { err.innerText = 'Please specify your course.'; return; }
       const leaderRoll = document.getElementById('leaderRoll').value.trim();
       if (!/^\d{3,15}$/.test(leaderRoll)) { err.innerText = 'Leader roll number must be digits only (3–15 digits).'; return; }
       if (!paymentScreenshotDataUrl || !paymentScreenshotDataUrl.startsWith('data:image/')) { err.innerText = 'Please upload a clear screenshot of your payment receipt.'; return; }
@@ -233,14 +263,14 @@
         if (n && r && n.value.trim() && r.value.trim()) {
           const roll = r.value.trim().replace(/\D/g, '');
           if (!/^\d{3,15}$/.test(roll)) { err.innerText = `Member #${i + 1} roll number must be digits only.`; btn.disabled = false; btn.innerText = 'Submit Registration (After Payment)'; return; }
-          members.push({ name: n.value.trim(), roll_no: roll, course: 'B.Tech', year: y ? y.value : '1' });
+          members.push({ name: n.value.trim(), roll_no: roll, course: getSelectedCourse(), year: y ? y.value : '1' });
         }
       }
       const payload = {
         team_name: document.getElementById('teamName').value.trim(),
         leader_name: document.getElementById('leaderName').value.trim(),
         leader_phone: document.getElementById('leaderPhone').value.trim(),
-        leader_roll: leaderRoll, course: 'B.Tech', year: document.getElementById('yearSelect').value,
+        leader_roll: leaderRoll, course: getSelectedCourse(), year: document.getElementById('yearSelect').value,
         members: members, payer_name: document.getElementById('payerName').value.trim(),
         transaction_ref: '', payment_screenshot: paymentScreenshotDataUrl
       };
@@ -260,26 +290,6 @@
         } else { err.innerText = data.detail || 'Registration failed. Check your inputs.'; }
       } catch (ex) { err.innerText = 'Server unreachable. Please try again.'; }
       finally { btn.disabled = false; btn.innerText = 'Submit Registration (After Payment)'; }
-    }
-    async function checkStatus() {
-      const token = document.getElementById('checkClaimKey').value.trim().toUpperCase();
-      const err = document.getElementById('statusErr');
-      const info = document.getElementById('statusInfo');
-      err.innerText = ''; info.innerText = '';
-      if (!token || token.length < 6) { err.innerText = 'Enter a valid Claim Key (e.g. NX-A1B2C3).'; return; }
-      try {
-        const res = await fetch(`${API_URL}/api/public/check-status`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ claim_token: token }) });
-        const data = await res.json();
-        if (!res.ok) { err.innerText = data.detail || 'No registration found for this Claim Key.'; return; }
-        if (data.status === 'APPROVED') {
-          document.getElementById('resTeamId').innerText = data.team_id;
-          document.getElementById('resPassword').innerText = data.password;
-          document.getElementById('resTeamName2').innerText = data.team_name;
-          document.getElementById('successModal').classList.remove('hidden');
-        } else if (data.status === 'PENDING') {
-          info.innerText = `Still PENDING — Team "${data.team_name}" submitted at ${data.submitted_at}. Admin has not approved yet.`;
-        } else if (data.status === 'REJECTED') { err.innerText = data.message || 'Registration was rejected.'; }
-      } catch (ex) { err.innerText = 'Could not reach server. Try again.'; }
     }
   </script>
 </body>
