@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Level 04 : The Last Login // Team Registration</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -12,70 +11,66 @@
       --bg: #090d16; --card-bg: #0f172a; --card-border: #1e293b; --input-bg: #0b1120; --input-border: #334155;
       --text-main: #f8fafc; --text-muted: #94a3b8; --primary: #10b981; --accent: #38bdf8; --gold: #fbbf24; --danger: #f43f5e;
     }
-    body { background-color: var(--bg); color: var(--text-main); font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; min-height: 100vh; padding: 16px 12px 60px 12px; display: flex; justify-content: center; align-items: flex-start; }
-    .container { width: 100%; max-width: 500px; margin: 0 auto; }
-    .header { margin-bottom: 18px; text-align: left; }
-    .badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 6px; font-size: 12px; font-weight: 600; color: var(--primary); font-family: 'JetBrains Mono', monospace; margin-bottom: 8px; }
+    body { background: var(--bg); color: var(--text-main); font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh; padding: 16px 12px 60px; display: flex; justify-content: center; }
+    .container { width: 100%; max-width: 500px; }
+    .badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: rgba(16,185,129,.1); border: 1px solid rgba(16,185,129,.3); border-radius: 6px; font-size: 12px; font-weight: 600; color: var(--primary); font-family: 'JetBrains Mono', monospace; margin-bottom: 8px; }
     .badge-dot { width: 6px; height: 6px; background: var(--primary); border-radius: 50%; }
-    h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; color: #ffffff; margin-bottom: 4px; }
+    h1 { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 4px; }
     .subtitle { font-size: 13.5px; color: var(--text-muted); line-height: 1.45; }
     .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 18px 14px; margin-bottom: 14px; }
-    .section-title { font-size: 13px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+    .section-title { font-size: 13px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 12px; display: flex; justify-content: space-between; }
     .form-group { margin-bottom: 12px; }
-    .form-group:last-child { margin-bottom: 0; }
     label { display: block; font-size: 12.5px; font-weight: 600; color: #cbd5e1; margin-bottom: 5px; }
     .req { color: var(--danger); }
-    input[type="text"], input[type="tel"], input[type="number"], select {
+    input[type="text"], input[type="tel"], select {
       width: 100%; height: 48px; background: var(--input-bg); border: 1px solid var(--input-border);
-      border-radius: 8px; padding: 0 12px; font-size: 16px; color: #ffffff; font-family: inherit; outline: none;
+      border-radius: 8px; padding: 0 12px; font-size: 16px; color: #fff; font-family: inherit; outline: none;
     }
-    input:focus, select:focus { border-color: var(--accent); }
     select option { background: #0b1120; color: #fff; }
+    input:focus, select:focus { border-color: var(--accent); }
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .member-block { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 12px; margin-bottom: 10px; }
-    .member-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 12px; font-weight: 700; color: var(--text-muted); }
-    .btn-remove { background: transparent; border: none; color: var(--danger); font-size: 12px; font-weight: 600; cursor: pointer; }
-    .btn-add-member { width: 100%; height: 42px; background: rgba(56, 189, 248, 0.05); border: 1px dashed rgba(56, 189, 248, 0.4); color: var(--accent); border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 6px; }
-    .payment-summary { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: rgba(251, 191, 36, 0.08); border: 1px solid rgba(251, 191, 36, 0.25); border-radius: 8px; margin-bottom: 12px; }
+    .member-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px; font-weight: 700; color: var(--text-muted); }
+    .btn-remove { background: none; border: none; color: var(--danger); font-size: 12px; font-weight: 600; cursor: pointer; }
+    .btn-add-member { width: 100%; height: 42px; background: rgba(56,189,248,.05); border: 1px dashed rgba(56,189,248,.4); color: var(--accent); border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .payment-summary { display: flex; justify-content: space-between; padding: 12px 14px; background: rgba(251,191,36,.08); border: 1px solid rgba(251,191,36,.25); border-radius: 8px; margin-bottom: 12px; }
     .pay-amount { font-size: 18px; font-weight: 800; color: var(--gold); font-family: 'JetBrains Mono', monospace; }
     .qr-container { text-align: center; padding: 8px 0; }
-    .qr-image { width: 160px; height: 160px; border-radius: 8px; background: #ffffff; padding: 6px; display: inline-block; }
-    .btn-upi { display: flex; justify-content: center; align-items: center; gap: 8px; width: 100%; height: 48px; background: var(--gold); color: #0f172a; text-decoration: none; border-radius: 8px; font-size: 14px; font-weight: 700; margin: 12px 0 14px 0; }
+    .qr-image { width: 160px; height: 160px; border-radius: 8px; background: #fff; padding: 6px; }
+    .btn-upi { display: flex; justify-content: center; align-items: center; width: 100%; height: 48px; background: var(--gold); color: #0f172a; text-decoration: none; border-radius: 8px; font-size: 14px; font-weight: 700; margin: 12px 0 14px; }
     .btn-submit { width: 100%; height: 50px; background: var(--primary); color: #041018; border: none; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 6px; }
-    .btn-submit:disabled { opacity: 0.55; cursor: not-allowed; }
-    .btn-secondary { width: 100%; height: 44px; background: rgba(255,255,255,0.05); border: 1px solid var(--card-border); color: var(--text-main); border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 10px; }
-    .btn-whatsapp { width: 100%; height: 48px; background: #25D366; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 10px; display: flex; justify-content: center; align-items: center; gap: 8px; text-decoration: none; }
+    .btn-submit:disabled { opacity: .55; cursor: not-allowed; }
+    .btn-secondary { width: 100%; height: 44px; background: rgba(255,255,255,.05); border: 1px solid var(--card-border); color: var(--text-main); border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 10px; }
+    .btn-whatsapp { width: 100%; height: 48px; background: #25D366; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; display: flex; justify-content: center; align-items: center; text-decoration: none; margin-top: 10px; }
     .error-msg { color: var(--danger); font-size: 13px; margin-top: 8px; text-align: center; }
-    .info-msg { color: var(--accent); font-size: 13px; margin-top: 8px; text-align: center; line-height: 1.4; }
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.88); display: flex; justify-content: center; align-items: center; padding: 16px; z-index: 999; }
+    .info-msg { color: var(--accent); font-size: 13px; margin-top: 8px; text-align: center; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.88); display: flex; justify-content: center; align-items: center; padding: 16px; z-index: 999; }
     .modal { background: var(--card-bg); border: 1px solid var(--primary); border-radius: 12px; padding: 22px 18px; width: 100%; max-width: 420px; text-align: center; }
-    .cred-card { background: var(--input-bg); border: 1px dashed rgba(16, 185, 129, 0.4); border-radius: 8px; padding: 14px; margin: 14px 0; text-align: left; }
-    .cred-line { display: flex; justify-content: space-between; align-items: center; font-size: 14px; margin-bottom: 6px; gap: 8px; }
-    .cred-line:last-child { margin-bottom: 0; }
+    .cred-card { background: var(--input-bg); border: 1px dashed rgba(16,185,129,.4); border-radius: 8px; padding: 14px; margin: 14px 0; text-align: left; }
+    .cred-line { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 6px; gap: 8px; }
     .hidden { display: none !important; }
-    .course-note { font-size: 12px; color: var(--text-muted); background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; line-height: 1.4; }
+    .course-note { font-size: 12px; color: var(--text-muted); background: rgba(56,189,248,.08); border: 1px solid rgba(56,189,248,.2); border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; line-height: 1.4; }
     .ss-preview { margin-top: 10px; text-align: center; }
     .ss-preview img { max-width: 100%; max-height: 180px; border-radius: 8px; border: 1px solid var(--card-border); }
-    .file-label { display: flex; flex-direction: column; gap: 8px; align-items: stretch; }
-    .file-btn { display: flex; justify-content: center; align-items: center; height: 48px; background: rgba(16, 185, 129, 0.1); border: 1px dashed rgba(16, 185, 129, 0.45); color: var(--primary); border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .file-btn { display: flex; justify-content: center; align-items: center; height: 48px; background: rgba(16,185,129,.1); border: 1px dashed rgba(16,185,129,.45); color: var(--primary); border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
     input[type="file"] { display: none; }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="header">
+    <div class="header" style="margin-bottom:18px;">
       <div class="badge"><div class="badge-dot"></div>LEVEL 04 · THE LAST LOGIN · PIET</div>
       <h1>Team Registration</h1>
-      <p class="subtitle">Complete details below. Fee is ₹100 per team (max 3 members including leader). After you submit, join the official WhatsApp group. Team ID &amp; login details will be sent to the team leader on WhatsApp once payment is verified.</p>
+      <p class="subtitle">Fee ₹100 / team (max 3 members). After submit, join the WhatsApp group. Team ID &amp; login details are sent to the leader on WhatsApp after payment verification.</p>
       <p style="margin-top:10px;font-size:13px;"><a href="/rules.html" style="color:#38bdf8;text-decoration:none;font-weight:600;">📜 View Official Rule Book</a></p>
     </div>
 
     <form id="regForm" onsubmit="handleRegistration(event)">
       <div class="card">
         <div class="section-title">1. Team &amp; Leader Details</div>
-        <div class="course-note">Open to <strong>PIET Panipat</strong> students across UG &amp; PG programmes. Select your course (or Other if not listed).</div>
-        <div class="form-group"><label>Team Name <span class="req">*</span></label><input type="text" id="teamName" required placeholder="e.g. BinaryBeasts" autocomplete="off" maxlength="60"></div>
-        <div class="form-group"><label>Team Leader Name <span class="req">*</span></label><input type="text" id="leaderName" required placeholder="Full Name" autocomplete="name" maxlength="80"></div>
+        <div class="course-note">Open to all <strong>PIET Panipat</strong> UG &amp; PG programmes. Pick your course below.</div>
+        <div class="form-group"><label>Team Name <span class="req">*</span></label><input type="text" id="teamName" required maxlength="60" placeholder="e.g. BinaryBeasts"></div>
+        <div class="form-group"><label>Team Leader Name <span class="req">*</span></label><input type="text" id="leaderName" required maxlength="80" placeholder="Full Name"></div>
         <div class="form-group"><label>Course / Programme <span class="req">*</span></label>
           <select id="courseSelect" required>
             <option value="">— Select course —</option>
@@ -85,7 +80,7 @@
               <option value="BBA">BBA</option>
               <option value="B.Pharm">B.Pharm (Pharmacy)</option>
               <option value="B.Voc">B.Voc</option>
-              <option value="Diploma">Diploma (Engg / Other)</option>
+              <option value="Diploma">Diploma</option>
               <option value="D.Pharm">D.Pharm</option>
             </optgroup>
             <optgroup label="Postgraduate (PG)">
@@ -98,21 +93,22 @@
         </div>
         <div class="form-group hidden" id="otherCourseWrap">
           <label>Specify Course <span class="req">*</span></label>
-          <input type="text" id="otherCourse" placeholder="e.g. BFAD, B.Des…" maxlength="60" autocomplete="off">
+          <input type="text" id="otherCourse" maxlength="60" placeholder="Your course name">
         </div>
         <div class="form-group"><label>Year of Study <span class="req">*</span></label>
           <select id="yearSelect" required>
-            <option value="1">1st Year</option><option value="2">2nd Year</option><option value="3">3rd Year</option><option value="4">4th Year</option>
+            <option value="1">1st Year</option><option value="2">2nd Year</option>
+            <option value="3">3rd Year</option><option value="4">4th Year</option>
           </select>
         </div>
         <div class="grid-2">
-          <div class="form-group"><label>Roll Number <span class="req">*</span></label><input type="text" id="leaderRoll" required inputmode="numeric" pattern="[0-9]{3,15}" placeholder="Digits only" autocomplete="off" maxlength="15"></div>
-          <div class="form-group"><label>WhatsApp Number <span class="req">*</span></label><input type="tel" id="leaderPhone" required pattern="[0-9]{10}" placeholder="10-digit" autocomplete="tel" maxlength="10"></div>
+          <div class="form-group"><label>Roll Number <span class="req">*</span></label><input type="text" id="leaderRoll" required inputmode="numeric" maxlength="15" placeholder="Digits only"></div>
+          <div class="form-group"><label>WhatsApp Number <span class="req">*</span></label><input type="tel" id="leaderPhone" required maxlength="10" placeholder="10-digit"></div>
         </div>
       </div>
 
       <div class="card">
-        <div class="section-title"><span>2. Team Members</span><span style="font-size: 11px; color: var(--text-muted); font-weight: normal;">(Max 3 total incl. leader)</span></div>
+        <div class="section-title"><span>2. Team Members</span><span style="font-size:11px;color:var(--text-muted);font-weight:normal;">Max 3 total</span></div>
         <div id="membersContainer"></div>
         <button type="button" class="btn-add-member" id="addBtn" onclick="addMemberSlot()">+ Add Team Member (Up to 2)</button>
       </div>
@@ -121,15 +117,13 @@
         <div class="section-title">3. Entry Fee Payment</div>
         <div class="payment-summary"><span>Registration Fee</span><span class="pay-amount">₹100</span></div>
         <div class="qr-container"><img class="qr-image" src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=upi%3A%2F%2Fpay%3Fpa%3Dmuditsapra%40pnb%26pn%3DLevel04TheLastLogin%26am%3D100%26cu%3DINR" alt="Payment QR"></div>
-        <a href="upi://pay?pa=7206362394.wallet@phonepe&pn=Level%2004%20The%20Last%20Login&am=100&cu=INR&tn=Level04%20Registration" class="btn-upi">⚡ Pay ₹100 via UPI (GPay / PhonePe / Paytm)</a>
-        <div class="form-group"><label>Name of the Person Who Paid (Account Holder) <span class="req">*</span></label><input type="text" id="payerName" required placeholder="Name on bank / UPI app" autocomplete="off" maxlength="80"></div>
+        <a href="upi://pay?pa=7206362394.wallet@phonepe&pn=Level%2004%20The%20Last%20Login&am=100&cu=INR&tn=Level04%20Registration" class="btn-upi">⚡ Pay ₹100 via UPI</a>
+        <div class="form-group"><label>Name of Person Who Paid <span class="req">*</span></label><input type="text" id="payerName" required maxlength="80" placeholder="Name on UPI / bank"></div>
         <div class="form-group">
           <label>Payment Receipt Screenshot <span class="req">*</span></label>
-          <div class="file-label">
-            <label class="file-btn" for="paymentScreenshot">📷 Upload Screenshot of UPI Receipt</label>
-            <input type="file" id="paymentScreenshot" accept="image/jpeg,image/png,image/webp,image/jpg" required>
-          </div>
-          <div class="ss-preview hidden" id="ssPreviewWrap"><img id="ssPreview" alt="Receipt preview"><p style="font-size:12px;color:var(--text-muted);margin-top:6px;" id="ssFileName"></p></div>
+          <label class="file-btn" for="paymentScreenshot">📷 Upload UPI Receipt</label>
+          <input type="file" id="paymentScreenshot" accept="image/jpeg,image/png,image/webp,image/jpg" required>
+          <div class="ss-preview hidden" id="ssPreviewWrap"><img id="ssPreview" alt="preview"><p style="font-size:12px;color:var(--text-muted);margin-top:6px;" id="ssFileName"></p></div>
         </div>
       </div>
 
@@ -139,26 +133,24 @@
     </form>
   </div>
 
-  <!-- Congratulations modal — NO claim / access key -->
   <div class="modal-overlay hidden" id="pendingModal">
     <div class="modal">
-      <div style="font-size: 36px; margin-bottom: 8px;">🎉</div>
-      <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 6px; color: var(--primary);">Congratulations!</h2>
-      <p style="font-size: 14px; color: var(--text-muted); line-height: 1.5; margin-bottom: 8px;">You have registered for <strong style="color:#fff;">LEVEL 04 : The Last Login</strong> successfully.</p>
-      <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5;">Your payment is in the verification queue. After approval, Team ID and login details will be sent to the team leader on WhatsApp.</p>
+      <div style="font-size:36px;margin-bottom:8px;">🎉</div>
+      <h2 style="font-size:20px;font-weight:800;margin-bottom:6px;color:var(--primary);">Congratulations!</h2>
+      <p style="font-size:14px;color:var(--text-muted);line-height:1.5;">You have registered for <strong style="color:#fff;">LEVEL 04 : The Last Login</strong> successfully.</p>
+      <p style="font-size:13px;color:var(--text-muted);line-height:1.5;margin-top:6px;">Payment is in verification queue. Team ID &amp; login details will be sent on WhatsApp after approval.</p>
       <div class="cred-card">
-        <div class="cred-line"><span style="color: var(--text-muted);">Team Name:</span><span style="color: #ffffff; font-weight: 600;" id="resTeamName">---</span></div>
-        <div class="cred-line"><span style="color: var(--text-muted);">Phone:</span><span style="color: #ffffff; font-weight: 600;" id="resPhone">---</span></div>
+        <div class="cred-line"><span style="color:var(--text-muted);">Team Name:</span><span style="color:#fff;font-weight:600;" id="resTeamName">---</span></div>
+        <div class="cred-line"><span style="color:var(--text-muted);">Phone:</span><span style="color:#fff;font-weight:600;" id="resPhone">---</span></div>
       </div>
       <a href="https://chat.whatsapp.com/CLfty53dmKz8VnJbF3kRe3" class="btn-whatsapp" target="_blank" rel="noopener">💬 Join WhatsApp Group</a>
-      <button class="btn-secondary" type="button" onclick="document.getElementById('pendingModal').classList.add('hidden')" style="margin-top:12px;">Close</button>
+      <button type="button" class="btn-secondary" onclick="document.getElementById('pendingModal').classList.add('hidden')">Close</button>
     </div>
   </div>
 
   <script>
     const API_URL = "https://project-victory-production-d780.up.railway.app";
-    let memberCount = 0;
-    let paymentScreenshotDataUrl = "";
+    let memberCount = 0, paymentScreenshotDataUrl = "";
 
     function getSelectedCourse() {
       const sel = document.getElementById('courseSelect').value;
@@ -166,76 +158,51 @@
       return sel;
     }
     document.getElementById('courseSelect').addEventListener('change', () => {
-      const isOther = document.getElementById('courseSelect').value === 'Other';
-      document.getElementById('otherCourseWrap').classList.toggle('hidden', !isOther);
-      document.getElementById('otherCourse').required = isOther;
+      const o = document.getElementById('courseSelect').value === 'Other';
+      document.getElementById('otherCourseWrap').classList.toggle('hidden', !o);
+      document.getElementById('otherCourse').required = o;
     });
 
     function addMemberSlot() {
       if (memberCount >= 2) return;
       memberCount++;
-      const container = document.getElementById('membersContainer');
       const div = document.createElement('div');
-      div.className = 'member-block';
-      div.id = `mem_${memberCount}`;
-      div.innerHTML = `<div class="member-header"><span>Member #${memberCount + 1}</span><button type="button" class="btn-remove" onclick="removeSlot(${memberCount})">Remove</button></div>
-        <div class="form-group"><input type="text" id="mName_${memberCount}" required placeholder="Full Name" maxlength="80"></div>
-        <div class="form-group"><input type="text" id="mRoll_${memberCount}" required inputmode="numeric" pattern="[0-9]{3,15}" placeholder="Roll Number (digits only)" maxlength="15"></div>
-        <div class="form-group"><select id="mYear_${memberCount}"><option value="1">1st Year</option><option value="2">2nd Year</option><option value="3">3rd Year</option><option value="4">4th Year</option></select></div>`;
-      container.appendChild(div);
+      div.className = 'member-block'; div.id = 'mem_' + memberCount;
+      div.innerHTML = '<div class="member-header"><span>Member #' + (memberCount+1) + '</span><button type="button" class="btn-remove" onclick="removeSlot(' + memberCount + ')">Remove</button></div>' +
+        '<div class="form-group"><input type="text" id="mName_' + memberCount + '" required placeholder="Full Name" maxlength="80"></div>' +
+        '<div class="form-group"><input type="text" id="mRoll_' + memberCount + '" required inputmode="numeric" placeholder="Roll Number" maxlength="15"></div>' +
+        '<div class="form-group"><select id="mYear_' + memberCount + '"><option value="1">1st Year</option><option value="2">2nd Year</option><option value="3">3rd Year</option><option value="4">4th Year</option></select></div>';
+      document.getElementById('membersContainer').appendChild(div);
       if (memberCount >= 2) document.getElementById('addBtn').style.display = 'none';
     }
     function removeSlot(id) {
-      const el = document.getElementById(`mem_${id}`);
-      if (el) el.remove();
+      const el = document.getElementById('mem_' + id); if (el) el.remove();
       memberCount = Math.max(0, memberCount - 1);
-      document.getElementById('addBtn').style.display = 'flex';
+      document.getElementById('addBtn').style.display = 'block';
     }
 
-    function approxKb(dataUrl) {
-      if (!dataUrl) return 0;
-      return Math.round((dataUrl.length * 0.75) / 1024);
-    }
-
-    function fileToCompressedDataUrl(file, maxSide = 900, quality = 0.55) {
+    function approxKb(u) { return u ? Math.round((u.length * 0.75) / 1024) : 0; }
+    function fileToCompressedDataUrl(file) {
       return new Promise((resolve, reject) => {
-        if (!file || !file.type.startsWith('image/')) { reject(new Error('Please select an image file (JPG / PNG / WEBP).')); return; }
-        if (file.size > 8 * 1024 * 1024) { reject(new Error('Image must be under 8 MB before compression.')); return; }
+        if (!file || !file.type.startsWith('image/')) return reject(new Error('Select an image file'));
+        if (file.size > 8*1024*1024) return reject(new Error('Image under 8 MB'));
         const reader = new FileReader();
         reader.onload = () => {
           const img = new Image();
           img.onload = () => {
-            let w = img.width, h = img.height;
-            if (w > maxSide || h > maxSide) {
-              const scale = maxSide / Math.max(w, h);
-              w = Math.round(w * scale); h = Math.round(h * scale);
-            }
-            const canvas = document.createElement('canvas');
-            canvas.width = w; canvas.height = h;
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#fff';
-            ctx.fillRect(0, 0, w, h);
-            ctx.drawImage(img, 0, 0, w, h);
-            let q = quality;
-            let dataUrl = canvas.toDataURL('image/jpeg', q);
-            const maxChars = 350 * 1024 * 1.37;
-            while (dataUrl.length > maxChars && q > 0.28) {
-              q -= 0.08;
-              dataUrl = canvas.toDataURL('image/jpeg', q);
-            }
-            if (dataUrl.length > 900 * 1024) {
-              const c2 = document.createElement('canvas');
-              c2.width = Math.round(w * 0.7);
-              c2.height = Math.round(h * 0.7);
-              c2.getContext('2d').drawImage(canvas, 0, 0, c2.width, c2.height);
-              dataUrl = c2.toDataURL('image/jpeg', 0.4);
-            }
+            let w = img.width, h = img.height, maxSide = 900;
+            if (w > maxSide || h > maxSide) { const s = maxSide / Math.max(w,h); w = Math.round(w*s); h = Math.round(h*s); }
+            const c = document.createElement('canvas'); c.width = w; c.height = h;
+            const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0,0,w,h); ctx.drawImage(img,0,0,w,h);
+            let q = 0.55, dataUrl = c.toDataURL('image/jpeg', q);
+            const maxChars = 350*1024*1.37;
+            while (dataUrl.length > maxChars && q > 0.28) { q -= 0.08; dataUrl = c.toDataURL('image/jpeg', q); }
             resolve(dataUrl);
           };
-          img.onerror = () => reject(new Error('Could not read image.'));
+          img.onerror = () => reject(new Error('Could not read image'));
           img.src = reader.result;
         };
-        reader.onerror = () => reject(new Error('Could not read file.'));
+        reader.onerror = () => reject(new Error('Could not read file'));
         reader.readAsDataURL(file);
       });
     }
@@ -249,14 +216,13 @@
       try {
         paymentScreenshotDataUrl = await fileToCompressedDataUrl(file);
         document.getElementById('ssPreview').src = paymentScreenshotDataUrl;
-        document.getElementById('ssFileName').innerText = file.name + ' · ready · ~' + approxKb(paymentScreenshotDataUrl) + ' KB';
+        document.getElementById('ssFileName').innerText = file.name + ' · ~' + approxKb(paymentScreenshotDataUrl) + ' KB';
         document.getElementById('ssPreviewWrap').classList.remove('hidden');
       } catch (ex) { err.innerText = ex.message || 'Invalid image'; e.target.value = ''; }
     });
 
-    function enforceNumeric(el) { el.addEventListener('input', () => { el.value = el.value.replace(/\D/g, '').slice(0, 15); }); }
-    enforceNumeric(document.getElementById('leaderRoll'));
-    document.getElementById('leaderPhone').addEventListener('input', (e) => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10); });
+    document.getElementById('leaderRoll').addEventListener('input', e => { e.target.value = e.target.value.replace(/\D/g,'').slice(0,15); });
+    document.getElementById('leaderPhone').addEventListener('input', e => { e.target.value = e.target.value.replace(/\D/g,'').slice(0,10); });
 
     async function handleRegistration(e) {
       e.preventDefault();
@@ -265,32 +231,30 @@
       const info = document.getElementById('infoMsg');
       err.innerText = ''; info.innerText = '';
 
-      if (!document.getElementById('courseSelect').value) {
-        err.innerText = 'Please select your course.'; return;
-      }
-      if (document.getElementById('courseSelect').value === 'Other' && !(document.getElementById('otherCourse').value || '').trim()) {
+      if (!document.getElementById('courseSelect').value) { err.innerText = 'Please select your course.'; return; }
+      if (document.getElementById('courseSelect').value === 'Other' && !(document.getElementById('otherCourse').value||'').trim()) {
         err.innerText = 'Please specify your course.'; return;
       }
       const leaderRoll = document.getElementById('leaderRoll').value.trim();
-      if (!/^\d{3,15}$/.test(leaderRoll)) { err.innerText = 'Leader roll number must be digits only (3–15 digits).'; return; }
-      if (!paymentScreenshotDataUrl || !paymentScreenshotDataUrl.startsWith('data:image/')) {
-        err.innerText = 'Please upload a clear screenshot of your payment receipt.'; return;
-      }
+      if (!/^\d{3,15}$/.test(leaderRoll)) { err.innerText = 'Roll number must be 3–15 digits.'; return; }
+      if (!paymentScreenshotDataUrl) { err.innerText = 'Upload payment receipt screenshot.'; return; }
+
+      const course = getSelectedCourse();
+      console.log('[LEVEL04] registering course=', course);
 
       btn.disabled = true;
       btn.innerText = 'Uploading… ~' + approxKb(paymentScreenshotDataUrl) + ' KB';
-      info.innerText = 'Please wait — sending registration. Do not close this page.';
+      info.innerText = 'Sending registration…';
 
-      const course = getSelectedCourse();
       const members = [];
       for (let i = 1; i <= 2; i++) {
-        const n = document.getElementById(`mName_${i}`);
-        const r = document.getElementById(`mRoll_${i}`);
-        const y = document.getElementById(`mYear_${i}`);
+        const n = document.getElementById('mName_' + i);
+        const r = document.getElementById('mRoll_' + i);
+        const y = document.getElementById('mYear_' + i);
         if (n && r && n.value.trim() && r.value.trim()) {
-          const roll = r.value.trim().replace(/\D/g, '');
+          const roll = r.value.trim().replace(/\D/g,'');
           if (!/^\d{3,15}$/.test(roll)) {
-            err.innerText = `Member #${i + 1} roll number must be digits only.`;
+            err.innerText = 'Member #' + (i+1) + ' roll invalid';
             btn.disabled = false; btn.innerText = 'Submit Registration (After Payment)'; info.innerText = '';
             return;
           }
@@ -313,20 +277,19 @@
 
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 45000);
+        const t = setTimeout(() => controller.abort(), 45000);
         btn.innerText = 'Almost done…';
         let res, data;
         try {
-          res = await fetch(`${API_URL}/api/public/register`, {
+          res = await fetch(API_URL + '/api/public/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
             signal: controller.signal
           });
           data = await res.json();
-        } finally {
-          clearTimeout(timeoutId);
-        }
+        } finally { clearTimeout(t); }
+
         if (res.ok && data.status === 'pending') {
           info.innerText = '';
           document.getElementById('resTeamName').innerText = data.team_name;
@@ -336,16 +299,14 @@
           document.getElementById('membersContainer').innerHTML = '';
           memberCount = 0; paymentScreenshotDataUrl = '';
           document.getElementById('ssPreviewWrap').classList.add('hidden');
-          document.getElementById('addBtn').style.display = 'flex';
+          document.getElementById('addBtn').style.display = 'block';
           document.getElementById('otherCourseWrap').classList.add('hidden');
         } else {
-          err.innerText = data.detail || 'Registration failed. Check your inputs.';
+          err.innerText = data.detail || 'Registration failed';
           info.innerText = '';
         }
       } catch (ex) {
-        err.innerText = (ex && ex.name === 'AbortError')
-          ? 'Request timed out. Try again with a clearer, smaller screenshot.'
-          : 'Server unreachable. Please try again.';
+        err.innerText = (ex && ex.name === 'AbortError') ? 'Timed out — try a smaller screenshot.' : 'Server unreachable.';
         info.innerText = '';
       } finally {
         btn.disabled = false;
