@@ -170,10 +170,10 @@
       <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <h2>&gt; PARTICIPANT ROSTER & ACTIVE SESSIONS</h2>
-          <button id="btnExportCsv" type="button" style="width:auto;">⬇ EXPORT CREDENTIALS CSV</button>
+          <button id="btnExportCsv" type="button" style="width:auto;">⬇ EXPORT FULL ROSTER CSV</button>
         </div>
         <table>
-          <thead><tr><th>Team ID</th><th>Name</th><th>Access Key</th><th>Round</th><th>Status & Reason</th><th>Action</th></tr></thead>
+          <thead><tr><th>Team ID</th><th>Team / Leader</th><th>Access Key</th><th>Course</th><th>Members</th><th>Round</th><th>Status</th><th>Action</th></tr></thead>
           <tbody id="teamsBody"><tr><td colspan="6">Loading...</td></tr></tbody>
         </table>
       </div>
@@ -257,16 +257,27 @@
       try {
         const tData = await adminFetch('/api/admin/teams');
         lastTeamsSnapshot = tData.teams || [];
-        document.getElementById('teamsBody').innerHTML = lastTeamsSnapshot.map(t => `
-          <tr>
-            <td>${t.team_id}</td><td>${t.team_name}</td><td style="color:var(--gold)">${t.password}</td><td>${t.current_round}</td>
+        document.getElementById('teamsBody').innerHTML = lastTeamsSnapshot.map(t => {
+          const L = t.leader || {};
+          const members = t.members || [];
+          const memStr = members.length
+            ? members.map(m => `${m.name || ''} (${m.course || ''}, Y${m.year || ''}, ${m.roll_no || ''})`).join('<br>')
+            : '<span style="color:var(--text-muted)">—</span>';
+          return `<tr>
+            <td style="font-family:JetBrains Mono;font-size:12px;">${t.team_id}</td>
+            <td><strong>${t.team_name || ''}</strong><br><small style="color:var(--text-muted)">${L.name || '—'} · ${L.phone || ''}<br>${L.roll_no || ''}</small></td>
+            <td style="color:var(--gold);font-family:JetBrains Mono;">${t.password || ''}</td>
+            <td>${L.course || '—'} Y${L.year || ''}</td>
+            <td style="font-size:11.5px;line-height:1.45;">${memStr}</td>
+            <td>${t.current_round}</td>
             <td>
               ${t.has_logged_in ? '<span style="color:var(--accent)">ONLINE</span>' : '<span style="color:var(--text-muted)">OFFLINE</span>'}
+              <br><small>${t.status || ''}</small>
               ${t.elimination_reason ? `<br><small style="color:var(--danger)">(${t.elimination_reason})</small>` : ''}
             </td>
-            <td><button type="button" class="btn-warning" style="width:auto; padding:5px 9px; font-size:11px;" onclick="reviveTeam('${t.team_id}')">REVIVE / UNLOCK</button></td>
-          </tr>
-        `).join('') || '<tr><td colspan="6">No teams generated yet.</td></tr>';
+            <td><button type="button" class="btn-warning" style="width:auto; padding:5px 9px; font-size:11px;" onclick="reviveTeam('${t.team_id}')">REVIVE</button></td>
+          </tr>`;
+        }).join('') || '<tr><td colspan="8">No teams generated yet.</td></tr>';
       } catch (e) { console.warn('teams', e); }
     }
 
@@ -281,16 +292,35 @@
 
     document.getElementById('btnExportCsv').onclick = () => {
       if (!lastTeamsSnapshot.length) { triggerToast("No teams to export yet"); return; }
-      const rows = [["team_id", "team_name", "access_key", "current_round", "status"]];
-      lastTeamsSnapshot.forEach(t => rows.push([t.team_id, t.team_name, t.password, t.current_round, t.status]));
-      const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
-      const blob = new Blob([csv], { type: 'text/csv' });
+      const rows = [[
+        "team_id", "team_name", "access_key", "status", "current_round", "has_logged_in",
+        "leader_name", "leader_phone", "leader_roll", "leader_course", "leader_year",
+        "member1_name", "member1_roll", "member1_course", "member1_year",
+        "member2_name", "member2_roll", "member2_course", "member2_year",
+        "registration_type"
+      ]];
+      lastTeamsSnapshot.forEach(t => {
+        const L = t.leader || {};
+        const m = t.members || [];
+        const m1 = m[0] || {};
+        const m2 = m[1] || {};
+        rows.push([
+          t.team_id || '', t.team_name || '', t.password || '', t.status || '', t.current_round || '',
+          t.has_logged_in ? 'YES' : 'NO',
+          L.name || '', L.phone || '', L.roll_no || '', L.course || '', L.year || '',
+          m1.name || '', m1.roll_no || '', m1.course || '', m1.year || '',
+          m2.name || '', m2.roll_no || '', m2.course || '', m2.year || '',
+          t.registration_type || ''
+        ]);
+      });
+      const csv = rows.map(r => r.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url; a.download = `nexus_credentials_${Date.now()}.csv`;
+      a.href = url; a.download = `level04_teams_roster_${Date.now()}.csv`;
       document.body.appendChild(a); a.click(); a.remove();
       URL.revokeObjectURL(url);
-      triggerToast(`Exported ${lastTeamsSnapshot.length} credentials`);
+      triggerToast(`Exported ${lastTeamsSnapshot.length} teams (full roster)`);
     };
 
     async function syncLeaderboard() {
