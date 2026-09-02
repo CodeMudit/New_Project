@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LEVEL 04 // APPROVED TEAMS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#07090e;--panel:#0d131f;--border:rgba(255,255,255,.09);--accent:#00f2ae;--gold:#f59e0b;--muted:#94a3b8;--danger:#f43f5e}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:#f8fafc;font-family:Inter,sans-serif;padding:16px;padding-bottom:48px}
+    h1{font-family:'JetBrains Mono',monospace;font-size:18px;color:var(--accent);margin-bottom:6px}
+    .sub{color:var(--muted);font-size:13px;margin-bottom:16px;line-height:1.4}
+    .bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;align-items:center}
+    input,select{background:#080d16;border:1px solid var(--border);color:var(--accent);padding:10px 12px;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:13px}
+    button{padding:10px 14px;background:var(--accent);color:#03150f;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px;min-height:42px}
+    .btn-d{background:var(--danger);color:#fff} .btn-g{background:rgba(255,255,255,.06);color:var(--accent);border:1px solid var(--border)}
+    .stat{font-family:'JetBrains Mono',monospace;color:var(--gold);font-size:13px}
+    .grid{display:grid;grid-template-columns:1fr;gap:12px}
+    @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
+    .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px}
+    .tn{font-size:16px;font-weight:800;margin-bottom:4px}
+    .tid{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent)}
+    .row{display:flex;justify-content:space-between;gap:8px;font-size:13px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+    .row:last-child{border:none} .lbl{color:var(--muted)} .val{text-align:right;font-weight:600}
+    .mems{margin-top:10px;padding-top:8px;border-top:1px dashed var(--border)}
+    .mems h3{font-size:11px;color:var(--gold);margin-bottom:6px;font-family:'JetBrains Mono',monospace}
+    .admin-box{margin-top:16px;padding:14px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);border-radius:12px}
+    .admin-box h2{font-size:13px;color:var(--gold);margin-bottom:8px;font-family:'JetBrains Mono',monospace}
+    .edit-panel{margin-top:10px;padding:12px;background:#080d16;border-radius:8px;border:1px solid var(--border)}
+    .hidden{display:none!important}
+    a{color:var(--accent)}
+  </style>
+</head>
+<body>
+  <h1>// LEVEL 04 — APPROVED TEAMS</h1>
+  <p class="sub">Public roster of registered teams (phone numbers hidden). Organizers can edit members with admin key.</p>
+  <div class="bar">
+    <input id="search" placeholder="Search team / leader / course…" style="flex:1;min-width:180px">
+    <span class="stat" id="count">—</span>
+    <a href="/register.html"><button type="button" class="btn-g">Register</button></a>
+  </div>
+
+  <div class="admin-box">
+    <h2>&gt; ORGANIZER CONTROLS (optional)</h2>
+    <div class="bar">
+      <input type="password" id="adminKey" placeholder="ADMIN SECRET KEY" style="flex:1;min-width:160px" oninput="localStorage.setItem('nexusAdminKey',this.value)">
+      <button type="button" id="btnUnlock">UNLOCK EDIT MODE</button>
+    </div>
+    <p style="font-size:12px;color:var(--muted);margin-top:6px">With admin key you can add/remove members on any team card. Max 2 members + leader.</p>
+  </div>
+
+  <div class="grid" id="list"><p style="color:var(--muted)">Loading…</p></div>
+
+<script>
+const API="https://project-victory-production-d780.up.railway.app";
+let teams=[], editMode=false;
+const key=()=>(document.getElementById('adminKey').value||'').trim();
+
+async function load(){
+  try{
+    const r=await fetch(API+'/api/public/approved-teams');
+    const d=await r.json();
+    teams=d.teams||[];
+    render();
+  }catch(e){
+    document.getElementById('list').innerHTML='<p style="color:var(--danger)">Could not load teams.</p>';
+  }
+}
+
+function render(){
+  const q=(document.getElementById('search').value||'').toLowerCase();
+  const filtered=teams.filter(t=>{
+    const blob=JSON.stringify(t).toLowerCase();
+    return !q||blob.includes(q);
+  });
+  document.getElementById('count').innerText=filtered.length+' teams';
+  const el=document.getElementById('list');
+  if(!filtered.length){el.innerHTML='<p style="color:var(--muted)">No teams yet.</p>';return}
+  el.innerHTML=filtered.map(t=>{
+    const L=t.leader||{};
+    const mems=t.members||[];
+    const memHtml=mems.length?mems.map((m,i)=>`
+      <div class="row"><span class="lbl">M${i+1}</span><span class="val">${esc(m.name)} · ${esc(m.course)} ${esc(m.specialization||'')} · Y${esc(m.year)} · ${esc(m.roll_no)}</span></div>
+    `).join(''):'<div class="row"><span class="lbl">Members</span><span class="val" style="color:var(--muted)">None</span></div>';
+    const edit=editMode?`
+      <div class="edit-panel">
+        <div style="font-size:12px;color:var(--gold);margin-bottom:8px">Edit members for ${esc(t.team_id)}</div>
+        <div id="edit_${t.team_id}"></div>
+        <button type="button" style="margin-top:8px;width:100%" onclick="saveMembers('${t.team_id}')">SAVE MEMBERS TO DB</button>
+      </div>`:'';
+    return `<div class="card" data-id="${esc(t.team_id)}">
+      <div class="tn">${esc(t.team_name)}</div>
+      <div class="tid">${esc(t.team_id)} · ${esc(t.status)} · R${t.current_round||1}</div>
+      <div style="margin-top:10px">
+        <div class="row"><span class="lbl">Leader</span><span class="val">${esc(L.name||'—')}</span></div>
+        <div class="row"><span class="lbl">Roll</span><span class="val">${esc(L.roll_no||'—')}</span></div>
+        <div class="row"><span class="lbl">Course</span><span class="val">${esc(L.course||'—')}</span></div>
+        <div class="row"><span class="lbl">Specialization</span><span class="val">${esc(L.specialization||'—')}</span></div>
+        <div class="row"><span class="lbl">Year</span><span class="val">Y${esc(L.year||'—')}</span></div>
+      </div>
+      <div class="mems"><h3>TEAM MEMBERS</h3>${memHtml}</div>
+      ${edit}
+    </div>`;
+  }).join('');
+  if(editMode) filtered.forEach(t=>buildEditor(t));
+}
+
+function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+function buildEditor(t){
+  const wrap=document.getElementById('edit_'+t.team_id);
+  if(!wrap) return;
+  const mems=t.members||[];
+  let html='';
+  for(let i=0;i<2;i++){
+    const m=mems[i]||{};
+    html+=`<div style="border:1px solid var(--border);border-radius:8px;padding:8px;margin-bottom:8px">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Member slot ${i+1} (leave name empty to remove)</div>
+      <input data-f="name" data-i="${i}" data-tid="${t.team_id}" placeholder="Name" value="${esc(m.name||'')}" style="width:100%;margin-bottom:4px">
+      <input data-f="roll_no" data-i="${i}" data-tid="${t.team_id}" placeholder="Roll" value="${esc(m.roll_no||'')}" style="width:100%;margin-bottom:4px">
+      <input data-f="course" data-i="${i}" data-tid="${t.team_id}" placeholder="Course" value="${esc(m.course||'')}" style="width:100%;margin-bottom:4px">
+      <input data-f="specialization" data-i="${i}" data-tid="${t.team_id}" placeholder="Specialization" value="${esc(m.specialization||'')}" style="width:100%;margin-bottom:4px">
+      <input data-f="year" data-i="${i}" data-tid="${t.team_id}" placeholder="Year" value="${esc(m.year||'1')}" style="width:100%">
+    </div>`;
+  }
+  wrap.innerHTML=html;
+}
+
+async function saveMembers(teamId){
+  if(!key()){alert('Enter admin key');return}
+  const inputs=[...document.querySelectorAll(`[data-tid="${teamId}"]`)];
+  const slots=[{},{}];
+  inputs.forEach(inp=>{
+    const i=+inp.getAttribute('data-i');
+    slots[i][inp.getAttribute('data-f')]=inp.value.trim();
+  });
+  const members=slots.filter(s=>s.name&&s.roll_no);
+  try{
+    const res=await fetch(API+'/api/admin/team/'+encodeURIComponent(teamId)+'/members',{
+      method:'PUT',
+      headers:{'Content-Type':'application/json','x-admin-key':key()},
+      body:JSON.stringify({members})
+    });
+    const d=await res.json();
+    if(!res.ok){alert(d.detail||'Update failed');return}
+    alert('Members updated for '+teamId);
+    await load();
+  }catch(e){alert('Network error')}
+}
+
+document.getElementById('search').oninput=render;
+document.getElementById('btnUnlock').onclick=()=>{
+  if(!key()){alert('Enter admin key first');return}
+  editMode=true;
+  document.getElementById('btnUnlock').innerText='EDIT MODE ON';
+  render();
+};
+window.addEventListener('DOMContentLoaded',()=>{
+  const k=localStorage.getItem('nexusAdminKey');
+  if(k) document.getElementById('adminKey').value=k;
+  load();
+});
+</script>
+</body>
+</html>
