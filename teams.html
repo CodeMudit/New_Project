@@ -3,163 +3,236 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LEVEL 04 // APPROVED TEAMS</title>
+  <title>LEVEL 04 // CLUB ROSTER</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <style>
-    :root{--bg:#07090e;--panel:#0d131f;--border:rgba(255,255,255,.09);--accent:#00f2ae;--gold:#f59e0b;--muted:#94a3b8;--danger:#f43f5e}
+    :root{--bg:#07090e;--panel:#0d131f;--border:rgba(255,255,255,.1);--accent:#00f2ae;--gold:#f59e0b;--muted:#94a3b8;--danger:#f43f5e}
     *{box-sizing:border-box;margin:0;padding:0}
-    body{background:var(--bg);color:#f8fafc;font-family:Inter,sans-serif;padding:16px;padding-bottom:48px}
-    h1{font-family:'JetBrains Mono',monospace;font-size:18px;color:var(--accent);margin-bottom:6px}
-    .sub{color:var(--muted);font-size:13px;margin-bottom:16px;line-height:1.4}
-    .bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;align-items:center}
-    input,select{background:#080d16;border:1px solid var(--border);color:var(--accent);padding:10px 12px;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:13px}
-    button{padding:10px 14px;background:var(--accent);color:#03150f;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px;min-height:42px}
-    .btn-d{background:var(--danger);color:#fff} .btn-g{background:rgba(255,255,255,.06);color:var(--accent);border:1px solid var(--border)}
-    .stat{font-family:'JetBrains Mono',monospace;color:var(--gold);font-size:13px}
-    .grid{display:grid;grid-template-columns:1fr;gap:12px}
-    @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
-    .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px}
-    .tn{font-size:16px;font-weight:800;margin-bottom:4px}
-    .tid{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent)}
-    .row{display:flex;justify-content:space-between;gap:8px;font-size:13px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04)}
-    .row:last-child{border:none} .lbl{color:var(--muted)} .val{text-align:right;font-weight:600}
-    .mems{margin-top:10px;padding-top:8px;border-top:1px dashed var(--border)}
-    .mems h3{font-size:11px;color:var(--gold);margin-bottom:6px;font-family:'JetBrains Mono',monospace}
-    .admin-box{margin-top:16px;padding:14px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);border-radius:12px}
-    .admin-box h2{font-size:13px;color:var(--gold);margin-bottom:8px;font-family:'JetBrains Mono',monospace}
-    .edit-panel{margin-top:10px;padding:12px;background:#080d16;border-radius:8px;border:1px solid var(--border)}
-    .hidden{display:none!important}
-    a{color:var(--accent)}
+    body{background:var(--bg);color:#f8fafc;font-family:Inter,system-ui,sans-serif;padding:14px;padding-bottom:56px}
+    h1{font-family:'JetBrains Mono',monospace;font-size:16px;color:var(--accent);margin-bottom:6px}
+    h2{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gold);margin:16px 0 10px}
+    .sub{color:var(--muted);font-size:12.5px;line-height:1.4;margin-bottom:12px}
+    input,select,button{padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:#080d16;color:var(--accent);font-size:13px;font-family:inherit}
+    button{background:var(--accent);color:#03150f;font-weight:700;border:none;cursor:pointer;min-height:40px}
+    .btn-g{background:rgba(255,255,255,.06)!important;color:var(--accent)!important;border:1px solid var(--border)!important}
+    .btn-d{background:var(--danger)!important;color:#fff!important}
+    .btn-w{background:var(--gold)!important;color:#201300!important}
+    .gate{max-width:440px;margin:20px auto;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px}
+    .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px}
+    .tn{font-size:15px;font-weight:800}
+    .tid{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);margin-top:2px}
+    .row{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+    .row:last-child{border:none}.lbl{color:var(--muted)}.val{text-align:right;font-weight:600;word-break:break-word}
+    .badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:999px;font-weight:700;vertical-align:middle}
+    .b-ok{background:rgba(0,242,174,.15);color:var(--accent)}.b-pend{background:rgba(245,158,11,.15);color:var(--gold)}
+    .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+    .actions button{flex:1;min-width:110px;font-size:12px}
+    .edit-box{margin-top:10px;padding:10px;background:#080d16;border:1px solid var(--border);border-radius:8px}
+    .edit-box input,.edit-box select{width:100%;margin-bottom:6px}
+    .slot{border:1px dashed var(--border);border-radius:8px;padding:8px;margin-bottom:8px}
+    .hidden{display:none!important}.err{color:var(--danger);font-size:13px;margin-top:8px}
+    .stat{font-family:'JetBrains Mono',monospace;color:var(--gold);font-size:12px;margin-bottom:8px}
+    .bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;align-items:center}
   </style>
 </head>
 <body>
-  <h1>// LEVEL 04 — APPROVED TEAMS</h1>
-  <p class="sub">Public roster of registered teams (phone numbers hidden). Organizers can edit members with admin key.</p>
-  <div class="bar">
-    <input id="search" placeholder="Search team / leader / course…" style="flex:1;min-width:180px">
-    <span class="stat" id="count">—</span>
-    <a href="/register.html"><button type="button" class="btn-g">Register</button></a>
+  <h1>// LEVEL 04 — CLUB ROSTER</h1>
+  <p class="sub">Full pending + approved data. Approve/reject, edit members, delete teams. Admin key required.</p>
+
+  <div class="gate" id="gate">
+    <input type="password" id="adminKey" placeholder="ADMIN SECRET KEY" style="width:100%;margin-bottom:8px" oninput="localStorage.setItem('nexusAdminKey',this.value)">
+    <button type="button" id="btnGo" style="width:100%">UNLOCK & LOAD EVERYTHING</button>
+    <p class="err" id="gateErr"></p>
   </div>
 
-  <div class="admin-box">
-    <h2>&gt; ORGANIZER CONTROLS (optional)</h2>
+  <div id="app" class="hidden">
     <div class="bar">
-      <input type="password" id="adminKey" placeholder="ADMIN SECRET KEY" style="flex:1;min-width:160px" oninput="localStorage.setItem('nexusAdminKey',this.value)">
-      <button type="button" id="btnUnlock">UNLOCK EDIT MODE</button>
+      <input id="search" placeholder="Search…" style="flex:1;min-width:140px">
+      <button type="button" class="btn-g" id="btnRefresh">REFRESH</button>
+      <a href="/admin.html"><button type="button" class="btn-g">Admin</button></a>
     </div>
-    <p style="font-size:12px;color:var(--muted);margin-top:6px">With admin key you can add/remove members on any team card. Max 2 members + leader.</p>
+    <p class="stat" id="statLine">—</p>
+
+    <h2>&gt; PENDING (need approval)</h2>
+    <div id="pendingList"></div>
+
+    <h2>&gt; APPROVED TEAMS</h2>
+    <div id="approvedList"></div>
   </div>
 
-  <div class="grid" id="list"><p style="color:var(--muted)">Loading…</p></div>
+  <div id="toast" style="position:fixed;bottom:16px;left:12px;right:12px;max-width:420px;margin:auto;background:#00f2ae;color:#03150f;padding:12px;border-radius:10px;font-weight:700;text-align:center;opacity:0;transition:.2s;pointer-events:none;z-index:99"></div>
 
 <script>
-const API="https://project-victory-production-d780.up.railway.app";
-let teams=[], editMode=false;
-const key=()=>(document.getElementById('adminKey').value||'').trim();
+const API = "https://project-victory-production-d780.up.railway.app";
+let approved = [], pending = [];
 
-async function load(){
-  try{
-    const r=await fetch(API+'/api/public/approved-teams');
-    const d=await r.json();
-    teams=d.teams||[];
+function key(){ return (document.getElementById('adminKey').value||'').trim(); }
+function esc(s){ return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function toast(m){ const t=document.getElementById('toast'); t.innerText=m; t.style.opacity='1'; setTimeout(()=>t.style.opacity='0',2500); }
+
+async function api(path, opts={}){
+  const headers = Object.assign({'x-admin-key': key()}, opts.headers||{});
+  if (opts.body && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
+  const res = await fetch(API+path, Object.assign({}, opts, {headers}));
+  const data = await res.json().catch(()=>({}));
+  if (!res.ok) throw new Error(data.detail || ('Error '+res.status));
+  return data;
+}
+
+async function loadAll(){
+  const err = document.getElementById('gateErr');
+  err.innerText = '';
+  if (!key()){ err.innerText = 'Enter admin key'; return; }
+  document.getElementById('btnGo').disabled = true;
+  document.getElementById('btnGo').innerText = 'Loading…';
+  try {
+    const [dT, dP] = await Promise.all([
+      api('/api/admin/teams'),
+      api('/api/admin/pending-registrations')
+    ]);
+    approved = dT.teams || [];
+    pending = dP.pending || [];
+    document.getElementById('gate').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
     render();
-  }catch(e){
-    document.getElementById('list').innerHTML='<p style="color:var(--danger)">Could not load teams.</p>';
+    toast('Loaded '+approved.length+' approved · '+pending.length+' pending');
+  } catch(e) {
+    err.innerText = e.message || 'Failed to load';
+  } finally {
+    document.getElementById('btnGo').disabled = false;
+    document.getElementById('btnGo').innerText = 'UNLOCK & LOAD EVERYTHING';
   }
+}
+
+function memLines(mems){
+  if (!mems || !mems.length) return '<div class="row"><span class="lbl">Members</span><span class="val" style="color:var(--muted)">None</span></div>';
+  return mems.map((m,i)=>`<div class="row"><span class="lbl">Member ${i+1}</span><span class="val">${esc(m.name)} · ${esc(m.course||'')} ${esc(m.specialization||'')} · Y${esc(m.year||'')} · ${esc(m.roll_no||'')}</span></div>`).join('');
 }
 
 function render(){
-  const q=(document.getElementById('search').value||'').toLowerCase();
-  const filtered=teams.filter(t=>{
-    const blob=JSON.stringify(t).toLowerCase();
-    return !q||blob.includes(q);
-  });
-  document.getElementById('count').innerText=filtered.length+' teams';
-  const el=document.getElementById('list');
-  if(!filtered.length){el.innerHTML='<p style="color:var(--muted)">No teams yet.</p>';return}
-  el.innerHTML=filtered.map(t=>{
-    const L=t.leader||{};
-    const mems=t.members||[];
-    const memHtml=mems.length?mems.map((m,i)=>`
-      <div class="row"><span class="lbl">M${i+1}</span><span class="val">${esc(m.name)} · ${esc(m.course)} ${esc(m.specialization||'')} · Y${esc(m.year)} · ${esc(m.roll_no)}</span></div>
-    `).join(''):'<div class="row"><span class="lbl">Members</span><span class="val" style="color:var(--muted)">None</span></div>';
-    const edit=editMode?`
-      <div class="edit-panel">
-        <div style="font-size:12px;color:var(--gold);margin-bottom:8px">Edit members for ${esc(t.team_id)}</div>
-        <div id="edit_${t.team_id}"></div>
-        <button type="button" style="margin-top:8px;width:100%" onclick="saveMembers('${t.team_id}')">SAVE MEMBERS TO DB</button>
-      </div>`:'';
-    return `<div class="card" data-id="${esc(t.team_id)}">
-      <div class="tn">${esc(t.team_name)}</div>
-      <div class="tid">${esc(t.team_id)} · ${esc(t.status)} · R${t.current_round||1}</div>
-      <div style="margin-top:10px">
-        <div class="row"><span class="lbl">Leader</span><span class="val">${esc(L.name||'—')}</span></div>
-        <div class="row"><span class="lbl">Roll</span><span class="val">${esc(L.roll_no||'—')}</span></div>
-        <div class="row"><span class="lbl">Course</span><span class="val">${esc(L.course||'—')}</span></div>
-        <div class="row"><span class="lbl">Specialization</span><span class="val">${esc(L.specialization||'—')}</span></div>
-        <div class="row"><span class="lbl">Year</span><span class="val">Y${esc(L.year||'—')}</span></div>
+  const q = (document.getElementById('search').value||'').toLowerCase();
+  const match = o => !q || JSON.stringify(o).toLowerCase().includes(q);
+  const pe = pending.filter(match);
+  const ap = approved.filter(match);
+  document.getElementById('statLine').innerText = `Pending ${pe.length}/${pending.length} · Approved ${ap.length}/${approved.length}`;
+
+  document.getElementById('pendingList').innerHTML = pe.length ? pe.map(p => {
+    const mems = p.members || [];
+    return `<div class="card">
+      <div class="tn">${esc(p.team_name)} <span class="badge b-pend">PENDING</span></div>
+      <div class="tid">${esc(p.submitted_at||'')} · claim ${esc(p.claim_token||'')}</div>
+      <div class="row"><span class="lbl">Leader</span><span class="val">${esc(p.leader_name)}</span></div>
+      <div class="row"><span class="lbl">Phone</span><span class="val">${esc(p.leader_phone)}</span></div>
+      <div class="row"><span class="lbl">Roll</span><span class="val">${esc(p.leader_roll)}</span></div>
+      <div class="row"><span class="lbl">Course</span><span class="val">${esc(p.course||'—')}</span></div>
+      <div class="row"><span class="lbl">Specialization</span><span class="val">${esc(p.specialization||'—')}</span></div>
+      <div class="row"><span class="lbl">Year</span><span class="val">Y${esc(p.year||'—')}</span></div>
+      <div class="row"><span class="lbl">Payer</span><span class="val">${esc(p.payer_name)}</span></div>
+      ${memLines(mems)}
+      <div class="actions">
+        <button type="button" onclick="approvePend('${esc(p.id)}')">APPROVE</button>
+        <button type="button" class="btn-d" onclick="rejectPend('${esc(p.id)}')">REJECT</button>
       </div>
-      <div class="mems"><h3>TEAM MEMBERS</h3>${memHtml}</div>
-      ${edit}
     </div>`;
-  }).join('');
-  if(editMode) filtered.forEach(t=>buildEditor(t));
+  }).join('') : '<p class="sub">No pending registrations.</p>';
+
+  document.getElementById('approvedList').innerHTML = ap.length ? ap.map(t => {
+    const L = t.leader || {};
+    const mems = t.members || [];
+    const tid = esc(t.team_id);
+    return `<div class="card" id="card_${tid}">
+      <div class="tn">${esc(t.team_name)} <span class="badge b-ok">APPROVED</span></div>
+      <div class="tid">${tid} · access ${esc(t.password)} · R${t.current_round||1} · ${esc(t.status)}</div>
+      <div class="row"><span class="lbl">Leader</span><span class="val">${esc(L.name||'—')}</span></div>
+      <div class="row"><span class="lbl">Phone</span><span class="val">${esc(L.phone||'—')}</span></div>
+      <div class="row"><span class="lbl">Roll</span><span class="val">${esc(L.roll_no||'—')}</span></div>
+      <div class="row"><span class="lbl">Course</span><span class="val">${esc(L.course||'—')}</span></div>
+      <div class="row"><span class="lbl">Specialization</span><span class="val">${esc(L.specialization||'—')}</span></div>
+      <div class="row"><span class="lbl">Year</span><span class="val">Y${esc(L.year||'—')}</span></div>
+      <div id="memview_${tid}">${memLines(mems)}</div>
+      <div class="actions">
+        <button type="button" class="btn-w" onclick="toggleEdit('${tid}')">EDIT MEMBERS</button>
+        <button type="button" class="btn-d" onclick="deleteTeam('${tid}')">DELETE TEAM</button>
+      </div>
+      <div class="edit-box hidden" id="edit_${tid}">
+        <p class="sub" style="margin-bottom:8px">Up to 2 members. Leave name empty to clear a slot.</p>
+        ${[0,1].map(i => {
+          const m = mems[i] || {};
+          return `<div class="slot">
+            <div class="sub">Slot ${i+1}</div>
+            <input data-tid="${tid}" data-i="${i}" data-f="name" placeholder="Name" value="${esc(m.name||'')}">
+            <input data-tid="${tid}" data-i="${i}" data-f="roll_no" placeholder="Roll" value="${esc(m.roll_no||'')}">
+            <input data-tid="${tid}" data-i="${i}" data-f="course" placeholder="Course" value="${esc(m.course||'')}">
+            <input data-tid="${tid}" data-i="${i}" data-f="specialization" placeholder="Specialization" value="${esc(m.specialization||'')}">
+            <input data-tid="${tid}" data-i="${i}" data-f="year" placeholder="Year" value="${esc(m.year||'1')}">
+          </div>`;
+        }).join('')}
+        <button type="button" style="width:100%" onclick="saveMembers('${tid}')">SAVE MEMBERS TO DB</button>
+      </div>
+    </div>`;
+  }).join('') : '<p class="sub">No approved teams yet.</p>';
 }
 
-function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
-
-function buildEditor(t){
-  const wrap=document.getElementById('edit_'+t.team_id);
-  if(!wrap) return;
-  const mems=t.members||[];
-  let html='';
-  for(let i=0;i<2;i++){
-    const m=mems[i]||{};
-    html+=`<div style="border:1px solid var(--border);border-radius:8px;padding:8px;margin-bottom:8px">
-      <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Member slot ${i+1} (leave name empty to remove)</div>
-      <input data-f="name" data-i="${i}" data-tid="${t.team_id}" placeholder="Name" value="${esc(m.name||'')}" style="width:100%;margin-bottom:4px">
-      <input data-f="roll_no" data-i="${i}" data-tid="${t.team_id}" placeholder="Roll" value="${esc(m.roll_no||'')}" style="width:100%;margin-bottom:4px">
-      <input data-f="course" data-i="${i}" data-tid="${t.team_id}" placeholder="Course" value="${esc(m.course||'')}" style="width:100%;margin-bottom:4px">
-      <input data-f="specialization" data-i="${i}" data-tid="${t.team_id}" placeholder="Specialization" value="${esc(m.specialization||'')}" style="width:100%;margin-bottom:4px">
-      <input data-f="year" data-i="${i}" data-tid="${t.team_id}" placeholder="Year" value="${esc(m.year||'1')}" style="width:100%">
-    </div>`;
-  }
-  wrap.innerHTML=html;
+function toggleEdit(tid){
+  document.getElementById('edit_'+tid).classList.toggle('hidden');
 }
 
-async function saveMembers(teamId){
-  if(!key()){alert('Enter admin key');return}
-  const inputs=[...document.querySelectorAll(`[data-tid="${teamId}"]`)];
-  const slots=[{},{}];
-  inputs.forEach(inp=>{
-    const i=+inp.getAttribute('data-i');
-    slots[i][inp.getAttribute('data-f')]=inp.value.trim();
-  });
-  const members=slots.filter(s=>s.name&&s.roll_no);
-  try{
-    const res=await fetch(API+'/api/admin/team/'+encodeURIComponent(teamId)+'/members',{
-      method:'PUT',
-      headers:{'Content-Type':'application/json','x-admin-key':key()},
-      body:JSON.stringify({members})
+async function saveMembers(tid){
+  if (!confirm('Save member changes for '+tid+'?')) return;
+  const inputs = [...document.querySelectorAll(`[data-tid="${tid}"]`)];
+  const slots = [{},{}];
+  inputs.forEach(inp => { slots[+inp.dataset.i][inp.dataset.f] = inp.value.trim(); });
+  const members = slots.filter(s => s.name && s.roll_no);
+  try {
+    await api('/api/admin/team/'+encodeURIComponent(tid)+'/members', {
+      method:'PUT', body: JSON.stringify({members})
     });
-    const d=await res.json();
-    if(!res.ok){alert(d.detail||'Update failed');return}
-    alert('Members updated for '+teamId);
-    await load();
-  }catch(e){alert('Network error')}
+    toast('Members updated for '+tid);
+    await loadAll();
+  } catch(e){ alert(e.message); }
 }
 
-document.getElementById('search').oninput=render;
-document.getElementById('btnUnlock').onclick=()=>{
-  if(!key()){alert('Enter admin key first');return}
-  editMode=true;
-  document.getElementById('btnUnlock').innerText='EDIT MODE ON';
-  render();
-};
-window.addEventListener('DOMContentLoaded',()=>{
-  const k=localStorage.getItem('nexusAdminKey');
-  if(k) document.getElementById('adminKey').value=k;
-  load();
+async function deleteTeam(tid){
+  if (!confirm('DELETE team '+tid+' permanently? This cannot be undone.')) return;
+  try {
+    await api('/api/admin/team/'+encodeURIComponent(tid), { method:'DELETE' });
+    toast('Deleted '+tid);
+    await loadAll();
+  } catch(e){ alert(e.message); }
+}
+
+async function approvePend(id){
+  if (!confirm('Approve this registration?')) return;
+  try {
+    const d = await api('/api/admin/pending/'+encodeURIComponent(id)+'/approve', { method:'POST' });
+    toast('Approved → '+d.team_id+' / '+d.password);
+    // optional WA
+    if (d.leader_phone) {
+      const phone = String(d.leader_phone).replace(/\D/g,'');
+      const withC = phone.length===10 ? '91'+phone : phone;
+      const msg = `LEVEL 04 approved!\nTeam ID: ${d.team_id}\nAccess Key: ${d.password}\nDo not share.`;
+      window.open('https://wa.me/'+withC+'?text='+encodeURIComponent(msg), '_blank');
+    }
+    await loadAll();
+  } catch(e){ alert(e.message); }
+}
+
+async function rejectPend(id){
+  if (!confirm('Reject this registration?')) return;
+  try {
+    await api('/api/admin/pending/'+encodeURIComponent(id)+'/reject', { method:'POST' });
+    toast('Rejected');
+    await loadAll();
+  } catch(e){ alert(e.message); }
+}
+
+document.getElementById('btnGo').onclick = loadAll;
+document.getElementById('btnRefresh').onclick = loadAll;
+document.getElementById('search').oninput = render;
+document.getElementById('adminKey').addEventListener('keydown', e => { if (e.key==='Enter') loadAll(); });
+window.addEventListener('DOMContentLoaded', () => {
+  const k = localStorage.getItem('nexusAdminKey');
+  if (k) document.getElementById('adminKey').value = k;
 });
 </script>
 </body>
