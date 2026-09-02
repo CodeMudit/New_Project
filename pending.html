@@ -15,15 +15,10 @@
       --text-main: #f8fafc; --text-muted: #94a3b8;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: var(--bg); color: var(--text-main); font-family: 'Inter', sans-serif; padding: 16px; font-size: 13.5px; }
-    @media (min-width: 768px) { body { padding: 24px; } }
-    h1 { font-family: 'JetBrains Mono', monospace; font-size: 17px; font-weight: 800; color: var(--accent); margin-bottom: 16px; border-bottom: 1px solid var(--card-border); padding-bottom: 10px; line-height: 1.35; }
-    @media (min-width: 768px) { h1 { font-size: 19px; margin-bottom: 20px; } }
-    h2 { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; font-weight: 700; color: var(--accent); margin-bottom: 12px; }
-    .card { background: var(--panel); border: 1px solid var(--card-border); border-radius: 10px; padding: 14px; margin-bottom: 16px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    @media (min-width: 768px) { .card { padding: 18px; margin-bottom: 20px; } }
-    .table-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 4px; }
-    table { min-width: 720px; }
+    body { background: var(--bg); color: var(--text-main); font-family: 'Inter', sans-serif; padding: 24px; font-size: 13.5px; }
+    h1 { font-family: 'JetBrains Mono', monospace; font-size: 19px; font-weight: 800; color: var(--accent); margin-bottom: 20px; border-bottom: 1px solid var(--card-border); padding-bottom: 10px; }
+    h2 { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 12px; }
+    .card { background: var(--panel); border: 1px solid var(--card-border); border-radius: 10px; padding: 18px; margin-bottom: 20px; }
     input {
       font-family: 'JetBrains Mono', monospace; padding: 9px 12px; background: #080d16 !important;
       border: 1px solid var(--card-border); color: #00f2ae !important; font-size: 13px; width: 100%; margin-bottom: 10px; border-radius: 6px; outline: none;
@@ -50,13 +45,7 @@
       box-shadow: 0 10px 30px rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
     }
     #actionToast.show { opacity: 1; }
-    .meta-row { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: stretch; }
-    .meta-row input { max-width: 100% !important; flex: 1 1 180px; }
-    .meta-row button, .meta-row a { flex: 0 0 auto; }
-    @media (max-width: 480px) {
-      .meta-row a, .meta-row a button { width: 100%; }
-      .meta-row button { width: 100%; }
-    }
+    .meta-row { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
     .modal-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center;
       z-index: 2000; padding: 20px;
@@ -83,23 +72,22 @@
   <div class="card">
     <h2>&gt; APPROVAL QUEUE (Team · Payer · Receipt · Timestamp)</h2>
     <p style="color:var(--text-muted); font-size:12px; margin-bottom:10px;">Approve only after you have confirmed the ₹100 UPI payment using the receipt screenshot and payer name.</p>
-    <div class="table-wrap"><table>
+    <table>
       <thead>
         <tr>
           <th>Team Name</th>
           <th>Leader</th>
           <th>Phone</th>
           <th>Payer Name</th>
-          <th>Claim Key</th>
-          <th>Submitted At</th>
+                    <th>Submitted At</th>
           <th>Receipt</th>
           <th>Action</th>
         </tr>
       </thead>
       <tbody id="pendingBody">
-        <tr><td colspan="8">Enter admin key and refresh.</td></tr>
+        <tr><td colspan="7">Enter admin key and refresh.</td></tr>
       </tbody>
-    </table></div>
+    </table>
   </div>
 
   <div class="modal-overlay hidden" id="ssModal">
@@ -114,7 +102,6 @@
 
   <script>
     const DEFAULT_API = "https://project-victory-production-d780.up.railway.app";
-    const pendingPhoneMap = {};
 
     function getApi() { return DEFAULT_API; }
     function getKey() { return document.getElementById('adminKey').value.trim(); }
@@ -131,29 +118,27 @@
 
     async function loadPending() {
       const key = getKey();
-      if (!key) { document.getElementById('pendingBody').innerHTML = '<tr><td colspan="8">Enter admin key first.</td></tr>'; return; }
+      if (!key) { document.getElementById('pendingBody').innerHTML = '<tr><td colspan="7">Enter admin key first.</td></tr>'; return; }
       try {
         const res = await fetch(`${getApi()}/api/admin/pending-registrations`, {
           headers: { "x-admin-key": key }
         });
         if (!res.ok) {
-          document.getElementById('pendingBody').innerHTML = '<tr><td colspan="8">Unauthorized or error.</td></tr>';
+          document.getElementById('pendingBody').innerHTML = '<tr><td colspan="7">Unauthorized or error.</td></tr>';
           return;
         }
         const data = await res.json();
         const list = data.pending || [];
         if (!list.length) {
-          document.getElementById('pendingBody').innerHTML = '<tr><td colspan="8" style="color:var(--text-muted);">No pending registrations.</td></tr>';
+          document.getElementById('pendingBody').innerHTML = '<tr><td colspan="7" style="color:var(--text-muted);">No pending registrations.</td></tr>';
           return;
         }
-        list.forEach(p => { pendingPhoneMap[p.id] = p.leader_phone || ''; });
         document.getElementById('pendingBody').innerHTML = list.map(p => `
           <tr>
             <td><strong>${escapeHtml(p.team_name)}</strong></td>
             <td>${escapeHtml(p.leader_name)}<br><small style="color:var(--text-muted)">${escapeHtml(p.leader_roll)} · B.Tech Y${escapeHtml(String(p.year || ''))}</small></td>
             <td style="font-family:'JetBrains Mono';">${escapeHtml(p.leader_phone)}</td>
             <td style="color:var(--gold); font-weight:700;">${escapeHtml(p.payer_name)}</td>
-            <td style="font-family:'JetBrains Mono'; font-size:11px;">${escapeHtml(p.claim_token || '—')}</td>
             <td style="font-family:'JetBrains Mono'; font-size:11px;">${escapeHtml(p.submitted_at)}</td>
             <td>
               ${p.has_screenshot
@@ -167,7 +152,7 @@
           </tr>
         `).join('');
       } catch (e) {
-        document.getElementById('pendingBody').innerHTML = '<tr><td colspan="8">Network error.</td></tr>';
+        document.getElementById('pendingBody').innerHTML = '<tr><td colspan="7">Network error.</td></tr>';
       }
     }
 
@@ -214,31 +199,24 @@
     }
 
     async function approve(id) {
-      if (!getKey()) { triggerToast('Enter admin key first'); return; }
-      if (!confirm('Confirm payment received and approve this team?')) return;
+      if (!confirm('Confirm payment received and approve this team? Credentials will be generated instantly.')) return;
       try {
-        const res = await fetch(`${getApi()}/api/admin/pending/${encodeURIComponent(id)}/approve`, {
+        const res = await fetch(`${getApi()}/api/admin/pending/${id}/approve`, {
           method: 'POST',
           headers: { 'x-admin-key': getKey() }
         });
-        const data = await res.json().catch(() => ({}));
+        const data = await res.json();
         if (res.ok) {
           triggerToast(`Approved → ${data.team_id} / ${data.password}`);
-          const phone = data.leader_phone || pendingPhoneMap[id] || '';
-          const waUrl = buildApprovalWhatsAppUrl(
-            data.team_id, data.password, data.team_name || '', phone
-          );
-          // Direct WhatsApp — no second popup (works Android + Desktop)
-          if (waUrl) {
-            // Prefer new tab on desktop; same-tab on small screens for reliability
-            const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
-            if (isMobile) {
-              window.location.href = waUrl;
-            } else {
-              window.open(waUrl, '_blank');
-            }
-          }
           loadPending();
+          const waUrl = buildApprovalWhatsAppUrl(
+            data.team_id, data.password, data.team_name, data.leader_phone
+          );
+          if (waUrl && confirm(
+            `Team approved.\n\nTeam ID: ${data.team_id}\nAccess Key: ${data.password}\n\nOpen WhatsApp to send credentials to the team leader now?`
+          )) {
+            window.open(waUrl, '_blank');
+          }
         } else {
           triggerToast(data.detail || 'Approve failed');
         }
