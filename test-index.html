@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TEST MODE – LEVEL 04 // ASSESSMENT NODE (NO SECURITY)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* same as original index.html – keep identical */
+    :root {
+      --bg: #07090e;
+      --panel: rgba(13, 17, 26, 0.94);
+      --panel-border: rgba(0, 242, 174, 0.18);
+      --card-bg: rgba(255, 255, 255, 0.025);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --accent: #00f2ae;
+      --accent-dim: rgba(0, 242, 174, 0.12);
+      --gold: #f59e0b;
+      --gold-dim: rgba(245, 158, 11, 0.12);
+      --danger: #f43f5e;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --radius: 14px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(0, 242, 174, 0.07) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(245, 158, 11, 0.04) 0px, transparent 50%);
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px 16px;
+    }
+    .terminal-card {
+      width: 100%;
+      max-width: 920px;
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      backdrop-filter: blur(20px);
+      border-radius: var(--radius);
+      padding: 34px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7);
+    }
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 18px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .brand-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .test-badge {
+      background: var(--gold);
+      color: #1a1200;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .meta-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+    }
+    .meta-item { font-size: 12px; color: var(--text-muted); }
+    .meta-item strong { display: block; font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--text-main); margin-top: 2px; }
+    .round-timer-box {
+      background: var(--gold-dim);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      border-radius: 10px;
+      padding: 10px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      color: var(--gold);
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .progress-track {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 22px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), #38bdf8);
+      transition: width 0.3s ease;
+    }
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      color: var(--text-main);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      padding: 13px 16px;
+      margin-bottom: 14px;
+    }
+    input:focus { outline: none; border-color: var(--accent); }
+    .action-btn {
+      width: 100%;
+      background: var(--accent);
+      color: #03150f;
+      border: none;
+      border-radius: 10px;
+      padding: 14px 20px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      min-height: 48px;
+      transition: transform 0.15s ease, filter 0.15s ease;
+    }
+    .action-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+    .action-btn:active { transform: translateY(1px); filter: brightness(0.95); }
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .btn-test {
+      background: var(--gold);
+      color: #1a1200;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .evidence-toggle-btn {
+      background: rgba(0, 242, 174, 0.06);
+      border: 1px dashed var(--accent);
+      color: var(--accent);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 10px 14px;
+      width: 100%;
+      cursor: pointer;
+      border-radius: 8px;
+      margin: 12px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .evidence-panel {
+      background: rgba(6, 9, 14, 0.96);
+      border: 1px solid var(--panel-border);
+      border-radius: 10px;
+      padding: 18px;
+      max-height: 350px;
+      overflow-y: auto;
+      margin-bottom: 18px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .options-grid { display: flex; flex-direction: column; gap: 10px; margin-top: 18px; }
+    .opt-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 15px 18px;
+      border-radius: 10px;
+      font-size: 14.5px;
+      font-weight: 500;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .opt-btn:hover { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); transform: translateX(4px); }
+    .hint-panel {
+      margin-top: 22px;
+      border-top: 1px dashed rgba(255, 255, 255, 0.1);
+      padding-top: 16px;
+    }
+    .hint-tier-row { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+    .hint-tier-btn {
+      flex: 1;
+      background: var(--gold-dim);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      color: var(--gold);
+      border-radius: 8px;
+      padding: 10px 12px;
+      cursor: pointer;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      font-weight: 700;
+      text-align: left;
+      min-width: 140px;
+    }
+    .hint-tier-btn:hover:not(:disabled) { background: var(--gold); color: #261600; }
+    .hint-tier-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .hint-text-box {
+      background: rgba(245, 158, 11, 0.08);
+      border-left: 3px solid var(--gold);
+      padding: 10px 14px;
+      margin-top: 8px;
+      border-radius: 0 6px 6px 0;
+      font-size: 13px;
+      color: #fef08a;
+    }
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0, 0, 0, 0.88);
+      backdrop-filter: blur(8px); display: flex; justify-content: center; align-items: center; z-index: 200; padding: 20px;
+    }
+    .modal-box {
+      background: #14080a; border: 1px solid var(--danger); border-radius: var(--radius);
+      padding: 30px; max-width: 480px; text-align: center; color: #fecdd3;
+    }
+    .modal-box.success { background: #05140f; border-color: var(--accent); color: #a7f3d0; }
+    .hidden { display: none !important; }
+    .warning-text { color: var(--danger); font-size: 13px; margin-top: 8px; }
+    .muted-text { color: var(--text-muted); font-size: 13.5px; line-height: 1.6; }
+    .test-toolbar { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+
+  <!-- Screen 1: Login -->
+  <div class="terminal-card" id="loginScreen">
+    <div class="header-bar">
+      <div class="brand-title">TEST MODE – LEVEL 04 // GATEWAY</div>
+      <div style="font-size:12px; color:var(--gold);">🧪 SECURITY DISABLED</div>
+    </div>
+    <p class="muted-text" style="margin-bottom: 18px;">Participating teams only. Paste your <strong>Team ID</strong> and <strong>Access Key</strong> (Enter to submit).</p>
+    <input type="text" id="loginTeamId" placeholder="TEAM ID (e.g. NEX-4920)" autocomplete="off" spellcheck="false" autocapitalize="characters">
+    <input type="text" id="loginPass" placeholder="ACCESS KEY (paste here)" autocomplete="off" spellcheck="false" autocapitalize="characters">
+    <button class="action-btn" id="loginBtn">AUTHENTICATE NODE</button>
+    <div id="loginMsg" class="warning-text"></div>
+  </div>
+
+  <!-- Screen 1B: Holding Screen -->
+  <div class="terminal-card hidden" id="waitingRoundScreen">
+    <div class="header-bar">
+      <div class="brand-title">LEVEL 04 : THE LAST LOGIN // HOLDING PATTERN</div>
+      <button onclick="performLogout()" class="btn-secondary">DISCONNECT</button>
+    </div>
+    <div class="meta-bar">
+      <div class="meta-item">TEAM NAME<strong id="waitTeamName">-</strong></div>
+      <div class="meta-item">NODE ID<strong id="waitTeamId">-</strong></div>
+      <div class="meta-item">TARGET ROUND<strong id="waitingRoundNum">-</strong></div>
+    </div>
+    <p style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">ROUND IS CURRENTLY LOCKED</p>
+    <p class="muted-text">The scoring clock has not started yet. Your terminal will automatically advance the moment the facilitator opens the round.</p>
+  </div>
+
+  <!-- Screen 1C: Briefing -->
+  <div class="terminal-card hidden" id="startScreen">
+    <div class="header-bar">
+      <div class="brand-title">ROUND <span id="startRoundNum">-</span> // MISSION BRIEFING</div>
+      <button onclick="performLogout()" class="btn-secondary">DISCONNECT</button>
+    </div>
+    <div class="meta-bar">
+      <div class="meta-item">TEAM ID<strong id="metaNodeId">-</strong></div>
+      <div class="meta-item">TEAM NAME<strong id="startTeamBadge">-</strong></div>
+      <div class="meta-item" style="color:var(--gold);">🔓 TEST MODE – NO SECURITY</div>
+    </div>
+    <div class="round-timer-box">
+      <span>ROUND TIME LIMIT:</span>
+      <span id="briefingRoundClock" style="font-family:'JetBrains Mono'; font-size:18px; font-weight:800;">--:--</span>
+    </div>
+    <div id="briefingEvidenceContainer" class="evidence-panel"></div>
+    <button class="action-btn" id="startRoundBtn">ENGAGE & START ASSESSMENT (NO FULLSCREEN)</button>
+  </div>
+
+  <!-- Screen 2: Active Quiz -->
+  <div class="terminal-card hidden" id="quizScreen">
+    <div class="header-bar">
+      <div class="brand-title" id="teamDisplay">TEAM: ---</div>
+      <div id="progressDisplay" style="font-family:'JetBrains Mono'; color:var(--accent); font-weight:700;">NODE 1/--</div>
+      <div id="timer" style="font-family:'JetBrains Mono'; font-size:22px; font-weight:800; color:var(--gold);">30s</div>
+    </div>
+    <div class="round-timer-box">
+      <span>ROUND COUNTDOWN:</span>
+      <span id="quizRoundClock" style="font-family:'JetBrains Mono'; font-size:18px; font-weight:800;">--:--</span>
+    </div>
+    <div class="test-toolbar">
+      <button class="btn-test" id="autoCompleteBtn">⚡ AUTO‑COMPLETE ALL</button>
+      <span style="color:var(--text-muted);font-size:12px;align-self:center;">(sends dummy answers and submits)</span>
+    </div>
+    <button class="evidence-toggle-btn hidden" id="quizEvidenceToggleBtn">
+      <span>📂 VIEW SCENARIO DOSSIER & EVIDENCE ARCHIVE</span>
+      <span id="quizEvidenceIcon">▾</span>
+    </button>
+    <div class="evidence-panel hidden" id="quizEvidencePanel"></div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div id="questionText" style="font-size: 18px; font-weight: 600; line-height: 1.5; margin-bottom: 18px;"></div>
+    <div class="options-grid" id="optionsContainer"></div>
+    <div id="textInputContainer" class="hidden" style="margin-top: 8px;">
+      <input type="text" id="blankInput" placeholder="TYPE ANSWER & PRESS ENTER">
+      <button class="action-btn" id="submitTextBtn">CONFIRM ANSWER (ENTER)</button>
+    </div>
+    <div class="hint-panel hidden" id="hintPanel">
+      <div style="font-size: 11px; font-weight: 700; color: var(--gold);">
+        ⚠ HINT TERMINAL — UNLOCKING TIERS DEDUCTS POINTS FROM TOTAL SCORE
+      </div>
+      <div class="hint-tier-row" id="hintTierButtons"></div>
+      <div id="hintTextArea"></div>
+    </div>
+  </div>
+
+  <!-- Screen 3: Summary -->
+  <div class="terminal-card hidden" id="endScreen">
+    <div class="header-bar">
+      <div class="brand-title">TRANSMISSION SUMMARY</div>
+      <button onclick="performLogout()" class="btn-secondary">DISCONNECT</button>
+    </div>
+    <p id="endStatus" style="font-size: 16px; font-weight: 600; color: var(--accent); margin-bottom: 8px;">&gt; RESPONSES COMMITTED TO CLUSTER.</p>
+    <p id="subReason" class="muted-text" style="color:var(--gold); font-weight:600;"></p>
+    <div id="eliminationStatusArea" style="margin-top: 24px; border-top: 1px solid var(--card-border); padding-top: 18px;">
+      <p class="muted-text">AWAITING EVALUATION DIRECTIVES FROM CONTROLLER...</p>
+    </div>
+  </div>
+
+  <!-- No warning modal in test mode -->
+
+  <!-- Qualified Modal -->
+  <div id="clearedModal" class="modal-overlay hidden">
+    <div class="modal-box success">
+      <h2 style="font-size: 18px; font-weight: 700; margin-bottom: 10px; color: var(--accent);">QUALIFICATION DETECTED</h2>
+      <p style="font-size: 14px; margin-bottom: 20px;" id="clearedMsg">Your team has qualified for the next stage.</p>
+      <button class="action-btn" id="proceedNextRoundBtn">ENTER NEXT ROUND (ENTER)</button>
+    </div>
+  </div>
+
+  <script>
+    // ===== TEST MODE FLAG =====
+    window.TEST_MODE = true;
+
+    const BACKEND_URL = "https://project-victory-production-d780.up.railway.app";
+    let questions = [], roundHints = [], hintsUsed = [], currentQIdx = 0;
+    let timerInterval = null, globalRoundTimerInterval = null, roundLockPoll = null;
+    let globalRemainingSeconds = 0, timeLeft = 30, teamId = "", teamPassword = "", teamName = "";
+    let activeRound = 1, answers = {}, tabSwitchCount = 0, quizActive = false;
+    let isSubmitting = false, roundWaitPoll = null, statusPollInterval = null, localElapsedSeconds = 0;
+    let cheatCooldown = false, currentBriefingHtml = "";
+
+    function showScreen(id) {
+      ['loginScreen', 'waitingRoundScreen', 'startScreen', 'quizScreen', 'endScreen'].forEach(s => {
+        document.getElementById(s).classList.toggle('hidden', s !== id);
+      });
+    }
+
+    async function performLogout() {
+      if (teamId && teamPassword) {
+        try {
+          await fetch(`${BACKEND_URL}/api/auth/logout`, {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ team_id: teamId, password: teamPassword })
+          });
+        } catch(e) {}
+      }
+      localStorage.removeItem('nexusTeamId');
+      localStorage.removeItem('nexusTeamPass');
+      teamId = ""; teamPassword = "";
+      stopAllPolls();
+      showScreen('loginScreen');
+    }
+
+    function stopAllPolls() {
+      if (roundWaitPoll) { clearInterval(roundWaitPoll); roundWaitPoll = null; }
+      if (statusPollInterval) { clearInterval(statusPollInterval); statusPollInterval = null; }
+      if (roundLockPoll) { clearInterval(roundLockPoll); roundLockPoll = null; }
+      if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+      if (globalRoundTimerInterval) { clearInterval(globalRoundTimerInterval); globalRoundTimerInterval = null; }
+    }
+
+    document.getElementById('loginBtn').addEventListener('click', doLoginSubmit);
+    ['loginTeamId', 'loginPass'].forEach(id => {
+      document.getElementById(id).addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') doLoginSubmit();
+      });
+    });
+
+    function doLoginSubmit() {
+      teamId = document.getElementById('loginTeamId').value.trim().toUpperCase();
+      teamPassword = document.getElementById('loginPass').value.trim().toUpperCase();
+      if (!teamId || !teamPassword) return;
+      attemptLogin();
+    }
+
+    async function attemptLogin(isSilent = false) {
+      const msg = document.getElementById('loginMsg');
+      if (!isSilent) msg.innerText = "";
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/auth/login`, {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ team_id: teamId, password: teamPassword })
+        });
+        const data = await res.json();
+
+        if (res.status === 423) {
+          activeRound = parseInt((data.detail || "").match(/Round (\d+)/)?.[1]) || activeRound;
+          document.getElementById('waitingRoundNum').innerText = activeRound;
+          document.getElementById('waitTeamName').innerText = teamName || teamId;
+          document.getElementById('waitTeamId').innerText = teamId;
+          localStorage.setItem('nexusTeamId', teamId);
+          localStorage.setItem('nexusTeamPass', teamPassword);
+          showScreen('waitingRoundScreen');
+          if (!roundWaitPoll) roundWaitPoll = setInterval(() => attemptLogin(true), 3000);
+          return;
+        }
+
+        if (!res.ok) {
+          if (roundWaitPoll) { clearInterval(roundWaitPoll); roundWaitPoll = null; }
+          if (res.status === 403) {
+            localStorage.removeItem('nexusTeamId');
+            localStorage.removeItem('nexusTeamPass');
+          }
+          if (!isSilent) { msg.innerText = data.detail || "Authentication Failed."; showScreen('loginScreen'); }
+          return;
+        }
+
+        if (roundWaitPoll) { clearInterval(roundWaitPoll); roundWaitPoll = null; }
+        localStorage.setItem('nexusTeamId', teamId);
+        localStorage.setItem('nexusTeamPass', teamPassword);
+
+        teamName = data.team_name;
+        activeRound = data.current_round;
+        globalRemainingSeconds = data.round_remaining_seconds || 600;
+        localElapsedSeconds = 0;
+
+        document.getElementById('teamDisplay').innerText = `${teamName} (${teamId})`;
+        document.getElementById('startTeamBadge').innerText = teamName;
+        document.getElementById('metaNodeId').innerText = teamId;
+        document.getElementById('startRoundNum').innerText = activeRound;
+
+        const qRes = await fetch(`${BACKEND_URL}/api/questions/${activeRound}`);
+        const qData = await qRes.json();
+        questions = qData.questions || [];
+        roundHints = qData.hints || [];
+        currentBriefingHtml = qData.briefing || "";
+        
+        renderDossierView();
+        startGlobalRoundTimer();
+        showScreen('startScreen');
+      } catch (e) {
+        if (!isSilent) msg.innerText = "Connection error. Ensure backend is reachable.";
+      }
+    }
+
+    function renderDossierView() {
+      const briefingContainer = document.getElementById('briefingEvidenceContainer');
+      const quizPanel = document.getElementById('quizEvidencePanel');
+      const toggleBtn = document.getElementById('quizEvidenceToggleBtn');
+
+      if (currentBriefingHtml && currentBriefingHtml.trim()) {
+        briefingContainer.innerHTML = currentBriefingHtml;
+        briefingContainer.classList.remove('hidden');
+        quizPanel.innerHTML = currentBriefingHtml;
+        toggleBtn.classList.remove('hidden');
+      } else {
+        briefingContainer.innerHTML = "<p class='muted-text'>No evidence files needed for this round.</p>";
+        quizPanel.innerHTML = "";
+        toggleBtn.classList.add('hidden');
+      }
+    }
+
+    document.getElementById('quizEvidenceToggleBtn').addEventListener('click', () => {
+      const panel = document.getElementById('quizEvidencePanel');
+      const icon = document.getElementById('quizEvidenceIcon');
+      const nowHidden = panel.classList.toggle('hidden');
+      icon.innerText = nowHidden ? '▾' : '▴';
+    });
+
+    function startGlobalRoundTimer() {
+      clearInterval(globalRoundTimerInterval);
+      const tick = () => {
+        const m = Math.floor(globalRemainingSeconds / 60), s = globalRemainingSeconds % 60;
+        const str = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        document.getElementById('briefingRoundClock').innerText = str;
+        document.getElementById('quizRoundClock').innerText = str;
+        if (globalRemainingSeconds <= 0 && quizActive) {
+          finishQuiz("ROUND_TIME_EXPIRED");
+          return;
+        }
+        globalRemainingSeconds--;
+        localElapsedSeconds++;
+      };
+      tick();
+      globalRoundTimerInterval = setInterval(tick, 1000);
+    }
+
+    function startRoundLockWatcher() {
+      if (roundLockPoll) clearInterval(roundLockPoll);
+      roundLockPoll = setInterval(async () => {
+        if (!quizActive || isSubmitting) return;
+        try {
+          const res = await fetch(`${BACKEND_URL}/api/round/${activeRound}/status`);
+          const d = await res.json();
+          if (!d.is_open) {
+            finishQuiz("ROUND_LOCKED");
+          } else if (typeof d.remaining_seconds === 'number') {
+            globalRemainingSeconds = d.remaining_seconds;
+          }
+        } catch (e) {}
+      }, 4000);
+    }
+
+    document.getElementById('startRoundBtn').addEventListener('click', async () => {
+      // Skip fullscreen in test mode
+      showScreen('quizScreen');
+      quizActive = true;
+      renderHintPanel();
+      loadQuestion();
+      startRoundLockWatcher();
+    });
+
+    // ===== TEST MODE: security listeners disabled =====
+    // We do NOT attach blur/visibility/fullscreen handlers
+
+    function handleSecurityBreach() {
+      // No-op in test mode (but kept for compatibility)
+    }
+
+    // Auto-complete button
+    document.getElementById('autoCompleteBtn').addEventListener('click', async () => {
+      if (!quizActive || isSubmitting) return;
+      if (!confirm('Auto-complete all remaining questions with dummy answers and submit?')) return;
+      // Assign dummy answers for remaining questions
+      for (let i = currentQIdx; i < questions.length; i++) {
+        const q = questions[i];
+        if (q.type === 'mcq') {
+          answers[q.id] = q.options?.[0]?.k || 'A';
+        } else {
+          answers[q.id] = 'test answer';
+        }
+        currentQIdx++;
+      }
+      await saveProgress();
+      finishQuiz("NORMAL_COMPLETION");
+    });
+
+    function loadQuestion() {
+      if (!quizActive || isSubmitting) return;
+      if (currentQIdx >= questions.length) { finishQuiz("NORMAL_COMPLETION"); return; }
+      clearInterval(timerInterval);
+      timeLeft = (activeRound === 1) ? 30 : 60;
+      const q = questions[currentQIdx];
+      document.getElementById('progressDisplay').innerText = `NODE ${currentQIdx + 1}/${questions.length}`;
+      document.getElementById('progressFill').style.width = `${(currentQIdx / questions.length) * 100}%`;
+      document.getElementById('questionText').innerText = q.text;
+
+      const optBox = document.getElementById('optionsContainer');
+      const txtBox = document.getElementById('textInputContainer');
+      if (q.type === 'mcq') {
+        txtBox.classList.add('hidden');
+        optBox.classList.remove('hidden');
+        optBox.innerHTML = '';
+        q.options.forEach(opt => {
+          const b = document.createElement('button');
+          b.className = 'opt-btn';
+          b.innerHTML = `<strong>[${opt.k}]</strong> ${opt.t}`;
+          b.onclick = () => {
+            if (!quizActive || isSubmitting) return;
+            answers[q.id] = opt.k;
+            currentQIdx++;
+            saveProgress();
+            loadQuestion();
+          };
+          optBox.appendChild(b);
+        });
+      } else {
+        optBox.classList.add('hidden');
+        txtBox.classList.remove('hidden');
+        const inp = document.getElementById('blankInput');
+        inp.value = ''; inp.focus();
+        const submitText = () => {
+          if (!quizActive || isSubmitting) return;
+          answers[q.id] = inp.value.trim();
+          currentQIdx++;
+          saveProgress();
+          loadQuestion();
+        };
+        document.getElementById('submitTextBtn').onclick = submitText;
+        inp.onkeydown = (e) => { if (e.key === 'Enter') submitText(); };
+      }
+
+      timerInterval = setInterval(() => {
+        if (!quizActive || isSubmitting) { clearInterval(timerInterval); return; }
+        timeLeft--;
+        document.getElementById('timer').innerText = `${timeLeft}s`;
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          answers[q.id] = "TIMEOUT";
+          currentQIdx++;
+          saveProgress();
+          loadQuestion();
+        }
+      }, 1000);
+    }
+
+    async function saveProgress() {
+      if (!teamId || !teamPassword || isSubmitting) return;
+      try {
+        await fetch(`${BACKEND_URL}/api/session/progress`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            team_id: teamId,
+            password: teamPassword,
+            round_number: activeRound,
+            current_index: currentQIdx,
+            answers: answers,
+            tab_switch_count: tabSwitchCount,
+            warned: tabSwitchCount > 0
+          })
+        });
+      } catch (e) {}
+    }
+
+    function renderHintPanel() {
+      const panel = document.getElementById('hintPanel');
+      const btnWrap = document.getElementById('hintTierButtons');
+      btnWrap.innerHTML = '';
+
+      if (!roundHints || roundHints.length === 0) { panel.classList.add('hidden'); return; }
+      panel.classList.remove('hidden');
+
+      roundHints.forEach(h => {
+        const unlocked = hintsUsed.includes(h.tier);
+        const prevUnlocked = h.tier === 1 || hintsUsed.includes(h.tier - 1);
+        const btn = document.createElement('button');
+        btn.className = 'hint-tier-btn' + (unlocked ? ' unlocked' : '');
+        btn.disabled = !prevUnlocked && !unlocked;
+        const costLabel = h.point_cost === 0 ? 'FREE' : `-${h.point_cost} PTS`;
+        btn.innerText = unlocked ? `✓ HINT ${h.tier} REVEALED (${costLabel})` : `REVEAL HINT ${h.tier} (${costLabel})`;
+        btn.onclick = () => requestHint(h.tier);
+        btnWrap.appendChild(btn);
+      });
+    }
+
+    async function requestHint(tier) {
+      if (!quizActive || isSubmitting) return;
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/hint/request`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ team_id: teamId, password: teamPassword, round_number: activeRound, tier })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          if (res.status === 423) finishQuiz("ROUND_LOCKED");
+          return;
+        }
+
+        if (!hintsUsed.includes(tier)) hintsUsed.push(tier);
+        const box = document.createElement('div');
+        box.className = 'hint-text-box';
+        box.innerText = `HINT ${data.tier}: ${data.text}`;
+        document.getElementById('hintTextArea').appendChild(box);
+        renderHintPanel();
+      } catch (err) {}
+    }
+
+    async function finishQuiz(status = "NORMAL_COMPLETION") {
+      if (isSubmitting) return;
+      isSubmitting = true;
+      quizActive = false;
+      stopAllPolls();
+
+      // No fullscreen exit needed in test mode
+
+      showScreen('endScreen');
+
+      const reasonEl = document.getElementById('subReason');
+      if (status === "TERMINATED_DUE_TO_TAB_SWITCHING") {
+        reasonEl.innerText = "[!] SESSION TERMINATED: Security violation (Alt+Tab / Focus Loss Limit Reached).";
+      } else if (status === "DISQUALIFIED") {
+        reasonEl.innerText = "[!] DISQUALIFIED: Direct strike violation detected.";
+      } else if (status === "ROUND_TIME_EXPIRED") {
+        reasonEl.innerText = "[!] ROUND CLOCK EXPIRED: Exam automatically evaluated.";
+      } else if (status === "ROUND_LOCKED") {
+        reasonEl.innerText = "[!] ROUND LOCKED BY ADMIN: Your answers have been force-submitted.";
+      } else {
+        reasonEl.innerText = "[✓] Round completed successfully.";
+      }
+
+      try {
+        await fetch(`${BACKEND_URL}/api/submit-quiz`, {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            team_id: teamId, password: teamPassword, round_number: activeRound,
+            answers: answers, tab_switch_count: tabSwitchCount,
+            time_taken_seconds: localElapsedSeconds, submission_status: status
+          })
+        });
+      } catch (e) {}
+
+      statusPollInterval = setInterval(async () => {
+        try {
+          const r = await fetch(`${BACKEND_URL}/api/team/status/${teamId}`);
+          const d = await r.json();
+          if (d.status === "ELIMINATED") {
+            clearInterval(statusPollInterval);
+            document.getElementById('eliminationStatusArea').innerHTML = `
+              <div style="background:rgba(244,63,94,0.1); border:1px solid var(--danger); padding:16px; border-radius:8px;">
+                <strong style="color:var(--danger)">STAGE ELIMINATION NOTICE:</strong>
+                <p style="color:#fca5a5; margin-top:4px;">${d.elimination_reason || 'Eliminated based on round ranking cutoff.'}</p>
+              </div>`;
+          } else if (d.current_round > activeRound) {
+            clearInterval(statusPollInterval);
+            document.getElementById('clearedMsg').innerText = `Your team cleared Round ${activeRound} and has advanced to Round ${d.current_round}!`;
+            document.getElementById('clearedModal').classList.remove('hidden');
+          }
+        } catch (e) {}
+      }, 3000);
+    }
+
+    document.getElementById('proceedNextRoundBtn').addEventListener('click', () => {
+      document.getElementById('clearedModal').classList.add('hidden');
+      currentQIdx = 0; answers = {}; tabSwitchCount = 0; isSubmitting = false;
+      hintsUsed = [];
+      document.getElementById('hintTextArea').innerHTML = '';
+      stopAllPolls();
+      attemptLogin();
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedId = localStorage.getItem('nexusTeamId');
+      const savedPass = localStorage.getItem('nexusTeamPass');
+      if (savedId && savedPass) {
+        teamId = savedId;
+        teamPassword = savedPass;
+        attemptLogin();
+      }
+    });
+  </script>
+</body>
+</html>
