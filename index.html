@@ -348,190 +348,192 @@
     let cheatCooldown = false, currentBriefingHtml = "";
 
     function showScreen(id) {
-      ['loginScreen', 'waitingRoundScreen', 'startScreen', 'quizScreen', 'endScreen'].forEach(s => {
-        document.getElementById(s).classList.toggle('hidden', s !== id);
-      });
+        ['loginScreen', 'waitingRoundScreen', 'startScreen', 'quizScreen', 'endScreen'].forEach(s => {
+            document.getElementById(s).classList.toggle('hidden', s !== id);
+        });
     }
 
     async function performLogout() {
-      if (teamId && teamPassword) {
-        try {
-          await fetch(`${BACKEND_URL}/api/auth/logout`, {
-            method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ team_id: teamId, password: teamPassword })
-          });
-        } catch(e) {}
-      }
-      localStorage.removeItem('nexusTeamId');
-      localStorage.removeItem('nexusTeamPass');
-      teamId = ""; teamPassword = "";
-      stopAllPolls();
-      showScreen('loginScreen');
+        if (teamId && teamPassword) {
+            try {
+                await fetch(`${BACKEND_URL}/api/auth/logout`, {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ team_id: teamId, password: teamPassword })
+                });
+            } catch(e) {}
+        }
+        localStorage.removeItem('nexusTeamId');
+        localStorage.removeItem('nexusTeamPass');
+        teamId = ""; teamPassword = "";
+        stopAllPolls();
+        showScreen('loginScreen');
     }
 
     function stopAllPolls() {
-      if (roundWaitPoll) { clearInterval(roundWaitPoll); roundWaitPoll = null; }
-      if (statusPollInterval) { clearInterval(statusPollInterval); statusPollInterval = null; }
-      if (roundLockPoll) { clearInterval(roundLockPoll); roundLockPoll = null; }
-      if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
-      if (globalRoundTimerInterval) { clearInterval(globalRoundTimerInterval); globalRoundTimerInterval = null; }
+        if (roundWaitPoll) { clearInterval(roundWaitPoll); roundWaitPoll = null; }
+        if (statusPollInterval) { clearInterval(statusPollInterval); statusPollInterval = null; }
+        if (roundLockPoll) { clearInterval(roundLockPoll); roundLockPoll = null; }
+        if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+        if (globalRoundTimerInterval) { clearInterval(globalRoundTimerInterval); globalRoundTimerInterval = null; }
     }
 
     document.getElementById('loginBtn').addEventListener('click', doLoginSubmit);
     ['loginTeamId', 'loginPass'].forEach(id => {
-      document.getElementById(id).addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') doLoginSubmit();
-      });
+        document.getElementById(id).addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') doLoginSubmit();
+        });
     });
 
     function doLoginSubmit() {
-      teamId = document.getElementById('loginTeamId').value.trim().toUpperCase();
-      teamPassword = document.getElementById('loginPass').value.trim().toUpperCase();
-      if (!teamId || !teamPassword) return;
-      attemptLogin();
+        teamId = document.getElementById('loginTeamId').value.trim().toUpperCase();
+        teamPassword = document.getElementById('loginPass').value.trim().toUpperCase();
+        if (!teamId || !teamPassword) return;
+        attemptLogin();
     }
 
     async function attemptLogin(isSilent = false) {
-      const msg = document.getElementById('loginMsg');
-      if (!isSilent) msg.innerText = "";
-      try {
-        const res = await fetch(`${BACKEND_URL}/api/auth/login`, {
-          method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ team_id: teamId, password: teamPassword })
-        });
-        const data = await res.json();
+        const msg = document.getElementById('loginMsg');
+        if (!isSilent) msg.innerText = "";
+        try {
+            const res = await fetch(`${BACKEND_URL}/api/auth/login`, {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ team_id: teamId, password: teamPassword })
+            });
+            const data = await res.json();
 
-        if (res.status === 423) {
-          activeRound = parseInt((data.detail || "").match(/Round (\d+)/)?.[1]) || activeRound;
-          document.getElementById('waitingRoundNum').innerText = activeRound;
-          document.getElementById('waitTeamName').innerText = teamName || teamId;
-          document.getElementById('waitTeamId').innerText = teamId;
-          localStorage.setItem('nexusTeamId', teamId);
-          localStorage.setItem('nexusTeamPass', teamPassword);
-          showScreen('waitingRoundScreen');
-          if (!roundWaitPoll) roundWaitPoll = setInterval(() => attemptLogin(true), 3000);
-          return;
+            if (res.status === 423) {
+                activeRound = parseInt((data.detail || "").match(/Round (\d+)/)?.[1]) || activeRound;
+                document.getElementById('waitingRoundNum').innerText = activeRound;
+                document.getElementById('waitTeamName').innerText = teamName || teamId;
+                document.getElementById('waitTeamId').innerText = teamId;
+                localStorage.setItem('nexusTeamId', teamId);
+                localStorage.setItem('nexusTeamPass', teamPassword);
+                showScreen('waitingRoundScreen');
+                if (!roundWaitPoll) roundWaitPoll = setInterval(() => attemptLogin(true), 3000);
+                return;
+            }
+
+            if (!res.ok) {
+                if (roundWaitPoll) { clearInterval(roundWaitPoll); roundWaitPoll = null; }
+                if (res.status === 403) {
+                    localStorage.removeItem('nexusTeamId');
+                    localStorage.removeItem('nexusTeamPass');
+                }
+                if (!isSilent) { msg.innerText = data.detail || "Authentication Failed."; showScreen('loginScreen'); }
+                return;
+            }
+
+            if (roundWaitPoll) { clearInterval(roundWaitPoll); roundWaitPoll = null; }
+            localStorage.setItem('nexusTeamId', teamId);
+            localStorage.setItem('nexusTeamPass', teamPassword);
+
+            teamName = data.team_name;
+            activeRound = data.current_round;
+            globalRemainingSeconds = data.round_remaining_seconds || 600;
+            localElapsedSeconds = 0; // reset
+
+            document.getElementById('teamDisplay').innerText = `${teamName} (${teamId})`;
+            document.getElementById('startTeamBadge').innerText = teamName;
+            document.getElementById('metaNodeId').innerText = teamId;
+            document.getElementById('startRoundNum').innerText = activeRound;
+
+            const qRes = await fetch(`${BACKEND_URL}/api/questions/${activeRound}`);
+            const qData = await qRes.json();
+            questions = qData.questions || [];
+            roundHints = qData.hints || [];
+            currentBriefingHtml = qData.briefing || "";
+            
+            renderDossierView();
+            startGlobalRoundTimer();
+            showScreen('startScreen');
+        } catch (e) {
+            if (!isSilent) msg.innerText = "Connection error. Ensure backend is reachable.";
         }
-
-        if (!res.ok) {
-          if (roundWaitPoll) { clearInterval(roundWaitPoll); roundWaitPoll = null; }
-          if (res.status === 403) {
-            localStorage.removeItem('nexusTeamId');
-            localStorage.removeItem('nexusTeamPass');
-          }
-          if (!isSilent) { msg.innerText = data.detail || "Authentication Failed."; showScreen('loginScreen'); }
-          return;
-        }
-
-        if (roundWaitPoll) { clearInterval(roundWaitPoll); roundWaitPoll = null; }
-        localStorage.setItem('nexusTeamId', teamId);
-        localStorage.setItem('nexusTeamPass', teamPassword);
-
-        teamName = data.team_name;
-        activeRound = data.current_round;
-        globalRemainingSeconds = data.round_remaining_seconds || 600;
-
-        document.getElementById('teamDisplay').innerText = `${teamName} (${teamId})`;
-        document.getElementById('startTeamBadge').innerText = teamName;
-        document.getElementById('metaNodeId').innerText = teamId;
-        document.getElementById('startRoundNum').innerText = activeRound;
-
-        const qRes = await fetch(`${BACKEND_URL}/api/questions/${activeRound}`);
-        const qData = await qRes.json();
-        questions = qData.questions || [];
-        roundHints = qData.hints || [];
-        currentBriefingHtml = qData.briefing || "";
-        
-        renderDossierView();
-        startGlobalRoundTimer();
-        showScreen('startScreen');
-      } catch (e) {
-        if (!isSilent) msg.innerText = "Connection error. Ensure backend is reachable.";
-      }
     }
 
     function renderDossierView() {
-      const briefingContainer = document.getElementById('briefingEvidenceContainer');
-      const quizPanel = document.getElementById('quizEvidencePanel');
-      const toggleBtn = document.getElementById('quizEvidenceToggleBtn');
+        const briefingContainer = document.getElementById('briefingEvidenceContainer');
+        const quizPanel = document.getElementById('quizEvidencePanel');
+        const toggleBtn = document.getElementById('quizEvidenceToggleBtn');
 
-      if (currentBriefingHtml && currentBriefingHtml.trim()) {
-        briefingContainer.innerHTML = currentBriefingHtml;
-        briefingContainer.classList.remove('hidden');
-        quizPanel.innerHTML = currentBriefingHtml;
-        toggleBtn.classList.remove('hidden');
-      } else {
-        briefingContainer.innerHTML = "<p class='muted-text'>No evidence files needed for this round.</p>";
-        quizPanel.innerHTML = "";
-        toggleBtn.classList.add('hidden');
-      }
+        if (currentBriefingHtml && currentBriefingHtml.trim()) {
+            briefingContainer.innerHTML = currentBriefingHtml;
+            briefingContainer.classList.remove('hidden');
+            quizPanel.innerHTML = currentBriefingHtml;
+            toggleBtn.classList.remove('hidden');
+        } else {
+            briefingContainer.innerHTML = "<p class='muted-text'>No evidence files needed for this round.</p>";
+            quizPanel.innerHTML = "";
+            toggleBtn.classList.add('hidden');
+        }
     }
 
     document.getElementById('quizEvidenceToggleBtn').addEventListener('click', () => {
-      const panel = document.getElementById('quizEvidencePanel');
-      const icon = document.getElementById('quizEvidenceIcon');
-      const nowHidden = panel.classList.toggle('hidden');
-      icon.innerText = nowHidden ? '▾' : '▴';
+        const panel = document.getElementById('quizEvidencePanel');
+        const icon = document.getElementById('quizEvidenceIcon');
+        const nowHidden = panel.classList.toggle('hidden');
+        icon.innerText = nowHidden ? '▾' : '▴';
     });
 
     function startGlobalRoundTimer() {
-      clearInterval(globalRoundTimerInterval);
-      const tick = () => {
-        const m = Math.floor(globalRemainingSeconds / 60), s = globalRemainingSeconds % 60;
-        const str = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-        document.getElementById('briefingRoundClock').innerText = str;
-        document.getElementById('quizRoundClock').innerText = str;
-        if (globalRemainingSeconds <= 0 && quizActive) finishQuiz("ROUND_TIME_EXPIRED");
-        globalRemainingSeconds--;
-      };
-      tick();
-      globalRoundTimerInterval = setInterval(tick, 1000);
+        clearInterval(globalRoundTimerInterval);
+        const tick = () => {
+            const m = Math.floor(globalRemainingSeconds / 60), s = globalRemainingSeconds % 60;
+            const str = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            document.getElementById('briefingRoundClock').innerText = str;
+            document.getElementById('quizRoundClock').innerText = str;
+            if (globalRemainingSeconds <= 0 && quizActive) {
+                finishQuiz("ROUND_TIME_EXPIRED");
+                return;
+            }
+            globalRemainingSeconds--;
+            localElapsedSeconds++; // Track elapsed time for submission
+        };
+        tick();
+        globalRoundTimerInterval = setInterval(tick, 1000);
     }
 
-    // ===== NEW: Aggressive round-lock polling while quiz is active =====
     function startRoundLockWatcher() {
-      if (roundLockPoll) clearInterval(roundLockPoll);
-      roundLockPoll = setInterval(async () => {
-        if (!quizActive || isSubmitting) return;
-        try {
-          const res = await fetch(`${BACKEND_URL}/api/round/${activeRound}/status`);
-          const d = await res.json();
-          if (!d.is_open) {
-            // Admin locked the round → force finish immediately
-            finishQuiz("ROUND_LOCKED");
-          } else if (typeof d.remaining_seconds === 'number') {
-            // Keep local countdown roughly in sync
-            globalRemainingSeconds = d.remaining_seconds;
-          }
-        } catch (e) {}
-      }, 4000);
+        if (roundLockPoll) clearInterval(roundLockPoll);
+        roundLockPoll = setInterval(async () => {
+            if (!quizActive || isSubmitting) return;
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/round/${activeRound}/status`);
+                const d = await res.json();
+                if (!d.is_open) {
+                    finishQuiz("ROUND_LOCKED");
+                } else if (typeof d.remaining_seconds === 'number') {
+                    globalRemainingSeconds = d.remaining_seconds;
+                }
+            } catch (e) {}
+        }, 4000);
     }
 
     document.getElementById('startRoundBtn').addEventListener('click', async () => {
-      try {
-        if (!document.fullscreenElement) await document.documentElement.requestFullscreen();
-      } catch(e) {}
-      showScreen('quizScreen');
-      quizActive = true;
-      renderHintPanel();
-      loadQuestion();
-      startRoundLockWatcher();          // ← start watching for admin lock
+        try {
+            if (!document.fullscreenElement) await document.documentElement.requestFullscreen();
+        } catch(e) {}
+        showScreen('quizScreen');
+        quizActive = true;
+        renderHintPanel();
+        loadQuestion();
+        startRoundLockWatcher();
     });
 
     function handleSecurityBreach() {
-      if (!quizActive || isSubmitting || cheatCooldown) return;
-      cheatCooldown = true;
-      setTimeout(() => cheatCooldown = false, 1000);
-      tabSwitchCount++;
-      if (activeRound === 1) {
-        if (tabSwitchCount >= 2) {
-          finishQuiz("TERMINATED_DUE_TO_TAB_SWITCHING");
+        if (!quizActive || isSubmitting || cheatCooldown) return;
+        cheatCooldown = true;
+        setTimeout(() => cheatCooldown = false, 1000);
+        tabSwitchCount++;
+        if (activeRound === 1) {
+            if (tabSwitchCount >= 2) {
+                finishQuiz("TERMINATED_DUE_TO_TAB_SWITCHING");
+            } else {
+                document.getElementById('warningModal').classList.remove('hidden');
+            }
         } else {
-          document.getElementById('warningModal').classList.remove('hidden');
+            finishQuiz("DISQUALIFIED");
         }
-      } else {
-        finishQuiz("DISQUALIFIED");
-      }
     }
 
     window.addEventListener('blur', handleSecurityBreach);
@@ -539,208 +541,205 @@
     document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement) handleSecurityBreach(); });
 
     document.getElementById('dismissWarningBtn').addEventListener('click', async () => {
-      document.getElementById('warningModal').classList.add('hidden');
-      try { await document.documentElement.requestFullscreen(); } catch(e){}
+        document.getElementById('warningModal').classList.add('hidden');
+        try { await document.documentElement.requestFullscreen(); } catch(e){}
     });
 
     function loadQuestion() {
-      if (!quizActive || isSubmitting) return;
-      if (currentQIdx >= questions.length) { finishQuiz("NORMAL_COMPLETION"); return; }
-      clearInterval(timerInterval);
-      timeLeft = (activeRound === 1) ? 30 : 60;
-      const q = questions[currentQIdx];
-      document.getElementById('progressDisplay').innerText = `NODE ${currentQIdx + 1}/${questions.length}`;
-      document.getElementById('progressFill').style.width = `${(currentQIdx / questions.length) * 100}%`;
-      document.getElementById('questionText').innerText = q.text;
+        if (!quizActive || isSubmitting) return;
+        if (currentQIdx >= questions.length) { finishQuiz("NORMAL_COMPLETION"); return; }
+        clearInterval(timerInterval);
+        timeLeft = (activeRound === 1) ? 30 : 60;
+        const q = questions[currentQIdx];
+        document.getElementById('progressDisplay').innerText = `NODE ${currentQIdx + 1}/${questions.length}`;
+        document.getElementById('progressFill').style.width = `${(currentQIdx / questions.length) * 100}%`;
+        document.getElementById('questionText').innerText = q.text;
 
-      const optBox = document.getElementById('optionsContainer');
-      const txtBox = document.getElementById('textInputContainer');
-      if (q.type === 'mcq') {
-        txtBox.classList.add('hidden');
-        optBox.classList.remove('hidden');
-        optBox.innerHTML = '';
-        q.options.forEach(opt => {
-          const b = document.createElement('button');
-          b.className = 'opt-btn';
-          b.innerHTML = `<strong>[${opt.k}]</strong> ${opt.t}`;
-          b.onclick = () => {
-            if (!quizActive || isSubmitting) return;
-            answers[q.id] = opt.k;
-            currentQIdx++;
-            saveProgress();
-            loadQuestion();
-          };
-          optBox.appendChild(b);
-        });
-      } else {
-        optBox.classList.add('hidden');
-        txtBox.classList.remove('hidden');
-        const inp = document.getElementById('blankInput');
-        inp.value = ''; inp.focus();
-        const submitText = () => {
-          if (!quizActive || isSubmitting) return;
-          answers[q.id] = inp.value.trim();
-          currentQIdx++;
-          saveProgress();
-          loadQuestion();
-        };
-        document.getElementById('submitTextBtn').onclick = submitText;
-        inp.onkeydown = (e) => { if (e.key === 'Enter') submitText(); };
-      }
-
-      timerInterval = setInterval(() => {
-        if (!quizActive || isSubmitting) { clearInterval(timerInterval); return; }
-        timeLeft--;
-        document.getElementById('timer').innerText = `${timeLeft}s`;
-        if (timeLeft <= 0) {
-          clearInterval(timerInterval);
-          answers[q.id] = "TIMEOUT";
-          currentQIdx++;
-          saveProgress();
-          loadQuestion();
+        const optBox = document.getElementById('optionsContainer');
+        const txtBox = document.getElementById('textInputContainer');
+        if (q.type === 'mcq') {
+            txtBox.classList.add('hidden');
+            optBox.classList.remove('hidden');
+            optBox.innerHTML = '';
+            q.options.forEach(opt => {
+                const b = document.createElement('button');
+                b.className = 'opt-btn';
+                b.innerHTML = `<strong>[${opt.k}]</strong> ${opt.t}`;
+                b.onclick = () => {
+                    if (!quizActive || isSubmitting) return;
+                    answers[q.id] = opt.k;
+                    currentQIdx++;
+                    saveProgress();
+                    loadQuestion();
+                };
+                optBox.appendChild(b);
+            });
+        } else {
+            optBox.classList.add('hidden');
+            txtBox.classList.remove('hidden');
+            const inp = document.getElementById('blankInput');
+            inp.value = ''; inp.focus();
+            const submitText = () => {
+                if (!quizActive || isSubmitting) return;
+                answers[q.id] = inp.value.trim();
+                currentQIdx++;
+                saveProgress();
+                loadQuestion();
+            };
+            document.getElementById('submitTextBtn').onclick = submitText;
+            inp.onkeydown = (e) => { if (e.key === 'Enter') submitText(); };
         }
-      }, 1000);
+
+        timerInterval = setInterval(() => {
+            if (!quizActive || isSubmitting) { clearInterval(timerInterval); return; }
+            timeLeft--;
+            document.getElementById('timer').innerText = `${timeLeft}s`;
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                answers[q.id] = "TIMEOUT";
+                currentQIdx++;
+                saveProgress();
+                loadQuestion();
+            }
+        }, 1000);
     }
 
-    // Save progress to server so force-submit has data
     async function saveProgress() {
-      if (!teamId || !teamPassword || isSubmitting) return;
-      try {
-        await fetch(`${BACKEND_URL}/api/session/progress`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            team_id: teamId,
-            password: teamPassword,
-            round_number: activeRound,
-            current_index: currentQIdx,
-            answers: answers,
-            tab_switch_count: tabSwitchCount,
-            warned: tabSwitchCount > 0
-          })
-        });
-      } catch (e) {}
+        if (!teamId || !teamPassword || isSubmitting) return;
+        try {
+            await fetch(`${BACKEND_URL}/api/session/progress`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    team_id: teamId,
+                    password: teamPassword,
+                    round_number: activeRound,
+                    current_index: currentQIdx,
+                    answers: answers,
+                    tab_switch_count: tabSwitchCount,
+                    warned: tabSwitchCount > 0
+                })
+            });
+        } catch (e) {}
     }
 
     function renderHintPanel() {
-      const panel = document.getElementById('hintPanel');
-      const btnWrap = document.getElementById('hintTierButtons');
-      btnWrap.innerHTML = '';
+        const panel = document.getElementById('hintPanel');
+        const btnWrap = document.getElementById('hintTierButtons');
+        btnWrap.innerHTML = '';
 
-      if (!roundHints || roundHints.length === 0) { panel.classList.add('hidden'); return; }
-      panel.classList.remove('hidden');
+        if (!roundHints || roundHints.length === 0) { panel.classList.add('hidden'); return; }
+        panel.classList.remove('hidden');
 
-      roundHints.forEach(h => {
-        const unlocked = hintsUsed.includes(h.tier);
-        const prevUnlocked = h.tier === 1 || hintsUsed.includes(h.tier - 1);
-        const btn = document.createElement('button');
-        btn.className = 'hint-tier-btn' + (unlocked ? ' unlocked' : '');
-        btn.disabled = !prevUnlocked && !unlocked;
-        const costLabel = h.point_cost === 0 ? 'FREE' : `-${h.point_cost} PTS`;
-        btn.innerText = unlocked ? `✓ HINT ${h.tier} REVEALED (${costLabel})` : `REVEAL HINT ${h.tier} (${costLabel})`;
-        btn.onclick = () => requestHint(h.tier);
-        btnWrap.appendChild(btn);
-      });
+        roundHints.forEach(h => {
+            const unlocked = hintsUsed.includes(h.tier);
+            const prevUnlocked = h.tier === 1 || hintsUsed.includes(h.tier - 1);
+            const btn = document.createElement('button');
+            btn.className = 'hint-tier-btn' + (unlocked ? ' unlocked' : '');
+            btn.disabled = !prevUnlocked && !unlocked;
+            const costLabel = h.point_cost === 0 ? 'FREE' : `-${h.point_cost} PTS`;
+            btn.innerText = unlocked ? `✓ HINT ${h.tier} REVEALED (${costLabel})` : `REVEAL HINT ${h.tier} (${costLabel})`;
+            btn.onclick = () => requestHint(h.tier);
+            btnWrap.appendChild(btn);
+        });
     }
 
     async function requestHint(tier) {
-      if (!quizActive || isSubmitting) return;
-      try {
-        const res = await fetch(`${BACKEND_URL}/api/hint/request`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ team_id: teamId, password: teamPassword, round_number: activeRound, tier })
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          if (res.status === 423) finishQuiz("ROUND_LOCKED");
-          return;
-        }
+        if (!quizActive || isSubmitting) return;
+        try {
+            const res = await fetch(`${BACKEND_URL}/api/hint/request`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ team_id: teamId, password: teamPassword, round_number: activeRound, tier })
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                if (res.status === 423) finishQuiz("ROUND_LOCKED");
+                return;
+            }
 
-        if (!hintsUsed.includes(tier)) hintsUsed.push(tier);
-        const box = document.createElement('div');
-        box.className = 'hint-text-box';
-        box.innerText = `HINT ${data.tier}: ${data.text}`;
-        document.getElementById('hintTextArea').appendChild(box);
-        renderHintPanel();
-      } catch (err) {}
+            if (!hintsUsed.includes(tier)) hintsUsed.push(tier);
+            const box = document.createElement('div');
+            box.className = 'hint-text-box';
+            box.innerText = `HINT ${data.tier}: ${data.text}`;
+            document.getElementById('hintTextArea').appendChild(box);
+            renderHintPanel();
+        } catch (err) {}
     }
 
     async function finishQuiz(status = "NORMAL_COMPLETION") {
-      if (isSubmitting) return;          // prevent double submit
-      isSubmitting = true;
-      quizActive = false;
-      stopAllPolls();
+        if (isSubmitting) return;
+        isSubmitting = true;
+        quizActive = false;
+        stopAllPolls();
 
-      if (document.fullscreenElement) {
-        try { await document.exitFullscreen(); } catch(e){}
-      }
-      showScreen('endScreen');
+        if (document.fullscreenElement) {
+            try { await document.exitFullscreen(); } catch(e){}
+        }
+        showScreen('endScreen');
 
-      const reasonEl = document.getElementById('subReason');
-      if (status === "TERMINATED_DUE_TO_TAB_SWITCHING") {
-        reasonEl.innerText = "[!] SESSION TERMINATED: Security violation (Alt+Tab / Focus Loss Limit Reached).";
-      } else if (status === "DISQUALIFIED") {
-        reasonEl.innerText = "[!] DISQUALIFIED: Direct strike violation detected.";
-      } else if (status === "ROUND_TIME_EXPIRED") {
-        reasonEl.innerText = "[!] ROUND CLOCK EXPIRED: Exam automatically evaluated.";
-      } else if (status === "ROUND_LOCKED") {
-        reasonEl.innerText = "[!] ROUND LOCKED BY ADMIN: Your answers have been force-submitted.";
-      } else {
-        reasonEl.innerText = "[✓] Round completed successfully.";
-      }
+        const reasonEl = document.getElementById('subReason');
+        if (status === "TERMINATED_DUE_TO_TAB_SWITCHING") {
+            reasonEl.innerText = "[!] SESSION TERMINATED: Security violation (Alt+Tab / Focus Loss Limit Reached).";
+        } else if (status === "DISQUALIFIED") {
+            reasonEl.innerText = "[!] DISQUALIFIED: Direct strike violation detected.";
+        } else if (status === "ROUND_TIME_EXPIRED") {
+            reasonEl.innerText = "[!] ROUND CLOCK EXPIRED: Exam automatically evaluated.";
+        } else if (status === "ROUND_LOCKED") {
+            reasonEl.innerText = "[!] ROUND LOCKED BY ADMIN: Your answers have been force-submitted.";
+        } else {
+            reasonEl.innerText = "[✓] Round completed successfully.";
+        }
 
-      try {
-        await fetch(`${BACKEND_URL}/api/submit-quiz`, {
-          method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            team_id: teamId, password: teamPassword, round_number: activeRound,
-            answers: answers, tab_switch_count: tabSwitchCount,
-            time_taken_seconds: localElapsedSeconds, submission_status: status
-          })
-        });
-      } catch (e) {
-        // Even if submit fails (round already locked), server force-submit will catch it
-      }
-
-      statusPollInterval = setInterval(async () => {
         try {
-          const r = await fetch(`${BACKEND_URL}/api/team/status/${teamId}`);
-          const d = await r.json();
-          if (d.status === "ELIMINATED") {
-            clearInterval(statusPollInterval);
-            document.getElementById('eliminationStatusArea').innerHTML = `
-              <div style="background:rgba(244,63,94,0.1); border:1px solid var(--danger); padding:16px; border-radius:8px;">
-                <strong style="color:var(--danger)">STAGE ELIMINATION NOTICE:</strong>
-                <p style="color:#fca5a5; margin-top:4px;">${d.elimination_reason || 'Eliminated based on round ranking cutoff.'}</p>
-              </div>`;
-          } else if (d.current_round > activeRound) {
-            clearInterval(statusPollInterval);
-            document.getElementById('clearedMsg').innerText = `Your team cleared Round ${activeRound} and has advanced to Round ${d.current_round}!`;
-            document.getElementById('clearedModal').classList.remove('hidden');
-          }
+            await fetch(`${BACKEND_URL}/api/submit-quiz`, {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    team_id: teamId, password: teamPassword, round_number: activeRound,
+                    answers: answers, tab_switch_count: tabSwitchCount,
+                    time_taken_seconds: localElapsedSeconds, submission_status: status
+                })
+            });
         } catch (e) {}
-      }, 3000);
+
+        statusPollInterval = setInterval(async () => {
+            try {
+                const r = await fetch(`${BACKEND_URL}/api/team/status/${teamId}`);
+                const d = await r.json();
+                if (d.status === "ELIMINATED") {
+                    clearInterval(statusPollInterval);
+                    document.getElementById('eliminationStatusArea').innerHTML = `
+                        <div style="background:rgba(244,63,94,0.1); border:1px solid var(--danger); padding:16px; border-radius:8px;">
+                            <strong style="color:var(--danger)">STAGE ELIMINATION NOTICE:</strong>
+                            <p style="color:#fca5a5; margin-top:4px;">${d.elimination_reason || 'Eliminated based on round ranking cutoff.'}</p>
+                        </div>`;
+                } else if (d.current_round > activeRound) {
+                    clearInterval(statusPollInterval);
+                    document.getElementById('clearedMsg').innerText = `Your team cleared Round ${activeRound} and has advanced to Round ${d.current_round}!`;
+                    document.getElementById('clearedModal').classList.remove('hidden');
+                }
+            } catch (e) {}
+        }, 3000);
     }
 
     document.getElementById('proceedNextRoundBtn').addEventListener('click', () => {
-      document.getElementById('clearedModal').classList.add('hidden');
-      currentQIdx = 0; answers = {}; tabSwitchCount = 0; isSubmitting = false;
-      hintsUsed = [];
-      document.getElementById('hintTextArea').innerHTML = '';
-      stopAllPolls();
-      attemptLogin();
+        document.getElementById('clearedModal').classList.add('hidden');
+        currentQIdx = 0; answers = {}; tabSwitchCount = 0; isSubmitting = false;
+        hintsUsed = [];
+        document.getElementById('hintTextArea').innerHTML = '';
+        stopAllPolls();
+        attemptLogin();
     });
 
     window.addEventListener('DOMContentLoaded', () => {
-      const savedId = localStorage.getItem('nexusTeamId');
-      const savedPass = localStorage.getItem('nexusTeamPass');
-      if (savedId && savedPass) {
-        teamId = savedId;
-        teamPassword = savedPass;
-        attemptLogin();
-      }
+        const savedId = localStorage.getItem('nexusTeamId');
+        const savedPass = localStorage.getItem('nexusTeamPass');
+        if (savedId && savedPass) {
+            teamId = savedId;
+            teamPassword = savedPass;
+            attemptLogin();
+        }
     });
-  </script>
+</script>
 </body>
 </html>

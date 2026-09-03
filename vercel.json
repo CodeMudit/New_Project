@@ -2,22 +2,6 @@
   "cleanUrls": true,
   "rewrites": [
     {
-      "source": "/invite",
-      "destination": "/invite.html"
-    },
-    {
-      "source": "/rules",
-      "destination": "/rules.html"
-    },
-    {
-      "source": "/register",
-      "destination": "/register.html"
-    },
-    {
-      "source": "/pending",
-      "destination": "/pending.html"
-    },
-    {
       "source": "/",
       "destination": "/index.html"
     },
@@ -30,13 +14,25 @@
       "destination": "/leaderboard.html"
     },
     {
-      "source": "/test",
-      "destination": "/test-console.html"
+      "source": "/invite",
+      "destination": "/invite.html"
     },
 
     {
+      "source": "/register",
+      "destination": "/register.html"
+    },
+    {
+      "source": "/pending",
+      "destination": "/pending.html"
+    },
+    {
       "source": "/teams",
       "destination": "/teams.html"
+    },
+    {
+      "source": "/rules",
+      "destination": "/rules.html"
     }
   ]
 }
