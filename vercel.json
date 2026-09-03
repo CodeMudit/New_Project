@@ -33,6 +33,10 @@
     {
       "source": "/rules",
       "destination": "/rules.html"
+    },
+    {
+      "source": "/testing",
+      "destination": "/test-index.html"
     }
   ]
 }
