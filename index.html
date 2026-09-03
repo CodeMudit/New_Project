@@ -295,7 +295,7 @@
     <div id="questionText" style="font-size: 18px; font-weight: 600; line-height: 1.5; margin-bottom: 18px;"></div>
     <div class="options-grid" id="optionsContainer"></div>
     <div id="textInputContainer" class="hidden" style="margin-top: 8px;">
-      <input type="text" id="blankInput" placeholder="TYPE ANSWER & PRESS ENTER">
+      <input type="text" id="blankInput" placeholder="TYPE ANSWER & PRESS ENTER" maxlength="200">
       <button class="action-btn" id="submitTextBtn">CONFIRM ANSWER (ENTER)</button>
     </div>
     <div class="hint-panel hidden" id="hintPanel">
@@ -430,7 +430,7 @@
             teamName = data.team_name;
             activeRound = data.current_round;
             globalRemainingSeconds = data.round_remaining_seconds || 600;
-            localElapsedSeconds = 0; // reset
+            localElapsedSeconds = 0;
 
             document.getElementById('teamDisplay').innerText = `${teamName} (${teamId})`;
             document.getElementById('startTeamBadge').innerText = teamName;
@@ -487,7 +487,7 @@
                 return;
             }
             globalRemainingSeconds--;
-            localElapsedSeconds++; // Track elapsed time for submission
+            localElapsedSeconds++;
         };
         tick();
         globalRoundTimerInterval = setInterval(tick, 1000);
@@ -511,8 +511,13 @@
 
     document.getElementById('startRoundBtn').addEventListener('click', async () => {
         try {
-            if (!document.fullscreenElement) await document.documentElement.requestFullscreen();
-        } catch(e) {}
+            if (!document.fullscreenElement) {
+                await document.documentElement.requestFullscreen();
+            }
+        } catch(e) {
+            alert("Fullscreen is required to start the assessment. Please allow fullscreen and try again.");
+            return;
+        }
         showScreen('quizScreen');
         quizActive = true;
         renderHintPanel();
@@ -740,6 +745,6 @@
             attemptLogin();
         }
     });
-</script>
+  </script>
 </body>
 </html>

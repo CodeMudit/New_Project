@@ -420,6 +420,7 @@
     document.getElementById('btnOpenRound').onclick = async () => {
       const r = document.getElementById('gateRoundSelect').value;
       const d = parseInt(document.getElementById('roundDurationInput').value) || 10;
+      if (!confirm(`Open Round ${r} for ${d} minutes?`)) return;
       try {
         await adminFetch(`/api/admin/round/${r}/open`, {
           method: "POST",
@@ -433,6 +434,7 @@
 
     document.getElementById('btnCloseRound').onclick = async () => {
       const r = document.getElementById('gateRoundSelect').value;
+      if (!confirm(`Lock Round ${r}?`)) return;
       try {
         await adminFetch(`/api/admin/round/${r}/close`, { method: "POST" });
         triggerToast(`Round ${r} locked`);
@@ -537,6 +539,6 @@
       }
       setInterval(() => { if (getKey()) syncAll(); }, 4000);
     });
-</script>
+  </script>
 </body>
 </html>
